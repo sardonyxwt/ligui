@@ -10,15 +10,15 @@ const defaultProps: RequestProps = {
   }
 };
 
-export class RestManager {
+export class RestService {
 
-  private static instance: RestManager;
+  private static instance: RestService;
 
   private constructor() {
   }
 
   static get INSTANCE() {
-    return this.instance || (this.instance = new RestManager());
+    return this.instance || (this.instance = new RestService());
   }
 
   post(endpoint: string, options: RequestProps = {}) {

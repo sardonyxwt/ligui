@@ -40,7 +40,7 @@ module.exports = {
   },
   devtool: 'source-map',
   output: {
-    filename: `${dist}/[name].js`,
+    filename: `${dist}/[name].min.js`,
     umdNamedDefine: true,
     libraryTarget: 'umd'
   },

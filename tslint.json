@@ -81,7 +81,6 @@
         "variable-declaration": "nospace"
       }
     ],
-    "typeof-compare": true,
     "unified-signatures": true,
     "variable-name": [true, "check-format", "allow-leading-underscore"],
     "whitespace": [

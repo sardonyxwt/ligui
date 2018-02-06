@@ -1,15 +1,15 @@
 import { h, render, AnyComponent } from 'preact';
 
-export class JSXManager {
+export class JSXService {
 
-  private static instance: JSXManager;
+  private static instance: JSXService;
   private components = {};
 
   private constructor() {
   }
 
   static get INSTANCE() {
-    return this.instance || (this.instance = new JSXManager());
+    return this.instance || (this.instance = new JSXService());
   }
 
   register(name: string, component: AnyComponent<any, any>) {
