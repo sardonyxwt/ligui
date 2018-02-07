@@ -17,6 +17,9 @@ export interface IRouterProviderConfig {
 
 class RouterService implements IRouterService {
 
+  constructor(private config: IRouterProviderConfig) {
+  }
+
   route(config: {
     path: string;
     component: JSX.Element | (() => Promise<JSX.Element>);
@@ -41,7 +44,7 @@ export class RouterProvider extends Provider<IRouterService, IRouterProviderConf
   }
 
   createService(config: IRouterProviderConfig): IRouterService {
-    return new RouterService();
+    return new RouterService(config);
   }
 
 }

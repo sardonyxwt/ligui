@@ -16,11 +16,22 @@ import {
 import {
   RouterProvider, IRouterService
 } from './provider/impl/router.provider';
+import {
+  ConfigProvider, IConfigService
+} from './provider/impl/config.provider';
 
 export class Ligui {
   static readonly jsx = JSXService.INSTANCE;
   static readonly rest = RestService.INSTANCE;
   static readonly store = StoreService.INSTANCE;
+  static readonly localization: ILocalizationService
+    = LocalizationProvider.INSTANCE.getService();
+  static readonly resource: IResourceService
+    = ResourceProvider.INSTANCE.getService();
+  static readonly router: IRouterService
+    = RouterProvider.INSTANCE.getService();
+  static readonly config: IConfigService
+    = ConfigProvider.INSTANCE.getService();
   static readonly utils = ObjectUtils.deepFreeze({
     synchronized: SynchronizedUtils,
     generator: GeneratorUtils,
@@ -29,12 +40,6 @@ export class Ligui {
     json: JsonUtils,
     observable: Observable
   });
-  static readonly localization: ILocalizationService
-    = LocalizationProvider.INSTANCE.getService();
-  static readonly resource: IResourceService
-    = ResourceProvider.INSTANCE.getService();
-  static readonly router: IRouterService
-    = RouterProvider.INSTANCE.getService();
 }
 
 global['Ligui'] = Ligui;

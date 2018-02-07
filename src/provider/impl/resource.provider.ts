@@ -17,6 +17,9 @@ export interface IResourceProviderConfig {
 
 class ResourceService implements IResourceService {
 
+  constructor(private config: IResourceProviderConfig) {
+  }
+
   load(path: string, converter: string | string[]): Promise<any> {
     return undefined;
   }
@@ -36,7 +39,7 @@ export class ResourceProvider extends Provider<IResourceService, IResourceProvid
   }
 
   createService(config: IResourceProviderConfig): IResourceService {
-    return new ResourceService();
+    return new ResourceService(config);
   }
 
 }

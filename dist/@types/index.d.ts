@@ -10,10 +10,15 @@ import { StoreService } from './service/store.service';
 import { ILocalizationService } from './provider/impl/localization.provider';
 import { IResourceService } from './provider/impl/resource.provider';
 import { IRouterService } from './provider/impl/router.provider';
+import { IConfigService } from "./provider/impl/config.provider";
 export declare class Ligui {
     static readonly jsx: JSXService;
     static readonly rest: RestService;
     static readonly store: StoreService;
+    static readonly localization: ILocalizationService;
+    static readonly resource: IResourceService;
+    static readonly router: IRouterService;
+    static readonly config: IConfigService;
     static readonly utils: Readonly<{
         synchronized: typeof SynchronizedUtils;
         generator: typeof GeneratorUtils;
@@ -22,7 +27,4 @@ export declare class Ligui {
         json: typeof JsonUtils;
         observable: typeof Observable;
     }>;
-    static readonly localization: ILocalizationService;
-    static readonly resource: IResourceService;
-    static readonly router: IRouterService;
 }

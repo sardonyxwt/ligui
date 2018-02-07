@@ -21,6 +21,9 @@ export interface ILocalizationProviderConfig {
 
 class LocalizationService implements ILocalizationService {
 
+  constructor(private config: ILocalizationProviderConfig) {
+  }
+
   changeLocale(locale: string): void {
   }
 
@@ -56,7 +59,7 @@ export class LocalizationProvider
   }
 
   createService(config: ILocalizationProviderConfig): ILocalizationService {
-    return new LocalizationService()
+    return new LocalizationService(config);
   }
 
 }

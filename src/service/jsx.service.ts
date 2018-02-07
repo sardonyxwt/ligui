@@ -1,4 +1,5 @@
 import { h, render, AnyComponent } from 'preact';
+import { render as renderToString } from 'preact-render-to-string';
 
 export class JSXService {
 
@@ -20,12 +21,16 @@ export class JSXService {
     return this;
   }
 
-  insert(query: string, component: JSX.Element, isReplaced = false) {
+  render(query: string, component: JSX.Element, isReplaced = false) {
     const nodes = document.querySelectorAll(query);
     Array.from(nodes).forEach((node: Element) =>
       render(component, node, isReplaced ? node.firstElementChild : null)
     );
     return this;
+  }
+
+  renderToString(component: JSX.Element) {
+    renderToString(component);
   }
 
   remove(query: string) {
