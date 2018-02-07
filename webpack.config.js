@@ -1,14 +1,9 @@
-const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const dist = "./dist";
 
 const plugins = [
-  new webpack.optimize.CommonsChunkPlugin({
-    name: 'ligui',
-    minChunks: Infinity
-  }),
   new CleanWebpackPlugin(dist),
   new BundleAnalyzerPlugin({
     openAnalyzer: false,
@@ -35,12 +30,10 @@ const rules = [
 ];
 
 module.exports = {
-  entry: {
-    'ligui': './src/index.ts'
-  },
+  entry: './src/index.ts',
   devtool: 'source-map',
   output: {
-    filename: `${dist}/[name].min.js`,
+    filename: `${dist}/ligui.min.js`,
     umdNamedDefine: true,
     libraryTarget: 'umd'
   },

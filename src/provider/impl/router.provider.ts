@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs/Observable';
+import { Provider } from '../provider';
 
 export interface IRouterService {
   route(config: {

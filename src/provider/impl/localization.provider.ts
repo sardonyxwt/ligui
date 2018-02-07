@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs/Observable';
+import { Provider } from '../provider';
 
 export type Translator = (key: string) => string;
 export interface Localization { [key: string]: string }

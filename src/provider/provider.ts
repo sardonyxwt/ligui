@@ -1,4 +1,4 @@
-abstract class Provider<Service, Config> {
+export abstract class Provider<Service, Config> {
 
   private service: Service;
   private config: Config;

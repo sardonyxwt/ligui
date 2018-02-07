@@ -1,5 +1,6 @@
 export type ResourceLoader = (path: string) => Promise<any>;
 export type ResourceConverter = (source: string) => Promise<any>;
+import { Provider } from '../provider';
 
 export interface IResourceService {
   load(path: string, converter: string | string[]): Promise<any>;
