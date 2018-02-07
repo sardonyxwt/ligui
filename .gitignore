@@ -9,5 +9,3 @@ bundle-report.html
 etc/
 node/
 node_modules/
-
-dist/
