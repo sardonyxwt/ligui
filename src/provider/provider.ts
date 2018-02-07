@@ -17,6 +17,6 @@ export abstract class Provider<Service, Config> {
     this.config = config;
   }
 
-  abstract createService(config: Config): Service;
+  protected abstract createService(config: Config): Service;
 
 }

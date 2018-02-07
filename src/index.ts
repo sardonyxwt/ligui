@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs/Observable';
 import * as SynchronizedUtils from '@sardonyxwt/utils/synchronized';
 import * as GeneratorUtils from '@sardonyxwt/utils/generator';
 import * as ObjectUtils from '@sardonyxwt/utils/object';
@@ -37,8 +36,7 @@ export class Ligui {
     generator: GeneratorUtils,
     object: ObjectUtils,
     file: FileUtils,
-    json: JsonUtils,
-    observable: Observable
+    json: JsonUtils
   });
 }
 

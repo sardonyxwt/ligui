@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs/Observable';
 import { Provider } from '../provider';
 export declare type Translator = (key: string) => string;
 export interface Localization {
@@ -9,17 +8,28 @@ export interface ILocalizationService {
     getLocales(): string[];
     getDefaultLocale(): string;
     getCurrentLocale(): string;
-    getTranslator(ids: string[]): Observable<Translator>;
+    subscribe(ids: string[], subscriber: (t: Translator) => void): any;
+}
+export interface ILocalizationProviderState {
+    locales: string[];
+    defaultLocale: string;
+    currentLocale: string;
+    localizations: {
+        [key: string]: {
+            [key: string]: string;
+        };
+    };
 }
 export interface ILocalizationProviderConfig {
     loader: (id: string) => Promise<Localization>;
     locales: string[];
     defaultLocale: string;
     currentLocale: string;
+    initState?: ILocalizationProviderState;
 }
 export declare class LocalizationProvider extends Provider<ILocalizationService, ILocalizationProviderConfig> {
     private static instance;
     private constructor();
     static readonly INSTANCE: LocalizationProvider;
-    createService(config: ILocalizationProviderConfig): ILocalizationService;
+    protected createService(config: ILocalizationProviderConfig): ILocalizationService;
 }

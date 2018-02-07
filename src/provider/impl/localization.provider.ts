@@ -1,15 +1,29 @@
-import { Observable } from 'rxjs/Observable';
+import { createScope, Scope } from '@sardonyxwt/state-store';
 import { Provider } from '../provider';
 
 export type Translator = (key: string) => string;
-export interface Localization { [key: string]: string }
+
+export interface Localization {
+  [key: string]: string
+}
 
 export interface ILocalizationService {
   changeLocale(locale: string): void;
+
   getLocales(): string[];
+
   getDefaultLocale(): string;
+
   getCurrentLocale(): string;
-  getTranslator(ids: string[]): Observable<Translator>;
+
+  subscribe(ids: string[], subscriber: (t: Translator) => void);
+}
+
+export interface ILocalizationProviderState {
+  locales: string[];
+  defaultLocale: string;
+  currentLocale: string;
+  localizations: { [key: string]: { [key: string]: string } }
 }
 
 export interface ILocalizationProviderConfig {
@@ -17,29 +31,55 @@ export interface ILocalizationProviderConfig {
   locales: string[];
   defaultLocale: string;
   currentLocale: string;
+  initState?: ILocalizationProviderState;
 }
 
 class LocalizationService implements ILocalizationService {
 
+  private scope: Scope<ILocalizationProviderState>;
+
   constructor(private config: ILocalizationProviderConfig) {
+    let findDefaultLocale = config.locales.find(
+      locale => config.defaultLocale === locale
+    );
+    let findCurrentLocale = config.locales.find(
+      locale => config.currentLocale === locale
+    );
+    if (!findDefaultLocale || !findCurrentLocale) {
+      throw new Error('Invalid configuration LocalizationService.');
+    }
+    let localizations = {};
+    config.locales.forEach(
+      locale => localizations[locale]
+    );
+    this.scope = createScope<ILocalizationProviderState>(
+      'LOCALIZATION_SCOPE',
+      config.initState || {
+        locales: config.locales,
+        defaultLocale: config.defaultLocale,
+        currentLocale: config.currentLocale,
+        localizations
+      }
+    );
+    this.scope.freeze();
   }
 
   changeLocale(locale: string): void {
   }
 
   getLocales(): string[] {
-    return undefined;
+    return this.scope.getState().locales.slice();
   }
 
   getDefaultLocale(): string {
-    return undefined;
+    return this.scope.getState().defaultLocale;
   }
 
   getCurrentLocale(): string {
-    return undefined;
+    return this.scope.getState().currentLocale;
   }
 
-  getTranslator(ids: string[]): Observable<Translator> {
+  subscribe(ids: string[], subscriber: (t: Translator) => void) {
     return undefined;
   }
 
@@ -58,7 +98,7 @@ export class LocalizationProvider
     return this.instance || (this.instance = new LocalizationProvider());
   }
 
-  createService(config: ILocalizationProviderConfig): ILocalizationService {
+  protected createService(config: ILocalizationProviderConfig): ILocalizationService {
     return new LocalizationService(config);
   }
 

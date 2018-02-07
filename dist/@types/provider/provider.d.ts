@@ -3,5 +3,5 @@ export declare abstract class Provider<Service, Config> {
     private config;
     getService(): Service;
     configure(config: Config): void;
-    abstract createService(config: Config): Service;
+    protected abstract createService(config: Config): Service;
 }

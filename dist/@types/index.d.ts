@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs/Observable';
 import * as SynchronizedUtils from '@sardonyxwt/utils/synchronized';
 import * as GeneratorUtils from '@sardonyxwt/utils/generator';
 import * as ObjectUtils from '@sardonyxwt/utils/object';
@@ -10,7 +9,7 @@ import { StoreService } from './service/store.service';
 import { ILocalizationService } from './provider/impl/localization.provider';
 import { IResourceService } from './provider/impl/resource.provider';
 import { IRouterService } from './provider/impl/router.provider';
-import { IConfigService } from "./provider/impl/config.provider";
+import { IConfigService } from './provider/impl/config.provider';
 export declare class Ligui {
     static readonly jsx: JSXService;
     static readonly rest: RestService;
@@ -25,6 +24,5 @@ export declare class Ligui {
         object: typeof ObjectUtils;
         file: typeof FileUtils;
         json: typeof JsonUtils;
-        observable: typeof Observable;
     }>;
 }
