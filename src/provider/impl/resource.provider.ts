@@ -24,11 +24,13 @@ export interface IResourceProviderConfig {
 
 class ResourceService implements IResourceService {
 
+  static readonly SCOPE_NAME = 'RESOURCES_SCOPE';
+
   private scope: Scope;
 
   constructor(private config: IResourceProviderConfig) {
     this.scope = createScope<IResourceProviderState>(
-      'RESOURCES_SCOPE',
+      ResourceService.SCOPE_NAME,
       config.initState
     );
     this.scope.freeze();

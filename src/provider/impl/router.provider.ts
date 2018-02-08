@@ -25,11 +25,13 @@ export interface IRouterProviderConfig {
 
 class RouterService implements IRouterService {
 
+  static readonly SCOPE_NAME = 'ROUTER_SCOPE';
+
   private scope: Scope;
 
   constructor(private config: IRouterProviderConfig) {
     this.scope = createScope<IRouterProviderState>(
-      'ROUTER_SCOPE',
+      RouterService.SCOPE_NAME,
       config.initState
     );
     this.scope.freeze();

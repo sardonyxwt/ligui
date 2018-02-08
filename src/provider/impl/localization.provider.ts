@@ -1,4 +1,5 @@
 import { createScope, Scope } from '@sardonyxwt/state-store';
+import { createSyncCache, SynchronizedCache } from '@sardonyxwt/utils/synchronized';
 import { Provider } from '../provider';
 
 export type Translator = (key: string) => string;
@@ -16,14 +17,14 @@ export interface ILocalizationService {
 
   getCurrentLocale(): string;
 
-  subscribe(ids: string[], subscriber: (t: Translator) => void);
+  subscribe(id: string, subscriber: (t: Translator) => void);
 }
 
 export interface ILocalizationProviderState {
   locales: string[];
   defaultLocale: string;
   currentLocale: string;
-  localizations: { [key: string]: { [key: string]: string } }
+  localizations: { [key: string]: Localization }
 }
 
 export interface ILocalizationProviderConfig {
@@ -36,32 +37,50 @@ export interface ILocalizationProviderConfig {
 
 class LocalizationService implements ILocalizationService {
 
+  static readonly SCOPE_NAME = 'LOCALIZATION_SCOPE';
+  static readonly ADD_LOCALIZATION_ACTION = 'ADD_LOCALIZATION';
+  static readonly CHANGE_LOCALIZATION_ACTION = 'CHANGE_LOCALIZATION';
+
   private scope: Scope<ILocalizationProviderState>;
+  private localizationCache: SynchronizedCache<Localization>;
 
   constructor(private config: ILocalizationProviderConfig) {
     let findDefaultLocale = config.locales.find(
       locale => config.defaultLocale === locale
     );
+    if (!findDefaultLocale) {
+      throw new Error('Invalid configuration LocalizationService.');
+    }
     let findCurrentLocale = config.locales.find(
       locale => config.currentLocale === locale
     );
-    if (!findDefaultLocale || !findCurrentLocale) {
-      throw new Error('Invalid configuration LocalizationService.');
-    }
     let localizations = {};
     config.locales.forEach(
       locale => localizations[locale]
     );
     this.scope = createScope<ILocalizationProviderState>(
-      'LOCALIZATION_SCOPE',
+      LocalizationService.SCOPE_NAME,
       config.initState || {
         locales: config.locales,
-        defaultLocale: config.defaultLocale,
-        currentLocale: config.currentLocale,
+        defaultLocale: findDefaultLocale,
+        currentLocale: findCurrentLocale || findDefaultLocale,
         localizations
       }
     );
+    this.scope.registerAction(
+      LocalizationService.ADD_LOCALIZATION_ACTION,
+      (scope, props, resolve) => {
+
+      }
+    );
+    this.scope.registerAction(
+      LocalizationService.CHANGE_LOCALIZATION_ACTION,
+      (scope, props, resolve) => {
+
+      }
+    );
     this.scope.freeze();
+    this.localizationCache = createSyncCache<Localization>(config.loader);
   }
 
   changeLocale(locale: string): void {
@@ -79,8 +98,25 @@ class LocalizationService implements ILocalizationService {
     return this.scope.getState().currentLocale;
   }
 
-  subscribe(ids: string[], subscriber: (t: Translator) => void) {
-    return undefined;
+  subscribe(id: string, subscriber: (t: Translator) => void) {
+    let state = this.scope.getState();
+    let localizationId = this.getLocalizationId(id);
+    let localization = state.localizations[localizationId];
+    if (localization) {
+      subscriber((key: string) => localization[key]);
+    }
+    if (this.localizationCache.has(localizationId)) {
+      this.localizationCache.get(localizationId).then(
+        localization => subscriber((key: string) => localization[key])
+      );
+    } else {
+
+    }
+    return undefined; // todo
+  }
+
+  private getLocalizationId(id: string) {
+    return `${this.scope.getState().currentLocale}:${id}`
   }
 
 }

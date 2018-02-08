@@ -8,16 +8,14 @@ export interface ILocalizationService {
     getLocales(): string[];
     getDefaultLocale(): string;
     getCurrentLocale(): string;
-    subscribe(ids: string[], subscriber: (t: Translator) => void): any;
+    subscribe(id: string, subscriber: (t: Translator) => void): any;
 }
 export interface ILocalizationProviderState {
     locales: string[];
     defaultLocale: string;
     currentLocale: string;
     localizations: {
-        [key: string]: {
-            [key: string]: string;
-        };
+        [key: string]: Localization;
     };
 }
 export interface ILocalizationProviderConfig {
