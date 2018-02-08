@@ -7,23 +7,19 @@ import { JSXService } from './service/jsx.service';
 import { RestService } from './service/rest.service';
 import { StoreService } from './service/store.service';
 import {
-  LocalizationProvider, ILocalizationService
+  LocalizationProvider, ILocalizationService, ILocalizationProviderConfig
 } from './provider/impl/localization.provider';
 import {
-  ResourceProvider, IResourceService
+  ResourceProvider, IResourceService, IResourceProviderConfig
 } from './provider/impl/resource.provider';
 import {
-  RouterProvider, IRouterService
+  RouterProvider, IRouterService, IRouterProviderConfig
 } from './provider/impl/router.provider';
 import {
-  ConfigProvider, IConfigService
+  ConfigProvider, IConfigService, IConfigProviderConfig
 } from './provider/impl/config.provider';
 
-export const ligui = Object.freeze({
-  jsx: JSXService.INSTANCE,
-  rest: RestService.INSTANCE,
-  store: StoreService.INSTANCE,
-
+const ligui = Object.freeze({
   get localization(): ILocalizationService {
     return LocalizationProvider.INSTANCE.getService();
   },
@@ -36,11 +32,20 @@ export const ligui = Object.freeze({
   get config(): IConfigService {
     return ConfigProvider.INSTANCE.getService();
   },
-
-  localizationProvider: LocalizationProvider.INSTANCE,
-  resourceProvider: ResourceProvider.INSTANCE,
-  routerProvider: RouterProvider.INSTANCE,
-  configProvider: ConfigProvider.INSTANCE,
+  configure(config: {
+    localization: ILocalizationProviderConfig | null,
+    resource: IResourceProviderConfig | null,
+    router: IRouterProviderConfig | null,
+    config: IConfigProviderConfig | null
+  }) {
+    if (config.localization) LocalizationProvider.INSTANCE.configure(config.localization);
+    if (config.resource) ResourceProvider.INSTANCE.configure(config.resource);
+    if (config.router) RouterProvider.INSTANCE.configure(config.router);
+    if (config.config) ConfigProvider.INSTANCE.configure(config.config);
+  },
+  jsx: JSXService.INSTANCE,
+  rest: RestService.INSTANCE,
+  store: StoreService.INSTANCE,
   utils: Object.freeze({
     synchronized: SynchronizedUtils,
     generator: GeneratorUtils,
@@ -51,3 +56,4 @@ export const ligui = Object.freeze({
 });
 
 module.exports = ligui;
+export default ligui;

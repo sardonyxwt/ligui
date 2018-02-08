@@ -70,20 +70,21 @@ class LocalizationService implements ILocalizationService {
     this.scope.registerAction(
       LocalizationService.ADD_LOCALIZATION_ACTION,
       (scope, props, resolve) => {
-
+        throw Error('Implementation added in next iteration');
       }
     );
     this.scope.registerAction(
       LocalizationService.CHANGE_LOCALIZATION_ACTION,
       (scope, props, resolve) => {
-
+        throw Error('Implementation added in next iteration');
       }
     );
     this.scope.freeze();
     this.localizationCache = createSyncCache<Localization>(config.loader);
   }
 
-  changeLocale(locale: string): void {
+  changeLocale(locale: string): Promise<ILocalizationProviderState> {
+    return this.scope.dispatch(LocalizationService.CHANGE_LOCALIZATION_ACTION, locale);
   }
 
   getLocales(): string[] {
@@ -105,14 +106,23 @@ class LocalizationService implements ILocalizationService {
     if (localization) {
       subscriber((key: string) => localization[key]);
     }
-    if (this.localizationCache.has(localizationId)) {
-      this.localizationCache.get(localizationId).then(
-        localization => subscriber((key: string) => localization[key])
-      );
-    } else {
-
-    }
-    return undefined; // todo
+    const isFirstCall = this.localizationCache.has(localizationId);
+    this.localizationCache.get(localizationId)
+      .then(localization => subscriber((key: string) => localization[key]))
+      .then(localization => {
+        if (isFirstCall) {
+          this.scope.dispatch(
+            LocalizationService.ADD_LOCALIZATION_ACTION,
+            {localizationId, localization}
+          ).then(
+            () => this.localizationCache.remove(localizationId)
+          );
+        }
+      });
+    const listenerId = this.scope.subscribe(event => {
+      this.scope.unsubscribe(listenerId);
+      this.subscribe(id, subscriber);
+    }, LocalizationService.CHANGE_LOCALIZATION_ACTION);
   }
 
   private getLocalizationId(id: string) {
