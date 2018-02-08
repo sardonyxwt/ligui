@@ -19,25 +19,35 @@ import {
   ConfigProvider, IConfigService
 } from './provider/impl/config.provider';
 
-export class Ligui {
-  static readonly jsx = JSXService.INSTANCE;
-  static readonly rest = RestService.INSTANCE;
-  static readonly store = StoreService.INSTANCE;
-  static readonly localization: ILocalizationService
-    = LocalizationProvider.INSTANCE.getService();
-  static readonly resource: IResourceService
-    = ResourceProvider.INSTANCE.getService();
-  static readonly router: IRouterService
-    = RouterProvider.INSTANCE.getService();
-  static readonly config: IConfigService
-    = ConfigProvider.INSTANCE.getService();
-  static readonly utils = ObjectUtils.deepFreeze({
+export const ligui = Object.freeze({
+  jsx: JSXService.INSTANCE,
+  rest: RestService.INSTANCE,
+  store: StoreService.INSTANCE,
+
+  get localization(): ILocalizationService {
+    return LocalizationProvider.INSTANCE.getService();
+  },
+  get resource(): IResourceService {
+    return ResourceProvider.INSTANCE.getService();
+  },
+  get router(): IRouterService {
+    return RouterProvider.INSTANCE.getService();
+  },
+  get config(): IConfigService {
+    return ConfigProvider.INSTANCE.getService();
+  },
+
+  localizationProvider: LocalizationProvider.INSTANCE,
+  resourceProvider: ResourceProvider.INSTANCE,
+  routerProvider: RouterProvider.INSTANCE,
+  configProvider: ConfigProvider.INSTANCE,
+  utils: Object.freeze({
     synchronized: SynchronizedUtils,
     generator: GeneratorUtils,
     object: ObjectUtils,
     file: FileUtils,
     json: JsonUtils
-  });
-}
+  })
+});
 
-global['Ligui'] = Ligui;
+module.exports = ligui;

@@ -4,6 +4,9 @@ export abstract class Provider<Service, Config> {
   private config: Config;
 
   getService() {
+    if (!this.config) {
+      throw new Error('Before get service first configure it.');
+    }
     if (!this.service) {
       this.service = this.createService(this.config);
     }

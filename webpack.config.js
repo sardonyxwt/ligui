@@ -34,7 +34,7 @@ module.exports = {
   devtool: 'source-map',
   output: {
     filename: `${dist}/ligui.min.js`,
-    umdNamedDefine: true,
+    library: "ligui",
     libraryTarget: 'umd'
   },
   resolve: {

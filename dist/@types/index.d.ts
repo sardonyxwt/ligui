@@ -6,23 +6,27 @@ import * as JsonUtils from '@sardonyxwt/utils/json';
 import { JSXService } from './service/jsx.service';
 import { RestService } from './service/rest.service';
 import { StoreService } from './service/store.service';
-import { ILocalizationService } from './provider/impl/localization.provider';
-import { IResourceService } from './provider/impl/resource.provider';
-import { IRouterService } from './provider/impl/router.provider';
-import { IConfigService } from './provider/impl/config.provider';
-export declare class Ligui {
-    static readonly jsx: JSXService;
-    static readonly rest: RestService;
-    static readonly store: StoreService;
-    static readonly localization: ILocalizationService;
-    static readonly resource: IResourceService;
-    static readonly router: IRouterService;
-    static readonly config: IConfigService;
-    static readonly utils: Readonly<{
+import { LocalizationProvider, ILocalizationService } from './provider/impl/localization.provider';
+import { ResourceProvider, IResourceService } from './provider/impl/resource.provider';
+import { RouterProvider, IRouterService } from './provider/impl/router.provider';
+import { ConfigProvider, IConfigService } from './provider/impl/config.provider';
+export declare const ligui: Readonly<{
+    jsx: JSXService;
+    rest: RestService;
+    store: StoreService;
+    readonly localization: ILocalizationService;
+    readonly resource: IResourceService;
+    readonly router: IRouterService;
+    readonly config: IConfigService;
+    localizationProvider: LocalizationProvider;
+    resourceProvider: ResourceProvider;
+    routerProvider: RouterProvider;
+    configProvider: ConfigProvider;
+    utils: Readonly<{
         synchronized: typeof SynchronizedUtils;
         generator: typeof GeneratorUtils;
         object: typeof ObjectUtils;
         file: typeof FileUtils;
         json: typeof JsonUtils;
     }>;
-}
+}>;
