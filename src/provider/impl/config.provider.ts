@@ -19,7 +19,7 @@ class ConfigService implements IConfigService {
   static readonly SCOPE_NAME = 'CONFIG_SCOPE';
   static readonly LOAD_CONFIG_ACTION = 'LOAD_CONFIG';
 
-  private scope: Scope<IConfigProviderState>;
+  readonly scope: Scope<IConfigProviderState>;
 
   constructor(private config: IConfigProviderConfig) {
     this.scope = createScope<IConfigProviderState>(

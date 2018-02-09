@@ -1,5 +1,9 @@
 import { Provider } from '../provider';
 export declare type Translator = (key: string) => string;
+export interface AddLocalizationActionProps {
+    localizationId: string;
+    localization: Localization;
+}
 export interface Localization {
     [key: string]: string;
 }

@@ -27,7 +27,7 @@ class RouterService implements IRouterService {
 
   static readonly SCOPE_NAME = 'ROUTER_SCOPE';
 
-  private scope: Scope;
+  readonly scope: Scope;
 
   constructor(private config: IRouterProviderConfig) {
     this.scope = createScope<IRouterProviderState>(

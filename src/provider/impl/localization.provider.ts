@@ -3,6 +3,7 @@ import { createSyncCache, SynchronizedCache } from '@sardonyxwt/utils/synchroniz
 import { Provider } from '../provider';
 
 export type Translator = (key: string) => string;
+export interface AddLocalizationActionProps { localizationId: string, localization: Localization }
 
 export interface Localization {
   [key: string]: string
@@ -41,7 +42,7 @@ class LocalizationService implements ILocalizationService {
   static readonly ADD_LOCALIZATION_ACTION = 'ADD_LOCALIZATION';
   static readonly CHANGE_LOCALIZATION_ACTION = 'CHANGE_LOCALIZATION';
 
-  private scope: Scope<ILocalizationProviderState>;
+  readonly scope: Scope<ILocalizationProviderState>;
   private localizationCache: SynchronizedCache<Localization>;
 
   constructor(private config: ILocalizationProviderConfig) {
@@ -69,14 +70,28 @@ class LocalizationService implements ILocalizationService {
     );
     this.scope.registerAction(
       LocalizationService.ADD_LOCALIZATION_ACTION,
-      (scope, props, resolve) => {
-        throw Error('Implementation added in next iteration');
+      (scope, props: AddLocalizationActionProps, resolve) => {
+        const localizations = {
+          ...scope.localizations,
+          [props.localizationId]: props.localization
+        };
+        resolve({
+          ...scope,
+          localizations
+        });
       }
     );
     this.scope.registerAction(
       LocalizationService.CHANGE_LOCALIZATION_ACTION,
       (scope, props, resolve) => {
-        throw Error('Implementation added in next iteration');
+        const supportLocale = scope.locales.find(locale => locale === props);
+        if (!supportLocale) {
+          throw new Error('Locale not supported.');
+        }
+        resolve({
+          ...scope,
+          currentLocale: props
+        });
       }
     );
     this.scope.freeze();
@@ -119,7 +134,7 @@ class LocalizationService implements ILocalizationService {
           );
         }
       });
-    const listenerId = this.scope.subscribe(event => {
+    const listenerId = this.scope.subscribe(() => {
       this.scope.unsubscribe(listenerId);
       this.subscribe(id, subscriber);
     }, LocalizationService.CHANGE_LOCALIZATION_ACTION);

@@ -1,3 +1,5 @@
+import * as preact from 'preact';
+import * as store from '@sardonyxwt/state-store';
 import * as SynchronizedUtils from '@sardonyxwt/utils/synchronized';
 import * as GeneratorUtils from '@sardonyxwt/utils/generator';
 import * as ObjectUtils from '@sardonyxwt/utils/object';
@@ -5,7 +7,6 @@ import * as FileUtils from '@sardonyxwt/utils/file';
 import * as JsonUtils from '@sardonyxwt/utils/json';
 import { JSXService } from './service/jsx.service';
 import { RestService } from './service/rest.service';
-import { StoreService } from './service/store.service';
 import {
   LocalizationProvider, ILocalizationService, ILocalizationProviderConfig
 } from './provider/impl/localization.provider';
@@ -19,7 +20,7 @@ import {
   ConfigProvider, IConfigService, IConfigProviderConfig
 } from './provider/impl/config.provider';
 
-const ligui = Object.freeze({
+export const ligui = Object.freeze({
   get localization(): ILocalizationService {
     return LocalizationProvider.INSTANCE.getService();
   },
@@ -45,7 +46,8 @@ const ligui = Object.freeze({
   },
   jsx: JSXService.INSTANCE,
   rest: RestService.INSTANCE,
-  store: StoreService.INSTANCE,
+  preact,
+  store,
   utils: Object.freeze({
     synchronized: SynchronizedUtils,
     generator: GeneratorUtils,
@@ -56,4 +58,3 @@ const ligui = Object.freeze({
 });
 
 module.exports = ligui;
-export default ligui;
