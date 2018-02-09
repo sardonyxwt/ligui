@@ -31,8 +31,8 @@ export interface ILocalizationProviderState {
 export interface ILocalizationProviderConfig {
   loader: (id: string) => Promise<Localization>;
   locales: string[];
-  defaultLocale: string;
-  currentLocale: string;
+  defaultLocale?: string;
+  currentLocale?: string;
   initState?: ILocalizationProviderState;
 }
 
@@ -46,25 +46,45 @@ class LocalizationService implements ILocalizationService {
   private localizationCache: SynchronizedCache<Localization>;
 
   constructor(private config: ILocalizationProviderConfig) {
-    let findDefaultLocale = config.locales.find(
-      locale => config.defaultLocale === locale
-    );
-    if (!findDefaultLocale) {
+    if (config.locales.length <= 0) {
       throw new Error('Invalid configuration LocalizationService.');
     }
-    let findCurrentLocale = config.locales.find(
-      locale => config.currentLocale === locale
-    );
+
+    let defaultLocale: string;
+    if (config.defaultLocale) {
+      defaultLocale = config.locales.find(
+        locale => config.defaultLocale === locale
+      );
+      if (!defaultLocale) {
+        throw new Error('Invalid configuration LocalizationService.');
+      }
+    } else {
+      defaultLocale = config.locales[0];
+    }
+
+    let currentLocale: string;
+    if (config.currentLocale) {
+      currentLocale = config.locales.find(
+        locale => config.currentLocale === locale
+      );
+      if (!defaultLocale) {
+        throw new Error('Invalid configuration LocalizationService.');
+      }
+    } else {
+      currentLocale = defaultLocale;
+    }
+
     let localizations = {};
     config.locales.forEach(
       locale => localizations[locale]
     );
+
     this.scope = createScope<ILocalizationProviderState>(
       LocalizationService.SCOPE_NAME,
       config.initState || {
         locales: config.locales,
-        defaultLocale: findDefaultLocale,
-        currentLocale: findCurrentLocale || findDefaultLocale,
+        defaultLocale,
+        currentLocale,
         localizations
       }
     );

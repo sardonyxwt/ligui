@@ -14,7 +14,7 @@ export interface IResourceProviderState {
 }
 export interface IResourceProviderConfig {
     loader: ResourceLoader;
-    initState: IResourceProviderState;
+    initState?: IResourceProviderState;
 }
 export declare class ResourceProvider extends Provider<IResourceService, IResourceProviderConfig> {
     private static instance;

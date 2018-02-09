@@ -25,8 +25,8 @@ export interface ILocalizationProviderState {
 export interface ILocalizationProviderConfig {
     loader: (id: string) => Promise<Localization>;
     locales: string[];
-    defaultLocale: string;
-    currentLocale: string;
+    defaultLocale?: string;
+    currentLocale?: string;
     initState?: ILocalizationProviderState;
 }
 export declare class LocalizationProvider extends Provider<ILocalizationService, ILocalizationProviderConfig> {

@@ -1,5 +1,4 @@
-import * as preact from 'preact';
-import * as store from '@sardonyxwt/state-store';
+import { createScope, getState, getScope, Scope } from '@sardonyxwt/state-store';
 import * as SynchronizedUtils from '@sardonyxwt/utils/synchronized';
 import * as GeneratorUtils from '@sardonyxwt/utils/generator';
 import * as ObjectUtils from '@sardonyxwt/utils/object';
@@ -8,16 +7,16 @@ import * as JsonUtils from '@sardonyxwt/utils/json';
 import { JSXService } from './service/jsx.service';
 import { RestService } from './service/rest.service';
 import {
-  LocalizationProvider, ILocalizationService, ILocalizationProviderConfig
+  LocalizationProvider, ILocalizationService
 } from './provider/impl/localization.provider';
 import {
-  ResourceProvider, IResourceService, IResourceProviderConfig
+  ResourceProvider, IResourceService
 } from './provider/impl/resource.provider';
 import {
-  RouterProvider, IRouterService, IRouterProviderConfig
+  RouterProvider, IRouterService
 } from './provider/impl/router.provider';
 import {
-  ConfigProvider, IConfigService, IConfigProviderConfig
+  ConfigProvider, IConfigService
 } from './provider/impl/config.provider';
 
 export const ligui = Object.freeze({
@@ -33,28 +32,22 @@ export const ligui = Object.freeze({
   get config(): IConfigService {
     return ConfigProvider.INSTANCE.getService();
   },
-  configure(config: {
-    localization: ILocalizationProviderConfig | null,
-    resource: IResourceProviderConfig | null,
-    router: IRouterProviderConfig | null,
-    config: IConfigProviderConfig | null
-  }) {
-    if (config.localization) LocalizationProvider.INSTANCE.configure(config.localization);
-    if (config.resource) ResourceProvider.INSTANCE.configure(config.resource);
-    if (config.router) RouterProvider.INSTANCE.configure(config.router);
-    if (config.config) ConfigProvider.INSTANCE.configure(config.config);
-  },
+  localizationProvider: LocalizationProvider.INSTANCE,
+  resourceProvider: ResourceProvider.INSTANCE,
+  routerProvider: RouterProvider.INSTANCE,
+  configProvider: ConfigProvider.INSTANCE,
   jsx: JSXService.INSTANCE,
   rest: RestService.INSTANCE,
-  preact,
-  store,
-  utils: Object.freeze({
+  createScope,
+  getScope,
+  getState,
+  utils: {
     synchronized: SynchronizedUtils,
     generator: GeneratorUtils,
     object: ObjectUtils,
     file: FileUtils,
     json: JsonUtils
-  })
+  }
 });
 
 module.exports = ligui;

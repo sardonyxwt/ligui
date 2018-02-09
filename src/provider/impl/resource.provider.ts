@@ -15,7 +15,7 @@ export interface IResourceProviderState {
 
 export interface IResourceProviderConfig {
   loader: ResourceLoader,
-  initState: IResourceProviderState
+  initState?: IResourceProviderState
 }
 
 class ResourceService implements IResourceService {
