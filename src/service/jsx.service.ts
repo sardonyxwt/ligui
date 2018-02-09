@@ -1,10 +1,10 @@
 import { h, render, AnyComponent } from 'preact';
-import { render as renderToString } from 'preact-render-to-string';
+import { render as renderAsString } from 'preact-render-to-string';
 
-export class JSXService {
+export class JSXService implements JSXService {
 
-  private static instance: JSXService;
   private components = {};
+  private static instance: JSXService;
 
   private constructor() {
   }
@@ -29,8 +29,8 @@ export class JSXService {
     return this;
   }
 
-  renderToString(component: JSX.Element) {
-    renderToString(component);
+  renderAsString(component: JSX.Element) {
+    return renderAsString(component);
   }
 
   remove(query: string) {

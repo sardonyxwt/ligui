@@ -1,12 +1,8 @@
-import { Provider } from '../provider';
 export interface IRouteRule {
     path: string;
     component: JSX.Element | (() => Promise<JSX.Element>);
     security?: () => boolean;
     redirect?: () => string;
-}
-export interface IRouterService {
-    route(rules: IRouteRule[], subscriber: (jsxEl: JSX.Element) => void): any;
 }
 export interface IRouterProviderState {
     currentLocation: string;
@@ -19,9 +15,13 @@ export interface IRouterProviderConfig {
     securityPreview?: JSX.Element;
     initState?: IRouterProviderState;
 }
-export declare class RouterProvider extends Provider<IRouterService, IRouterProviderConfig> {
+export declare class RouterService {
+    static readonly SCOPE_NAME: string;
+    private scope;
+    private isConfigured;
     private static instance;
     private constructor();
-    static readonly INSTANCE: RouterProvider;
-    protected createService(config: IRouterProviderConfig): IRouterService;
+    static readonly INSTANCE: RouterService;
+    route(rules: IRouteRule[], subscriber: (jsxEl: JSX.Element) => void): any;
+    configure(config: IRouterProviderConfig): void;
 }

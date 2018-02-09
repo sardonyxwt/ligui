@@ -35,7 +35,8 @@ module.exports = {
   output: {
     filename: `${dist}/ligui.min.js`,
     library: "ligui",
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    umdNamedDefine: true
   },
   resolve: {
     extensions: ['.js', '.ts']
