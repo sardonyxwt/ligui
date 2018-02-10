@@ -11,6 +11,12 @@ import { RouterService } from './service/router.service';
 import { ResourceService } from './service/resource.service';
 import { LocalizationService } from './service/localization.service';
 
+export {h, Component, AnyComponent, FunctionalComponent, ComponentConstructor} from 'preact';
+export {
+  SynchronizedUtils, GeneratorUtils, ObjectUtils, FileUtils, JsonUtils, Store,
+  JSXService, RestService, ConfigService, RouterService, ResourceService, LocalizationService
+}
+
 export namespace ligui {
   export const jsx = JSXService.INSTANCE;
   export const rest = RestService.INSTANCE;
@@ -18,10 +24,7 @@ export namespace ligui {
   export const router = RouterService.INSTANCE;
   export const resources = ResourceService.INSTANCE;
   export const localization = LocalizationService.INSTANCE;
-  export const ROOT_SCOPE = Store.ROOT_SCOPE;
-  export const createScope = Store.createScope;
-  export const getScope = Store.getScope;
-  export const getState = Store.getState;
+  export const store = Store;
   export const utils = {
     synchronized: SynchronizedUtils,
     generator: GeneratorUtils,
