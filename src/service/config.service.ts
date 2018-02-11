@@ -29,6 +29,10 @@ export class ConfigService {
       .then(scope => <T>scope[name]);
   }
 
+  getScope() {
+    return this.scope;
+  }
+
   configure(config: IConfigProviderConfig) {
     if (this.isConfigured) {
       throw new Error('ConfigService must configure only once.');

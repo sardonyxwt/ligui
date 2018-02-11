@@ -1,7 +1,6 @@
 import { h, render, AnyComponent } from 'preact';
-import { render as renderAsString } from 'preact-render-to-string';
 
-export class JSXService implements JSXService {
+export class JSXService {
 
   private components = {};
   private static instance: JSXService;
@@ -27,10 +26,6 @@ export class JSXService implements JSXService {
       render(component, node, isReplaced ? node.firstElementChild : null)
     );
     return this;
-  }
-
-  renderAsString(component: JSX.Element) {
-    return renderAsString(component);
   }
 
   remove(query: string) {

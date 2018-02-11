@@ -50,6 +50,10 @@ export class ResourceService {
     }
   }
 
+  getScope() {
+    return this.scope;
+  }
+
   configure(config: IResourceProviderConfig) {
     if (this.isConfigured) {
       throw new Error('ResourceService must configure only once.');

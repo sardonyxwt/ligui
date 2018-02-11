@@ -1,27 +1,32 @@
-export interface IRouteRule {
+import { Scope } from '@sardonyxwt/state-store';
+export interface IRouteRule<T> {
     path: string;
-    component: JSX.Element | (() => Promise<JSX.Element>);
-    security?: () => boolean;
-    redirect?: () => string;
+    action: (...args: any[]) => Promise<T>;
 }
 export interface IRouterProviderState {
-    currentLocation: string;
-    params: {
-        [key: string]: string;
+    base?: string;
+    currentLocation?: string;
+    queryParams?: {
+        [key: string]: number | string | boolean;
     };
 }
 export interface IRouterProviderConfig {
-    loadingPreview?: JSX.Element;
-    securityPreview?: JSX.Element;
     initState?: IRouterProviderState;
 }
 export declare class RouterService {
     static readonly SCOPE_NAME: string;
+    static readonly CHANGE_LOCATION: string;
     private scope;
     private isConfigured;
     private static instance;
     private constructor();
     static readonly INSTANCE: RouterService;
-    route(rules: IRouteRule[], subscriber: (jsxEl: JSX.Element) => void): any;
+    route<T>(rules: IRouteRule<T>[], subscriber: (result: T) => void): void;
+    go(path: string, title?: string, replace?: boolean): void;
+    getScope(): Scope<IRouterProviderState>;
+    getQueryParams(): {
+        [key: string]: string | number | boolean;
+    };
+    getCurrentLocation(): string;
     configure(config: IRouterProviderConfig): void;
 }

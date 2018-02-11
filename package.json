@@ -1,6 +1,6 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "1.2.4",
+  "version": "1.3.0",
   "description": "Ligui",
   "keywords": [
     "sclib",
@@ -19,7 +19,7 @@
     "dist/"
   ],
   "main": "dist/ligui.min.js",
-  "typings": "dist/@types/index.d.ts",
+  "typings": "dist/@types/ligui.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/sardonyxwt/ligui.git"
@@ -43,11 +43,11 @@
     "testRegex": "/(test|src)/.*\\.(test|spec)\\.(ts|js)$"
   },
   "dependencies": {
-    "@sardonyxwt/state-store": "^2.2.5",
-    "@sardonyxwt/utils": "^1.6.1",
-    "path-to-regexp": "^2.1.0",
+    "@sardonyxwt/state-store": "^2.2.6",
+    "@sardonyxwt/utils": "^1.6.2",
     "preact": "^8.2.7",
-    "preact-render-to-string": "^3.7.0"
+    "preact-render-to-string": "^3.7.0",
+    "riot-route": "^3.1.2"
   },
   "devDependencies": {
     "@types/jest": "^21.1.9",

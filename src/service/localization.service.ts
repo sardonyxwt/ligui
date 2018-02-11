@@ -48,6 +48,10 @@ export class LocalizationService {
     return this.scope.dispatch(LocalizationService.CHANGE_LOCALIZATION_ACTION, locale);
   }
 
+  getScope() {
+    return this.scope;
+  }
+
   getLocales(): string[] {
     return this.scope.getState().locales.slice();
   }

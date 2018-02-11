@@ -1,3 +1,4 @@
+import { Scope } from '@sardonyxwt/state-store';
 export declare type Translator = (key: string) => string;
 export interface AddLocalizationActionProps {
     localizationId: string;
@@ -31,6 +32,7 @@ export declare class LocalizationService {
     private constructor();
     static readonly INSTANCE: LocalizationService;
     changeLocale(locale: string): Promise<ILocalizationProviderState>;
+    getScope(): Scope<ILocalizationProviderState>;
     getLocales(): string[];
     getDefaultLocale(): string;
     getCurrentLocale(): string;

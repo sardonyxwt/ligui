@@ -1,3 +1,4 @@
+import { Scope } from '@sardonyxwt/state-store';
 export interface IConfigProviderState {
     configs: {
         [key: string]: any;
@@ -16,5 +17,6 @@ export declare class ConfigService {
     private constructor();
     static readonly INSTANCE: ConfigService;
     get<T>(name: string): Promise<T>;
+    getScope(): Scope<IConfigProviderState>;
     configure(config: IConfigProviderConfig): void;
 }
