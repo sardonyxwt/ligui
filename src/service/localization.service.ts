@@ -2,7 +2,11 @@ import { createScope, Scope } from '@sardonyxwt/state-store';
 import { createSyncCache, SynchronizedCache } from '@sardonyxwt/utils/synchronized';
 
 export type Translator = (key: string) => string;
-export interface AddLocalizationActionProps { localizationId: string, localization: Localization }
+
+export interface AddLocalizationActionProps {
+  localizationId: string,
+  localization: Localization
+}
 
 export interface Localization {
   [key: string]: string
@@ -18,6 +22,7 @@ export interface ILocalizationProviderState {
 export interface ILocalizationProviderConfig {
   loader: (locale: string, id: string) => Promise<Localization>;
   initState: ILocalizationProviderState;
+  defaultLoadingMessage?: string;
 }
 
 export class LocalizationService {
@@ -28,6 +33,7 @@ export class LocalizationService {
 
   private scope: Scope<ILocalizationProviderState>;
   private isConfigured: boolean;
+  private defaultTranslator: Translator;
   private localizationCache: SynchronizedCache<Localization>;
   private static instance: LocalizationService;
 
@@ -55,29 +61,34 @@ export class LocalizationService {
   }
 
   subscribe(id: string, subscriber: (t: Translator) => void) {
-    let state = this.scope.getState();
-    let localizationId = `${this.scope.getState().currentLocale}:${id}`;
+    const {scope, localizationCache} = this;
+
+    const listenerId = scope.subscribe(() => {
+      scope.unsubscribe(listenerId);
+      this.subscribe(id, subscriber);
+    }, LocalizationService.CHANGE_LOCALIZATION_ACTION);
+
+    let state = scope.getState();
+    let localizationId = `${scope.getState().currentLocale}:${id}`;
     let localization = state.localizations[localizationId];
     if (localization) {
       subscriber((key: string) => localization[key]);
+      return;
     }
-    const isFirstCall = this.localizationCache.has(localizationId);
-    this.localizationCache.get(localizationId)
-      .then(localization => subscriber((key: string) => localization[key]))
-      .then(localization => {
-        if (isFirstCall) {
-          this.scope.dispatch(
-            LocalizationService.ADD_LOCALIZATION_ACTION,
-            {localizationId, localization}
-          ).then(
-            () => this.localizationCache.remove(localizationId)
-          );
-        }
-      });
-    const listenerId = this.scope.subscribe(() => {
-      this.scope.unsubscribe(listenerId);
-      this.subscribe(id, subscriber);
-    }, LocalizationService.CHANGE_LOCALIZATION_ACTION);
+    subscriber(this.defaultTranslator);
+
+    const isFirstCall = localizationCache.has(localizationId);
+    this.localizationCache.get(localizationId).then(localization => {
+      if (isFirstCall) {
+        scope.dispatch(
+          LocalizationService.ADD_LOCALIZATION_ACTION,
+          {localizationId, localization}
+        ).then(
+          () => localizationCache.remove(localizationId)
+        );
+      }
+      subscriber((key: string) => localization[key]);
+    });
   }
 
   configure(config: ILocalizationProviderConfig) {
@@ -121,6 +132,7 @@ export class LocalizationService {
       const [locale, id] = key.split(':');
       return config.loader(locale, id);
     });
+    this.defaultTranslator = () => config.defaultLoadingMessage || 'Loading...';
   }
 
 }

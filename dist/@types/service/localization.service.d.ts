@@ -17,6 +17,7 @@ export interface ILocalizationProviderState {
 export interface ILocalizationProviderConfig {
     loader: (locale: string, id: string) => Promise<Localization>;
     initState: ILocalizationProviderState;
+    defaultLoadingMessage?: string;
 }
 export declare class LocalizationService {
     static readonly SCOPE_NAME: string;
@@ -24,6 +25,7 @@ export declare class LocalizationService {
     static readonly CHANGE_LOCALIZATION_ACTION: string;
     private scope;
     private isConfigured;
+    private defaultTranslator;
     private localizationCache;
     private static instance;
     private constructor();
