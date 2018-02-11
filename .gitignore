@@ -6,6 +6,8 @@
 npm-debug.log
 test-report.json
 bundle-report.html
+bundle-statistics.html
+stats.json
 etc/
 node/
 node_modules/
