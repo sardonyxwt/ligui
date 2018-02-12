@@ -4,9 +4,11 @@ export interface RequestProps extends RequestInit {
     };
 }
 export declare class RestService {
+    private _defaultProps;
     private static instance;
     private constructor();
     static readonly INSTANCE: RestService;
+    defaultProps: RequestInit;
     post(endpoint: string, options?: RequestProps): Promise<Response>;
     put(endpoint: string, options?: RequestProps): Promise<Response>;
     get(endpoint: string, options?: RequestProps): Promise<Response>;

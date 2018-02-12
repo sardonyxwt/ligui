@@ -40,18 +40,14 @@ module.exports = env => {
   ];
 
   return {
-    entry: {
-      'ligui': './src/ligui.ts',
-      'ligui-server': './src/ligui-server.ts'
-    },
+    entry: './src/index.ts',
     devtool: 'source-map',
     output: {
-      filename: `${dist}/[name].min.js`,
-      libraryTarget: 'umd',
-      umdNamedDefine: true
+      filename: `${dist}/ligui.min.js`,
+      libraryTarget: 'umd'
     },
     resolve: {
-      extensions: ['.js', '.ts']
+      extensions: ['.js', '.ts', '.json']
     },
     module: {
       rules

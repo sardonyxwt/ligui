@@ -3,26 +3,20 @@ import { createSyncCache, SynchronizedCache } from '@sardonyxwt/utils/synchroniz
 
 export type Translator = (key: string) => string;
 
-export interface AddLocalizationActionProps {
-  localizationId: string,
-  localization: Localization
-}
-
 export interface Localization {
   [key: string]: string
 }
 
-export interface ILocalizationProviderState {
+export interface LocalizationProviderState {
   locales: string[];
   defaultLocale: string;
   currentLocale: string;
   localizations: { [key: string]: Localization }
 }
 
-export interface ILocalizationProviderConfig {
+export interface LocalizationProviderConfig {
   loader: (locale: string, id: string) => Promise<Localization>;
-  initState: ILocalizationProviderState;
-  defaultLoadingMessage?: string;
+  initState: LocalizationProviderState;
 }
 
 export class LocalizationService {
@@ -31,8 +25,7 @@ export class LocalizationService {
   public static readonly ADD_LOCALIZATION_ACTION = 'ADD_LOCALIZATION';
   public static readonly CHANGE_LOCALIZATION_ACTION = 'CHANGE_LOCALIZATION';
 
-  private scope: Scope<ILocalizationProviderState>;
-  private isConfigured: boolean;
+  private scope: Scope<LocalizationProviderState>;
   private defaultTranslator: Translator;
   private localizationCache: SynchronizedCache<Localization>;
   private static instance: LocalizationService;
@@ -44,7 +37,7 @@ export class LocalizationService {
     return this.instance || (this.instance = new LocalizationService());
   }
 
-  changeLocale(locale: string): Promise<ILocalizationProviderState> {
+  changeLocale(locale: string): Promise<LocalizationProviderState> {
     return this.scope.dispatch(LocalizationService.CHANGE_LOCALIZATION_ACTION, locale);
   }
 
@@ -81,12 +74,12 @@ export class LocalizationService {
     }
     subscriber(this.defaultTranslator);
 
-    const isFirstCall = localizationCache.has(localizationId);
+    const isFirstCall = !localizationCache.has(localizationId);
     this.localizationCache.get(localizationId).then(localization => {
       if (isFirstCall) {
         scope.dispatch(
           LocalizationService.ADD_LOCALIZATION_ACTION,
-          {localizationId, localization}
+          {id, localization}
         ).then(
           () => localizationCache.remove(localizationId)
         );
@@ -95,40 +88,34 @@ export class LocalizationService {
     });
   }
 
-  configure(config: ILocalizationProviderConfig) {
-    if (this.isConfigured) {
+  configure(config: LocalizationProviderConfig) {
+    if (this.scope) {
       throw new Error('ResourceService must configure only once.');
-    } else this.isConfigured = true;
-    this.scope = createScope<ILocalizationProviderState>(
+    }
+    this.scope = createScope<LocalizationProviderState>(
       LocalizationService.SCOPE_NAME,
       config.initState
     );
     this.scope.registerAction(
       LocalizationService.ADD_LOCALIZATION_ACTION,
-      (scope, props: AddLocalizationActionProps, resolve) => {
-        const localizations = {
-          ...scope.localizations,
-          [props.localizationId]: props.localization
-        };
-        resolve({
-          ...scope,
-          localizations
-        });
+      (scope, props, resolve) => {
+        const localizations = Object.assign(
+          scope.localizations,
+          {[props.id]: props.localization}
+        );
+        resolve(Object.assign(scope, {localizations}));
       }
     );
     this.scope.registerAction(
       LocalizationService.CHANGE_LOCALIZATION_ACTION,
-      (scope, props, resolve) => {
+      (scope, currentLocale, resolve) => {
         const isSupportLocale = scope.locales.find(
-          locale => locale === props
+          locale => locale === currentLocale
         );
         if (!isSupportLocale) {
           throw new Error('Locale not supported.');
         }
-        resolve({
-          ...scope,
-          currentLocale: props
-        });
+        resolve(Object.assign(scope, {currentLocale}));
       }
     );
     this.scope.freeze();
@@ -136,7 +123,7 @@ export class LocalizationService {
       const [locale, id] = key.split(':');
       return config.loader(locale, id);
     });
-    this.defaultTranslator = () => config.defaultLoadingMessage || 'Loading...';
+    this.defaultTranslator = () => '...';
   }
 
 }

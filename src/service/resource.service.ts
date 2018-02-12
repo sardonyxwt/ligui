@@ -1,24 +1,17 @@
 import { createScope, Scope } from '@sardonyxwt/state-store';
 import { createSyncCache, SynchronizedCache } from '@sardonyxwt/utils/synchronized';
 
-export type ResourceLoader = (path: string) => Promise<any>;
-export interface AddResourceActionProps { path: string, resource: any }
-
-export interface IResourceProviderState {
-  resources: { [key: string]: any }
-}
-
-export interface IResourceProviderConfig {
-  loader: ResourceLoader,
-  initState?: IResourceProviderState
+export interface ResourceProviderState { resources: { [key: string]: any } }
+export interface ResourceProviderConfig {
+  loader: (path: string) => Promise<any>,
+  initState?: ResourceProviderState
 }
 
 export class ResourceService {
 
   public static readonly SCOPE_NAME = 'RESOURCES_SCOPE';
   public static readonly ADD_RESOURCE_ACTION = 'ADD_RESOURCE';
-  private scope: Scope<IResourceProviderState>;
-  private isConfigured: boolean;
+  private scope: Scope<ResourceProviderState>;
   private resourceCache: SynchronizedCache<any>;
   private static instance: ResourceService;
 
@@ -29,7 +22,13 @@ export class ResourceService {
     return this.instance || (this.instance = new ResourceService());
   }
 
-  load(path: string, isSave?: boolean): Promise<any> {
+  set(path: string, resource) {
+    return this.scope.dispatch(ResourceService.ADD_RESOURCE_ACTION, {
+      path, resource
+    })
+  }
+
+  get(path: string, isSave?: boolean): Promise<any> {
     const resource = this.scope.getState().resources[path];
     if (resource) {
       return new Promise<any>(resolve => resolve(resource));
@@ -54,23 +53,18 @@ export class ResourceService {
     return this.scope;
   }
 
-  configure(config: IResourceProviderConfig) {
-    if (this.isConfigured) {
+  configure(config: ResourceProviderConfig) {
+    if (this.scope) {
       throw new Error('ResourceService must configure only once.');
-    } else this.isConfigured = true;
-    this.scope = createScope<IResourceProviderState>(
+    }
+    this.scope = createScope<ResourceProviderState>(
       ResourceService.SCOPE_NAME,
-      config.initState || {
-        resources: {}
-      }
+      config.initState || {resources: {}}
     );
     this.scope.registerAction(
       ResourceService.ADD_RESOURCE_ACTION,
-      (scope, props: AddResourceActionProps, resolve) => {
-        resolve({
-          ...scope,
-          [props.path]: props.resource
-        })
+      (scope, props, resolve) => {
+        resolve(Object.assign(scope, {[props.path]: props.resource}))
       });
     this.scope.freeze();
     this.resourceCache = createSyncCache<any>(config.loader);

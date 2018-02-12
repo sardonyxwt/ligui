@@ -1,28 +1,20 @@
 import route from 'riot-route'
 import { createScope, Scope } from '@sardonyxwt/state-store';
 
-export interface IRouteRule<T> {
-  path: string;
-  action: (...args: any[]) => Promise<T>;
-}
-
-export interface IRouterProviderState {
+export interface RouteRule<T> { path: string; action: (...args: any[]) => Promise<T>; }
+export interface RouterProviderState {
   base?: string;
   currentLocation?: string;
   queryParams?: { [key: string]: number | string | boolean }
 }
-
-export interface IRouterProviderConfig {
-  initState?: IRouterProviderState;
-}
+export interface RouterProviderConfig { initState?: RouterProviderState; }
 
 export class RouterService {
 
   public static readonly SCOPE_NAME = 'ROUTER_SCOPE';
   public static readonly CHANGE_LOCATION = 'CHANGE_LOCATION';
 
-  private scope: Scope<IRouterProviderState>;
-  private isConfigured: boolean;
+  private scope: Scope<RouterProviderState>;
   private static instance: RouterService;
 
   private constructor() {
@@ -32,7 +24,7 @@ export class RouterService {
     return this.instance || (this.instance = new RouterService());
   }
 
-  route<T>(rules: IRouteRule<T>[], subscriber: (result: T) => void) {
+  route<T>(rules: RouteRule<T>[], subscriber: (result: T) => void) {
     const routerContext = route.create();
     routerContext.base(this.scope.getState().base);
     rules.forEach(rule => {
@@ -60,16 +52,16 @@ export class RouterService {
     return this.scope.getState().currentLocation
   }
 
-  configure(config: IRouterProviderConfig) {
-    if (this.isConfigured) {
+  configure(config: RouterProviderConfig) {
+    if (this.scope) {
       throw new Error('RouterService must configure only once.');
-    } else this.isConfigured = true;
-    const initState: IRouterProviderState = config.initState || {};
+    }
+    const initState: RouterProviderState = config.initState || {};
     initState.base = initState.base || '#';
     initState.queryParams = initState.queryParams || {};
     initState.currentLocation = initState.currentLocation || '/';
 
-    this.scope = createScope<IRouterProviderState>(
+    this.scope = createScope<RouterProviderState>(
       RouterService.SCOPE_NAME,
       initState
     );
@@ -85,10 +77,10 @@ export class RouterService {
     );
     this.scope.freeze();
     route((...args: any[]) => {
-      alert([...args].join('/'));
+      alert(args.join('/'));
       this.scope.dispatch(RouterService.CHANGE_LOCATION, {
         queryParams: route.query(),
-        currentLocation: [...args].join('/')
+        currentLocation: args.join('/')
       })
     });
     route.start();

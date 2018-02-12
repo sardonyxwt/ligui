@@ -2,45 +2,56 @@ export interface RequestProps extends RequestInit {
   queryParams?: { [key: string]: string }
 }
 
-const defaultProps: RequestProps = {
-  credentials: 'same-origin',
-  headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-  }
-};
-
 export class RestService {
 
+  private _defaultProps: RequestInit;
   private static instance: RestService;
 
   private constructor() {
+    this._defaultProps = {
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    };
   }
 
   static get INSTANCE() {
     return this.instance || (this.instance = new RestService());
   }
 
+  get defaultProps() {
+    return this._defaultProps;
+  }
+
+  set defaultProps(props: RequestInit) {
+    if (typeof props !== 'object') {
+      throw new Error('Props must not null');
+    }
+    this._defaultProps = props;
+  }
+
   post(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign(defaultProps, options, {
+    return this.request(endpoint, Object.assign(this._defaultProps, options, {
       method: 'POST'
     }));
   }
 
   put(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign(defaultProps, options, {
+    return this.request(endpoint, Object.assign(this._defaultProps, options, {
       method: 'PUT'
     }));
   }
 
   get(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign(defaultProps, options, {
+    return this.request(endpoint, Object.assign(this._defaultProps, options, {
       method: 'GET'
     }));
   }
 
   del(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign(defaultProps, options, {
+    return this.request(endpoint, Object.assign(this._defaultProps, options, {
       method: 'DELETE'
     }));
   }
