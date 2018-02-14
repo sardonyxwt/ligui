@@ -1,4 +1,4 @@
-import { Scope } from '@sardonyxwt/state-store';
+import { Scope } from '../';
 export interface RouteRule<T> {
     path: string;
     action: (...args: any[]) => Promise<T>;
@@ -13,13 +13,7 @@ export interface RouterProviderState {
 export interface RouterProviderConfig {
     initState?: RouterProviderState;
 }
-export declare class RouterService {
-    static readonly SCOPE_NAME: string;
-    static readonly CHANGE_LOCATION: string;
-    private scope;
-    private static instance;
-    private constructor();
-    static readonly INSTANCE: RouterService;
+export interface RouterService {
     route<T>(rules: RouteRule<T>[], subscriber: (result: T) => void): void;
     go(path: string, title?: string, replace?: boolean): void;
     getScope(): Scope<RouterProviderState>;
@@ -29,3 +23,5 @@ export declare class RouterService {
     getCurrentLocation(): string;
     configure(config: RouterProviderConfig): void;
 }
+export declare const ROUTER_SCOPE_NAME = "ROUTER_SCOPE";
+export declare const routerService: RouterService;

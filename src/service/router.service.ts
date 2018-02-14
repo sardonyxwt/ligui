@@ -1,5 +1,5 @@
 import route from 'riot-route'
-import { createScope, Scope } from '@sardonyxwt/state-store';
+import { createScope, Scope } from '../';
 
 export interface RouteRule<T> { path: string; action: (...args: any[]) => Promise<T>; }
 export interface RouterProviderState {
@@ -8,21 +8,24 @@ export interface RouterProviderState {
   queryParams?: { [key: string]: number | string | boolean }
 }
 export interface RouterProviderConfig { initState?: RouterProviderState; }
+export interface RouterService {
+  route<T>(rules: RouteRule<T>[], subscriber: (result: T) => void): void;
+  go(path: string, title?: string, replace?: boolean): void;
+  getScope(): Scope<RouterProviderState>;
+  getQueryParams(): {
+    [key: string]: string | number | boolean;
+  };
+  getCurrentLocation(): string;
+  configure(config: RouterProviderConfig): void;
+}
 
-export class RouterService {
+export const ROUTER_SCOPE_NAME = 'ROUTER_SCOPE';
 
-  public static readonly SCOPE_NAME = 'ROUTER_SCOPE';
-  public static readonly CHANGE_LOCATION = 'CHANGE_LOCATION';
+class RouterServiceImpl implements RouterService {
+
+  public readonly CHANGE_LOCATION = 'CHANGE_LOCATION';
 
   private scope: Scope<RouterProviderState>;
-  private static instance: RouterService;
-
-  private constructor() {
-  }
-
-  static get INSTANCE() {
-    return this.instance || (this.instance = new RouterService());
-  }
 
   route<T>(rules: RouteRule<T>[], subscriber: (result: T) => void) {
     const routerContext = route.create();
@@ -62,11 +65,11 @@ export class RouterService {
     initState.currentLocation = initState.currentLocation || '/';
 
     this.scope = createScope<RouterProviderState>(
-      RouterService.SCOPE_NAME,
+      ROUTER_SCOPE_NAME,
       initState
     );
     this.scope.registerAction(
-      RouterService.CHANGE_LOCATION,
+      this.CHANGE_LOCATION,
       (scope, props, resolve) => {
         resolve({
           base: scope.base,
@@ -78,7 +81,7 @@ export class RouterService {
     this.scope.freeze();
     route((...args: any[]) => {
       alert(args.join('/'));
-      this.scope.dispatch(RouterService.CHANGE_LOCATION, {
+      this.scope.dispatch(this.CHANGE_LOCATION, {
         queryParams: route.query(),
         currentLocation: args.join('/')
       })
@@ -87,3 +90,5 @@ export class RouterService {
   }
 
 }
+
+export const routerService: RouterService = new RouterServiceImpl();

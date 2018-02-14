@@ -2,24 +2,25 @@ export interface RequestProps extends RequestInit {
   queryParams?: { [key: string]: string }
 }
 
-export class RestService {
+export interface RestService {
+  defaultProps: RequestInit;
+  post(endpoint: string, options?: RequestProps): Promise<Response>;
+  put(endpoint: string, options?: RequestProps): Promise<Response>;
+  get(endpoint: string, options?: RequestProps): Promise<Response>;
+  del(endpoint: string, options?: RequestProps): Promise<Response>;
+  request(endpoint: string, options?: RequestProps): Promise<Response>;
+  buildUrl(endpoint: string, options?: RequestProps): string;
+}
 
-  private _defaultProps: RequestInit;
-  private static instance: RestService;
+class RestServiceImpl implements RestService {
 
-  private constructor() {
-    this._defaultProps = {
-      credentials: 'same-origin',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    };
-  }
-
-  static get INSTANCE() {
-    return this.instance || (this.instance = new RestService());
-  }
+  private _defaultProps: RequestInit = {
+    credentials: 'same-origin',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  };
 
   get defaultProps() {
     return this._defaultProps;
@@ -56,7 +57,7 @@ export class RestService {
     }));
   }
 
-  request(endpoint: string, options: RequestProps) {
+  request(endpoint: string, options: RequestProps = {}) {
     if (options.headers && options.headers['Content-Type'].includes('application/json')) {
       options.body = JSON.stringify(options.body);
     }
@@ -68,7 +69,7 @@ export class RestService {
     })
   }
 
-  buildUrl(endpoint: string, options: RequestProps) {
+  buildUrl(endpoint: string, options: RequestProps = {}) {
     let url = endpoint;
     const queryParams = options.queryParams;
     if (queryParams) {
@@ -81,3 +82,5 @@ export class RestService {
   }
 
 }
+
+export const restService: RestService = new RestServiceImpl();

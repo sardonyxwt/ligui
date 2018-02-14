@@ -1,17 +1,15 @@
 import { h, render, AnyComponent } from 'preact';
-import { render as renderAsString } from 'preact-render-to-string';
 
-export class JSXService {
+export interface JSXService {
+  register(name: string, component: AnyComponent<any, any>): JSXService;
+  render(query: string, component: JSX.Element, isReplaced?: boolean): JSXService;
+  create(name: string, props?: {}, children?: JSX.Element | JSX.Element[]): JSX.Element
+  remove(query: string);
+}
+
+class JsxServiceImpl implements JSXService {
 
   private components = {};
-  private static instance: JSXService;
-
-  private constructor() {
-  }
-
-  static get INSTANCE() {
-    return this.instance || (this.instance = new JSXService());
-  }
 
   register(name: string, component: AnyComponent<any, any>) {
     if (name in this.components) {
@@ -23,23 +21,30 @@ export class JSXService {
 
   render(query: string, component: JSX.Element, isReplaced = false) {
     const nodes = document.querySelectorAll(query);
-    Array.from(nodes).forEach((node: Element) =>
+    for (let i = 0; i < nodes.length; i++) {
+      let node = nodes.item(i);
       render(component, node, isReplaced ? node.firstElementChild : null)
-    );
+    }
     return this;
-  }
-
-  renderToString(el: JSX.Element) {
-    return renderAsString(el);
-  }
-
-  remove(query: string) {
-    const nodes = document.querySelectorAll(query);
-    Array.from(nodes).forEach((node: Element) => node.innerHTML = '');
   }
 
   create(name: string, props = {}, children: JSX.Element | JSX.Element[] = []) {
     return h(this.components[name] || name, props, children);
   }
 
+  remove(query: string) {
+    const nodes = document.querySelectorAll(query);
+    for (let i = 0; i < nodes.length; i++) {
+      let node = nodes.item(i);
+      node.innerHTML = '';
+    }
+  }
+
 }
+
+export const jsxService: JSXService = new JsxServiceImpl();
+
+export {
+  h, render, Component, AnyComponent,
+  ComponentProps, ComponentLifecycle, FunctionalComponent, ComponentConstructor
+} from 'preact';
