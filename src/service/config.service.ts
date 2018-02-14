@@ -1,34 +1,36 @@
-import { createScope, Scope } from '@sardonyxwt/state-store';
-import { createSyncCache, SynchronizedCache } from '@sardonyxwt/utils/synchronized';
+import { SynchronizedUtil, createScope, Scope } from '../';
 
-export interface ConfigProviderState { configs: { [key: string]: any } }
+export interface ConfigProviderState {
+  configs: { [key: string]: any }
+}
+
 export interface ConfigProviderConfig {
   loader: (name: string) => Promise<any>;
   initState?: ConfigProviderState;
 }
 
-export class ConfigService {
+export interface ConfigService {
+  set(name: string, config): Promise<ConfigProviderState>;
+  get<T = any>(name: string): Promise<T>;
+  getScope(): Scope<ConfigProviderState>;
+  configure(config: ConfigProviderConfig);
+}
 
-  public static readonly SCOPE_NAME = 'CONFIG_SCOPE';
-  public static readonly ADD_CONFIG_ACTION = 'LOAD_CONFIG';
+export const CONFIG_SCOPE_NAME = 'CONFIG_SCOPE';
+export const CONFIG_SCOPE_ACTION_LOAD = 'LOAD_CONFIG';
+
+class ConfigServiceImpl implements ConfigService {
+
   private scope: Scope<ConfigProviderState>;
-  private configCache: SynchronizedCache<any>;
-  private static instance: ConfigService;
-
-  private constructor() {
-  }
-
-  static get INSTANCE() {
-    return this.instance || (this.instance = new ConfigService());
-  }
+  private configCache: SynchronizedUtil.SynchronizedCache<any>;
 
   set(name: string, config) {
     return this.scope.dispatch(
-      ConfigService.ADD_CONFIG_ACTION, {name, config}
+      CONFIG_SCOPE_ACTION_LOAD, {name, config}
     );
   }
 
-  get(name: string): Promise<any> {
+  get<T = any>(name: string): Promise<T> {
     let config = this.scope.getState()[name];
     if (config) {
       return Promise.resolve(config);
@@ -38,8 +40,10 @@ export class ConfigService {
     }
     return this.configCache.get(name).then(config => {
       this.configCache.remove(name);
-      this.scope.dispatch(ConfigService.ADD_CONFIG_ACTION, {name, config});
-      return config;
+      return this.scope.dispatch(
+        CONFIG_SCOPE_ACTION_LOAD,
+        {name, config}
+      ).then(scope => scope[name]);
     });
   }
 
@@ -52,18 +56,20 @@ export class ConfigService {
       throw new Error('ConfigService must configure only once.');
     }
     this.scope = createScope<ConfigProviderState>(
-      ConfigService.SCOPE_NAME,
+      CONFIG_SCOPE_NAME,
       config.initState || {configs: {}}
     );
     this.scope.registerAction(
-      ConfigService.ADD_CONFIG_ACTION,
+      CONFIG_SCOPE_ACTION_LOAD,
       (scope, props, resolve) => resolve(
         Object.assign(scope, {[props.name]: props.config})
       )
     );
     this.scope.freeze();
 
-    this.configCache = createSyncCache<any>(config.loader);
+    this.configCache = SynchronizedUtil.createSyncCache<any>(config.loader);
   }
 
 }
+
+export const configService: ConfigService = new ConfigServiceImpl();

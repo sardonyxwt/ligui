@@ -1,5 +1,4 @@
-import { createScope, Scope } from '@sardonyxwt/state-store';
-import { createSyncCache, SynchronizedCache } from '@sardonyxwt/utils/synchronized';
+import { SynchronizedUtil, createScope, Scope } from '../';
 
 export type Translator = (key: string) => string;
 
@@ -19,26 +18,28 @@ export interface LocalizationProviderConfig {
   initState: LocalizationProviderState;
 }
 
-export class LocalizationService {
+export interface LocalizationService {
+  changeLocale(locale: string): Promise<LocalizationProviderState>;
+  getScope(): Scope<LocalizationProviderState>;
+  getLocales(): string[];
+  getDefaultLocale(): string;
+  getCurrentLocale(): string;
+  subscribe(id: string, subscriber: (t: Translator) => void): void;
+  configure(config: LocalizationProviderConfig): void;
+}
 
-  public static readonly SCOPE_NAME = 'LOCALIZATION_SCOPE';
-  public static readonly ADD_LOCALIZATION_ACTION = 'ADD_LOCALIZATION';
-  public static readonly CHANGE_LOCALIZATION_ACTION = 'CHANGE_LOCALIZATION';
+export const LOCALIZATION_SCOPE_NAME = 'LOCALIZATION_SCOPE';
+export const LOCALIZATION_SCOPE_ACTION_ADD = 'ADD_LOCALIZATION';
+export const LOCALIZATION_SCOPE_ACTION_CHANGE = 'CHANGE_LOCALIZATION';
+
+class LocalizationServiceImpl implements LocalizationService {
 
   private scope: Scope<LocalizationProviderState>;
   private defaultTranslator: Translator;
-  private localizationCache: SynchronizedCache<Localization>;
-  private static instance: LocalizationService;
-
-  private constructor() {
-  }
-
-  static get INSTANCE() {
-    return this.instance || (this.instance = new LocalizationService());
-  }
+  private localizationCache: SynchronizedUtil.SynchronizedCache<Localization>;
 
   changeLocale(locale: string): Promise<LocalizationProviderState> {
-    return this.scope.dispatch(LocalizationService.CHANGE_LOCALIZATION_ACTION, locale);
+    return this.scope.dispatch(LOCALIZATION_SCOPE_ACTION_CHANGE, locale);
   }
 
   getScope() {
@@ -63,7 +64,7 @@ export class LocalizationService {
     const listenerId = scope.subscribe(() => {
       scope.unsubscribe(listenerId);
       this.subscribe(id, subscriber);
-    }, LocalizationService.CHANGE_LOCALIZATION_ACTION);
+    }, LOCALIZATION_SCOPE_ACTION_CHANGE);
 
     let state = scope.getState();
     let localizationId = `${scope.getState().currentLocale}:${id}`;
@@ -78,7 +79,7 @@ export class LocalizationService {
     this.localizationCache.get(localizationId).then(localization => {
       if (isFirstCall) {
         scope.dispatch(
-          LocalizationService.ADD_LOCALIZATION_ACTION,
+          LOCALIZATION_SCOPE_ACTION_ADD,
           {id, localization}
         ).then(
           () => localizationCache.remove(localizationId)
@@ -93,11 +94,11 @@ export class LocalizationService {
       throw new Error('ResourceService must configure only once.');
     }
     this.scope = createScope<LocalizationProviderState>(
-      LocalizationService.SCOPE_NAME,
+      LOCALIZATION_SCOPE_NAME,
       config.initState
     );
     this.scope.registerAction(
-      LocalizationService.ADD_LOCALIZATION_ACTION,
+      LOCALIZATION_SCOPE_ACTION_ADD,
       (scope, props, resolve) => {
         const localizations = Object.assign(
           scope.localizations,
@@ -107,7 +108,7 @@ export class LocalizationService {
       }
     );
     this.scope.registerAction(
-      LocalizationService.CHANGE_LOCALIZATION_ACTION,
+      LOCALIZATION_SCOPE_ACTION_CHANGE,
       (scope, currentLocale, resolve) => {
         const isSupportLocale = scope.locales.find(
           locale => locale === currentLocale
@@ -119,7 +120,7 @@ export class LocalizationService {
       }
     );
     this.scope.freeze();
-    this.localizationCache = createSyncCache<Localization>((key: string) => {
+    this.localizationCache = SynchronizedUtil.createSyncCache<Localization>((key: string) => {
       const [locale, id] = key.split(':');
       return config.loader(locale, id);
     });
@@ -127,3 +128,5 @@ export class LocalizationService {
   }
 
 }
+
+export const localizationService: LocalizationService = new LocalizationServiceImpl();
