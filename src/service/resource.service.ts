@@ -13,15 +13,15 @@ export interface ResourceService {
 }
 
 export const RESOURCES_SCOPE_NAME = 'RESOURCES_SCOPE';
+export const RESOURCES_SCOPE_ACTION_ADD = 'ADD_RESOURCE';
 
 class ResourceServiceImpl implements ResourceService {
 
-  public readonly ADD_RESOURCE_ACTION = 'ADD_RESOURCE';
   private scope: Scope<ResourceProviderState>;
   private resourceCache: SynchronizedUtil.SynchronizedCache<any>;
 
   set(path: string, resource) {
-    return this.scope.dispatch(this.ADD_RESOURCE_ACTION, {
+    return this.scope.dispatch(RESOURCES_SCOPE_ACTION_ADD, {
       path, resource
     })
   }
@@ -38,7 +38,7 @@ class ResourceServiceImpl implements ResourceService {
       promise.then(resource => {
         this.resourceCache.remove(path);
         if (isCache) {
-          this.scope.dispatch(this.ADD_RESOURCE_ACTION, {
+          this.scope.dispatch(RESOURCES_SCOPE_ACTION_ADD, {
             path, resource
           })
         }
@@ -60,7 +60,7 @@ class ResourceServiceImpl implements ResourceService {
       config.initState || {resources: {}}
     );
     this.scope.registerAction(
-      this.ADD_RESOURCE_ACTION,
+      RESOURCES_SCOPE_ACTION_ADD,
       (scope, props, resolve) => {
         resolve(Object.assign(scope, {[props.path]: props.resource}))
       });

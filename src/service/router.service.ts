@@ -19,10 +19,9 @@ export interface RouterService {
 }
 
 export const ROUTER_SCOPE_NAME = 'ROUTER_SCOPE';
+export const ROUTER_SCOPE_ACTION_CHANGE = 'CHANGE_LOCATION';
 
 class RouterServiceImpl implements RouterService {
-
-  public readonly CHANGE_LOCATION = 'CHANGE_LOCATION';
 
   private scope: Scope<RouterProviderState>;
 
@@ -68,7 +67,7 @@ class RouterServiceImpl implements RouterService {
       initState
     );
     this.scope.registerAction(
-      this.CHANGE_LOCATION,
+      ROUTER_SCOPE_ACTION_CHANGE,
       (scope, props, resolve) => {
         resolve({
           base: scope.base,
@@ -80,7 +79,7 @@ class RouterServiceImpl implements RouterService {
     this.scope.freeze();
     route((...args: any[]) => {
       alert(args.join('/'));
-      this.scope.dispatch(this.CHANGE_LOCATION, {
+      this.scope.dispatch(ROUTER_SCOPE_ACTION_CHANGE, {
         queryParams: route.query(),
         currentLocation: args.join('/')
       })

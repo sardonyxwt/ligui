@@ -29,18 +29,17 @@ export interface LocalizationService {
 }
 
 export const LOCALIZATION_SCOPE_NAME = 'LOCALIZATION_SCOPE';
+export const LOCALIZATION_SCOPE_ACTION_ADD = 'ADD_LOCALIZATION';
+export const LOCALIZATION_SCOPE_ACTION_CHANGE = 'CHANGE_LOCALIZATION';
 
 class LocalizationServiceImpl implements LocalizationService {
-
-  public readonly ADD_LOCALIZATION_ACTION = 'ADD_LOCALIZATION';
-  public readonly CHANGE_LOCALIZATION_ACTION = 'CHANGE_LOCALIZATION';
 
   private scope: Scope<LocalizationProviderState>;
   private defaultTranslator: Translator;
   private localizationCache: SynchronizedUtil.SynchronizedCache<Localization>;
 
   changeLocale(locale: string): Promise<LocalizationProviderState> {
-    return this.scope.dispatch(this.CHANGE_LOCALIZATION_ACTION, locale);
+    return this.scope.dispatch(LOCALIZATION_SCOPE_ACTION_CHANGE, locale);
   }
 
   getScope() {
@@ -65,7 +64,7 @@ class LocalizationServiceImpl implements LocalizationService {
     const listenerId = scope.subscribe(() => {
       scope.unsubscribe(listenerId);
       this.subscribe(id, subscriber);
-    }, this.CHANGE_LOCALIZATION_ACTION);
+    }, LOCALIZATION_SCOPE_ACTION_CHANGE);
 
     let state = scope.getState();
     let localizationId = `${scope.getState().currentLocale}:${id}`;
@@ -80,7 +79,7 @@ class LocalizationServiceImpl implements LocalizationService {
     this.localizationCache.get(localizationId).then(localization => {
       if (isFirstCall) {
         scope.dispatch(
-          this.ADD_LOCALIZATION_ACTION,
+          LOCALIZATION_SCOPE_ACTION_ADD,
           {id, localization}
         ).then(
           () => localizationCache.remove(localizationId)
@@ -99,7 +98,7 @@ class LocalizationServiceImpl implements LocalizationService {
       config.initState
     );
     this.scope.registerAction(
-      this.ADD_LOCALIZATION_ACTION,
+      LOCALIZATION_SCOPE_ACTION_ADD,
       (scope, props, resolve) => {
         const localizations = Object.assign(
           scope.localizations,
@@ -109,7 +108,7 @@ class LocalizationServiceImpl implements LocalizationService {
       }
     );
     this.scope.registerAction(
-      this.CHANGE_LOCALIZATION_ACTION,
+      LOCALIZATION_SCOPE_ACTION_CHANGE,
       (scope, currentLocale, resolve) => {
         const isSupportLocale = scope.locales.find(
           locale => locale === currentLocale

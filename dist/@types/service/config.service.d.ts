@@ -15,4 +15,5 @@ export interface ConfigService {
     configure(config: ConfigProviderConfig): any;
 }
 export declare const CONFIG_SCOPE_NAME = "CONFIG_SCOPE";
+export declare const CONFIG_SCOPE_ACTION_LOAD = "LOAD_CONFIG";
 export declare const configService: ConfigService;

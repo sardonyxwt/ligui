@@ -15,4 +15,5 @@ export interface ResourceService {
     configure(config: ResourceProviderConfig): void;
 }
 export declare const RESOURCES_SCOPE_NAME = "RESOURCES_SCOPE";
+export declare const RESOURCES_SCOPE_ACTION_ADD = "ADD_RESOURCE";
 export declare const resourceService: ResourceService;

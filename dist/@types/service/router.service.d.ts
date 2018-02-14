@@ -23,4 +23,5 @@ export interface RouterService {
     configure(config: RouterProviderConfig): void;
 }
 export declare const ROUTER_SCOPE_NAME = "ROUTER_SCOPE";
+export declare const ROUTER_SCOPE_ACTION_CHANGE = "CHANGE_LOCATION";
 export declare const routerService: RouterService;

@@ -17,17 +17,16 @@ export interface ConfigService {
 }
 
 export const CONFIG_SCOPE_NAME = 'CONFIG_SCOPE';
+export const CONFIG_SCOPE_ACTION_LOAD = 'LOAD_CONFIG';
 
 class ConfigServiceImpl implements ConfigService {
-
-  public readonly ADD_CONFIG_ACTION = 'LOAD_CONFIG';
 
   private scope: Scope<ConfigProviderState>;
   private configCache: SynchronizedUtil.SynchronizedCache<any>;
 
   set(name: string, config) {
     return this.scope.dispatch(
-      this.ADD_CONFIG_ACTION, {name, config}
+      CONFIG_SCOPE_ACTION_LOAD, {name, config}
     );
   }
 
@@ -42,7 +41,7 @@ class ConfigServiceImpl implements ConfigService {
     return this.configCache.get(name).then(config => {
       this.configCache.remove(name);
       return this.scope.dispatch(
-        this.ADD_CONFIG_ACTION,
+        CONFIG_SCOPE_ACTION_LOAD,
         {name, config}
       ).then(scope => scope[name]);
     });
@@ -61,7 +60,7 @@ class ConfigServiceImpl implements ConfigService {
       config.initState || {configs: {}}
     );
     this.scope.registerAction(
-      this.ADD_CONFIG_ACTION,
+      CONFIG_SCOPE_ACTION_LOAD,
       (scope, props, resolve) => resolve(
         Object.assign(scope, {[props.name]: props.config})
       )

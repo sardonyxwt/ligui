@@ -25,4 +25,6 @@ export interface LocalizationService {
     configure(config: LocalizationProviderConfig): void;
 }
 export declare const LOCALIZATION_SCOPE_NAME = "LOCALIZATION_SCOPE";
+export declare const LOCALIZATION_SCOPE_ACTION_ADD = "ADD_LOCALIZATION";
+export declare const LOCALIZATION_SCOPE_ACTION_CHANGE = "CHANGE_LOCALIZATION";
 export declare const localizationService: LocalizationService;
