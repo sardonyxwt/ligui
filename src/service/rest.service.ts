@@ -74,7 +74,7 @@ class RestServiceImpl implements RestService {
     const queryParams = options.queryParams;
     if (queryParams) {
       url += '?';
-      url += Object.keys(queryParams)
+      url += Object.getOwnPropertyNames(queryParams)
         .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(queryParams[k]))
         .join('&');
     }
