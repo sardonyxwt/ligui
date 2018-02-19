@@ -1,6 +1,6 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Ligui",
   "keywords": [
     "sclib",
@@ -43,7 +43,7 @@
     "testRegex": "/(test|src)/.*\\.(test|spec)\\.(ts|js)$"
   },
   "dependencies": {
-    "@sardonyxwt/state-store": "^2.2.6",
+    "@sardonyxwt/state-store": "^2.3.0",
     "@sardonyxwt/utils": "^1.6.2",
     "preact": "^8.2.7",
     "riot-route": "^3.1.2"
