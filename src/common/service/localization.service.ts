@@ -1,4 +1,5 @@
-import { SynchronizedUtil, createScope, Scope } from '../';
+import * as SynchronizedUtil from '@sardonyxwt/utils/synchronized';
+import { createScope, Scope } from '../index';
 
 export type Translator = (key: string) => string;
 

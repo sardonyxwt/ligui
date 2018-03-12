@@ -1,5 +1,5 @@
 import route from 'riot-route'
-import { createScope, Scope } from '../';
+import { createScope, Scope } from '../index';
 
 export interface QueryParams { [key: string]: string | number | boolean; }
 export interface RouteRule<T> { path: string; action: (...args: any[]) => Promise<T>; }
@@ -82,7 +82,9 @@ class RouterServiceImpl implements RouterService {
       this.scope.dispatch(ROUTER_SCOPE_ACTION_CHANGE, {
         queryParams: route.query(),
         currentLocation: args.join('/')
-      })
+      }).then(
+        newScope => console.log(`Location changed ${newScope.currentLocation}`)
+      )
     });
     route.start();
   }

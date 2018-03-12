@@ -40,10 +40,14 @@ module.exports = env => {
   ];
 
   return {
-    entry: './src/index.ts',
+    entry: {
+      'common': './src/common/',
+      'preact.ligui': './src/preact/preact.ligui.ts',
+      'react.ligui': './src/react/react.ligui.ts'
+    },
     devtool: 'source-map',
     output: {
-      filename: `${dist}/ligui.min.js`,
+      filename: `${dist}/[name].min.js`,
       libraryTarget: 'umd'
     },
     resolve: {
