@@ -16,14 +16,17 @@
     "LICENSE",
     "README.md",
     "CHANGELOG.md",
-    "src/"
+    "@core/dist",
+    "@react/dist",
+    "@preact/dist"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/sardonyxwt/ligui.git"
   },
+  "sideEffects": false,
   "scripts": {
-    "build": "webpack -p --env.production",
+    "build": "webpack --mode production --env.production",
     "build:stats": "webpack --profile --env.stats --json > stats.json",
     "test": "cross-env-shell webpack && jest",
     "lint": "tslint -p . -c tslint.json --fix -t verbose",
@@ -42,9 +45,7 @@
   },
   "dependencies": {
     "@sardonyxwt/state-store": "^2.3.1",
-    "@sardonyxwt/utils": "^1.6.2",
-    "@types/react": "^16.0.40",
-    "@types/react-dom": "^15.5.7",
+    "@sardonyxwt/utils": "^1.6.3",
     "preact": "^8.2.7",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
@@ -53,16 +54,18 @@
   "devDependencies": {
     "@types/jest": "^21.1.9",
     "@types/node": "^9.3.0",
-    "clean-webpack-plugin": "0.1.17",
+    "@types/react": "^16.0.40",
+    "@types/react-dom": "^15.5.7",
     "cross-env": "5.1.1",
     "jest": "^22.0.4",
+    "parallel-webpack": "^2.3.0",
     "ts-jest": "^22.0.0",
-    "ts-loader": "^3.2.0",
+    "ts-loader": "^4.0.1",
     "tslint": "^5.9.1",
-    "tslint-loader": "^3.5.3",
     "typescript": "^2.6.0",
-    "webpack": "^3.6.0",
+    "webpack": "^4.1.1",
     "webpack-bundle-analyzer": "^2.9.1",
+    "webpack-cli": "^2.0.11",
     "webpack-visualizer-plugin": "^0.1.11"
   }
 }
