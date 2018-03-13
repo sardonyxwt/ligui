@@ -20,7 +20,7 @@ function createConfig(options) {
     }
   ];
 
-  if (options.env.statistic) {
+  if (options.env['statistic']) {
     plugins.push(
       new StatsPlugin(`./@${options.entry}/dist/@stat/webpack.json`, {}, false),
       new VisualizerWebpackPlugin({
@@ -39,6 +39,9 @@ function createConfig(options) {
     output: {
       path: __dirname,
       filename: `@${options.entry}/dist/ligui.${options.entry}.min.js`
+    },
+    stats: {
+      source: false
     },
     profile: options.env.statistic,
     devtool: 'source-map',
