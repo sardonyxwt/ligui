@@ -27,7 +27,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "webpack --mode production --env.production",
-    "build:stats": "webpack --profile --env.stats --json > stats.json",
+    "build:stats": "webpack --mode production --env.statistic",
     "test": "cross-env-shell webpack && jest",
     "lint": "tslint -p . -c tslint.json --fix -t verbose",
     "deploy": "cross-env-shell npm run build && npm publish --access public"
@@ -56,9 +56,11 @@
     "@types/node": "^9.3.0",
     "@types/react": "^16.0.40",
     "@types/react-dom": "^15.5.7",
+    "clean-webpack-plugin": "^0.1.19",
     "cross-env": "5.1.1",
     "jest": "^22.0.4",
     "parallel-webpack": "^2.3.0",
+    "stats-webpack-plugin": "^0.6.2",
     "ts-jest": "^22.0.0",
     "ts-loader": "^4.0.1",
     "tslint": "^5.9.1",

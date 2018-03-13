@@ -1,23 +1,16 @@
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CreateVariants = require('parallel-webpack').createVariants;
 const VisualizerWebpackPlugin = require('webpack-visualizer-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const StatsPlugin = require('stats-webpack-plugin');
 
-module.exports = env => {
+function createConfig(options) {
 
-  const plugins = [];
-
-  if (env['production']) {
-    plugins.push(
-      new VisualizerWebpackPlugin({
-        filename: './bundle-statistics.html'
-      }),
-      new BundleAnalyzerPlugin({
-        openAnalyzer: false,
-        analyzerMode: 'static',
-        reportFilename: './bundle-report.html'
-      })
+  const plugins = [
+    new CleanWebpackPlugin([
+      `./@${options.entry}/dist`]
     )
-  }
+  ];
 
   const rules = [
     {
@@ -27,28 +20,44 @@ module.exports = env => {
     }
   ];
 
-  const variantsOptions = {
-    entry: ['core', 'preact', 'react']
-  };
+  if (options.env.statistic) {
+    plugins.push(
+      new StatsPlugin(`./@${options.entry}/dist/@stat/webpack.json`, {}, false),
+      new VisualizerWebpackPlugin({
+        filename: `./@${options.entry}/dist/@stat/visualization.html`
+      }),
+      new BundleAnalyzerPlugin({
+        openAnalyzer: false,
+        analyzerMode: 'static',
+        reportFilename: `./@${options.entry}/dist/@stat/bundle.html`
+      })
+    )
+  }
 
-  return CreateVariants({}, variantsOptions, options => {
-    return {
-      entry: `./@${options.entry}/src/index.ts`,
-      output: {
-        path: __dirname,
-        filename: `@${options.entry}/dist/ligui.${options.entry}.min.js`
-      },
-      devtool: 'source-map',
-      resolve: {
-        extensions: ['.js', '.ts', '.json'],
-        alias: {
-          '@core': `${__dirname}/@core/src/index.ts`
-        }
-      },
-      module: {
-        rules
-      },
-      plugins
-    }
-  });
+  return {
+    entry: `./@${options.entry}/src/index.ts`,
+    output: {
+      path: __dirname,
+      filename: `@${options.entry}/dist/ligui.${options.entry}.min.js`
+    },
+    profile: options.env.statistic,
+    devtool: 'source-map',
+    resolve: {
+      extensions: ['.js', '.ts', '.json'],
+      alias: {
+        '@core': `${__dirname}/@core/src/index.ts`
+      }
+    },
+    module: {
+      rules
+    },
+    plugins
+  }
+
+}
+
+const variantsOptions = {
+  entry: ['core', 'preact', 'react']
 };
+
+module.exports = env => CreateVariants({env}, variantsOptions, createConfig);
