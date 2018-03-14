@@ -1,13 +1,13 @@
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CreateVariants = require('parallel-webpack').createVariants;
-const VisualizerWebpackPlugin = require('webpack-visualizer-plugin');
+const CleanPlugin = require('clean-webpack-plugin');
+const VisualizerPlugin = require('webpack-visualizer-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const StatsPlugin = require('stats-webpack-plugin');
 
 function createConfig(options) {
 
   const plugins = [
-    new CleanWebpackPlugin([
+    new CleanPlugin([
       `./@${options.entry}/dist`]
     )
   ];
@@ -23,7 +23,7 @@ function createConfig(options) {
   if (options.env['statistic']) {
     plugins.push(
       new StatsPlugin(`./@${options.entry}/dist/@stat/webpack.json`, {}, false),
-      new VisualizerWebpackPlugin({
+      new VisualizerPlugin({
         filename: `./@${options.entry}/dist/@stat/visualization.html`
       }),
       new BundleAnalyzerPlugin({
@@ -46,7 +46,7 @@ function createConfig(options) {
     profile: options.env.statistic,
     devtool: 'source-map',
     resolve: {
-      extensions: ['.js', '.ts', '.json'],
+      extensions: ['.js', '.ts', '.json', '.webpack.js'],
       alias: {
         '@core': `${__dirname}/@core/src/index.ts`
       }
