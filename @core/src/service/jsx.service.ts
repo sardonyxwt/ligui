@@ -1,4 +1,19 @@
-export abstract class JSXService {
+import {render} from 'react-dom';
+import {createElement} from 'react';
+
+export interface JSXService {
+  register(name: string, component): JSXService;
+
+  remove(query: string): JSXService;
+
+  render(query: string, component, isReplaced = false): JSXService;
+
+  create(name: string,
+         props = {},
+         children: JSX.Element | JSX.Element[] = []);
+}
+
+class JSXServiceImpl implements JSXService {
 
   protected components = {};
 
@@ -16,9 +31,22 @@ export abstract class JSXService {
       let node = nodes.item(i);
       node.innerHTML = '';
     }
+    return this;
   }
 
-  abstract render(query: string, component, isReplaced?: boolean): JSXService;
-  abstract create(name: string, props?: {}, children?: JSX.Element | JSX.Element[]);
+  render(query: string, component, isReplaced = false) {
+    const nodes = document.querySelectorAll(query);
+    for (let i = 0; i < nodes.length; i++) {
+      let node = nodes.item(i);
+      render(component, node)
+    }
+    return this;
+  }
+
+  create(name: string, props = {}, children: JSX.Element | JSX.Element[] = []) {
+    return createElement(this.components[name] || name, props, children);
+  }
 
 }
+
+export const jsxService: JSXService = new JSXServiceImpl();
