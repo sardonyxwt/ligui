@@ -1,18 +1,18 @@
-import { Scope } from '@core';
-export interface ResourceProviderState {
+import { Scope } from '@sardonyxwt/state-store';
+export interface ResourceServiceState {
     resources: {
         [key: string]: any;
     };
 }
-export interface ResourceProviderConfig {
+export interface ResourceServiceConfig {
     loader: (path: string) => Promise<any>;
-    initState?: ResourceProviderState;
+    initState?: ResourceServiceState;
 }
 export interface ResourceService {
-    set(path: string, resource: any): Promise<ResourceProviderState>;
+    set(path: string, resource: any): Promise<ResourceServiceState>;
     get(path: string, isSave?: boolean): Promise<any>;
-    getScope(): Scope<ResourceProviderState>;
-    configure(config: ResourceProviderConfig): void;
+    getScope(): Scope<ResourceServiceState>;
+    configure(config: ResourceServiceConfig): void;
 }
 export declare const RESOURCES_SCOPE_NAME = "RESOURCES_SCOPE";
 export declare const RESOURCES_SCOPE_ACTION_ADD = "ADD_RESOURCE";

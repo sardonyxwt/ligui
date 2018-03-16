@@ -1,5 +1,5 @@
 import * as SynchronizedUtil from '@sardonyxwt/utils/synchronized';
-import {createScope, Scope} from '@core';
+import {createScope, Scope} from '@sardonyxwt/state-store';
 
 export type Translator = (key: string) => string;
 
@@ -7,22 +7,22 @@ export interface Localization {
   [key: string]: string
 }
 
-export interface LocalizationProviderState {
+export interface LocalizationServiceState {
   locales: string[];
   defaultLocale: string;
   currentLocale: string;
   localizations: { [key: string]: Localization }
 }
 
-export interface LocalizationProviderConfig {
+export interface LocalizationServiceConfig {
   loader: (locale: string, id: string) => Promise<Localization>;
-  initState: LocalizationProviderState;
+  initState: LocalizationServiceState;
 }
 
 export interface LocalizationService {
-  changeLocale(locale: string): Promise<LocalizationProviderState>;
+  changeLocale(locale: string): Promise<LocalizationServiceState>;
 
-  getScope(): Scope<LocalizationProviderState>;
+  getScope(): Scope<LocalizationServiceState>;
 
   getLocales(): string[];
 
@@ -32,7 +32,7 @@ export interface LocalizationService {
 
   subscribe(id: string, subscriber: (t: Translator) => void): void;
 
-  configure(config: LocalizationProviderConfig): void;
+  configure(config: LocalizationServiceConfig): void;
 }
 
 interface Subscriber {
@@ -46,11 +46,11 @@ export const LOCALIZATION_SCOPE_ACTION_CHANGE = 'CHANGE_LOCALIZATION';
 
 class LocalizationServiceImpl implements LocalizationService {
 
-  private scope: Scope<LocalizationProviderState>;
+  private scope: Scope<LocalizationServiceState>;
   private localizationCache: SynchronizedUtil.SynchronizedCache<Localization>;
   private subscribers: Subscriber[] = [];
 
-  changeLocale(locale: string): Promise<LocalizationProviderState> {
+  changeLocale(locale: string): Promise<LocalizationServiceState> {
     return this.scope.dispatch(LOCALIZATION_SCOPE_ACTION_CHANGE, locale);
   }
 
@@ -99,11 +99,11 @@ class LocalizationServiceImpl implements LocalizationService {
 
   }
 
-  configure(config: LocalizationProviderConfig) {
+  configure(config: LocalizationServiceConfig) {
     if (this.scope) {
       throw new Error('ResourceService must configure only once.');
     }
-    this.scope = createScope<LocalizationProviderState>(
+    this.scope = createScope<LocalizationServiceState>(
       LOCALIZATION_SCOPE_NAME,
       config.initState
     );

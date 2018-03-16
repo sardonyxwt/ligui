@@ -1,16 +1,16 @@
 import * as SynchronizedUtil from '@sardonyxwt/utils/synchronized';
-import { createScope, Scope } from '@core';
+import { createScope, Scope } from '@sardonyxwt/state-store';
 
-export interface ResourceProviderState { resources: { [key: string]: any } }
-export interface ResourceProviderConfig {
+export interface ResourceServiceState { resources: { [key: string]: any } }
+export interface ResourceServiceConfig {
   loader: (path: string) => Promise<any>,
-  initState?: ResourceProviderState
+  initState?: ResourceServiceState
 }
 export interface ResourceService {
-  set(path: string, resource: any): Promise<ResourceProviderState>;
+  set(path: string, resource: any): Promise<ResourceServiceState>;
   get(path: string, isSave?: boolean): Promise<any>;
-  getScope(): Scope<ResourceProviderState>;
-  configure(config: ResourceProviderConfig): void;
+  getScope(): Scope<ResourceServiceState>;
+  configure(config: ResourceServiceConfig): void;
 }
 
 export const RESOURCES_SCOPE_NAME = 'RESOURCES_SCOPE';
@@ -18,7 +18,7 @@ export const RESOURCES_SCOPE_ACTION_ADD = 'ADD_RESOURCE';
 
 class ResourceServiceImpl implements ResourceService {
 
-  private scope: Scope<ResourceProviderState>;
+  private scope: Scope<ResourceServiceState>;
   private resourceCache: SynchronizedUtil.SynchronizedCache<any>;
 
   set(path: string, resource) {
@@ -52,11 +52,11 @@ class ResourceServiceImpl implements ResourceService {
     return this.scope;
   }
 
-  configure(config: ResourceProviderConfig) {
+  configure(config: ResourceServiceConfig) {
     if (this.scope) {
       throw new Error('ResourceService must configure only once.');
     }
-    this.scope = createScope<ResourceProviderState>(
+    this.scope = createScope<ResourceServiceState>(
       RESOURCES_SCOPE_NAME,
       config.initState || {resources: {}}
     );

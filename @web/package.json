@@ -1,9 +1,0 @@
-{
-  "name": "@sardonyxwt/ligui/@preact",
-  "version": "1.5.3",
-  "description": "",
-  "main": "dist/ligui.preact.min.js",
-  "typings": "dist/@types/@preact/src/index.d.ts",
-  "author": "sardonyx.wt@gmail.com",
-  "license": "MIT"
-}

@@ -6,11 +6,7 @@ const StatsPlugin = require('stats-webpack-plugin');
 
 function createConfig(options) {
 
-  const plugins = [
-    new CleanPlugin([
-      `./@${options.entry}/dist`]
-    )
-  ];
+  const ext = `${options.jsxLib}.${options.includeLib ? 'vendor' : 'lib'}`;
 
   const rules = [
     {
@@ -20,36 +16,42 @@ function createConfig(options) {
     }
   ];
 
-  if (options.env['statistic']) {
-    plugins.push(
-      new StatsPlugin(`./@${options.entry}/dist/@stat/webpack.json`, {}, false),
-      new VisualizerPlugin({
-        filename: `./@${options.entry}/dist/@stat/visualization.html`
-      }),
-      new BundleAnalyzerPlugin({
-        openAnalyzer: false,
-        analyzerMode: 'static',
-        reportFilename: `./@${options.entry}/dist/@stat/bundle.html`
-      })
-    )
-  }
+  const plugins = [
+    new CleanPlugin([
+      `./dist`]
+    ),
+    new StatsPlugin(`./dist/@stat/webpack.${ext}.json`, {}, false),
+    new VisualizerPlugin({
+      filename: `./dist/@stat/visualization.${ext}.html`
+    }),
+    new BundleAnalyzerPlugin({
+      openAnalyzer: false,
+      analyzerMode: 'static',
+      reportFilename: `./dist/@stat/bundle.${ext}.html`
+    })
+  ];
 
   return {
-    entry: `./@${options.entry}/src/index.ts`,
+    entry: `./src/index.ts`,
     output: {
       path: __dirname,
-      filename: `@${options.entry}/dist/ligui.${options.entry}.min.js`
+      filename: `dist/ligui.${ext}.min.js`
     },
     stats: {
       source: false
     },
-    profile: options.env.statistic,
+    profile: true,
     devtool: 'source-map',
     resolve: {
       extensions: ['.js', '.ts', '.json', '.webpack.js'],
-      alias: {
-        '@core': `${__dirname}/@core/src/index.ts`
+      alias: options.jsxLib === 'react' ? {} : {
+        'react': 'preact-compat',
+        'react-dom': 'preact-compat'
       }
+    },
+    externals: options.includeLib ? {} : {
+      'react': 'react',
+      'react-dom': 'react-dom'
     },
     module: {
       rules
@@ -60,7 +62,8 @@ function createConfig(options) {
 }
 
 const variantsOptions = {
-  entry: ['core', 'preact', 'react']
+  jsxLib: ['react', 'preact'],
+  includeLib: [true, false]
 };
 
 module.exports = env => CreateVariants({env}, variantsOptions, createConfig);

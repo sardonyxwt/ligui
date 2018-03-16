@@ -2,6 +2,8 @@
   "name": "@sardonyxwt/ligui",
   "version": "1.5.3",
   "description": "Ligui",
+  "main": "dist/ligui.react.lib.min.js",
+  "typings": "dist/@types/index.d.ts",
   "keywords": [
     "sclib",
     "ligui",
@@ -16,9 +18,7 @@
     "LICENSE",
     "README.md",
     "CHANGELOG.md",
-    "@core/dist",
-    "@react/dist",
-    "@preact/dist"
+    "dist"
   ],
   "repository": {
     "type": "git",
@@ -26,8 +26,7 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "webpack --mode production --env.production",
-    "build:stats": "webpack --mode production --env.statistic",
+    "build": "webpack --mode production",
     "test": "cross-env-shell webpack && jest",
     "lint": "tslint -p . -c tslint.json --fix -t verbose",
     "deploy": "cross-env-shell npm run build && npm publish --access public"
@@ -47,6 +46,7 @@
     "@sardonyxwt/state-store": "^2.3.1",
     "@sardonyxwt/utils": "^1.6.3",
     "preact": "^8.2.7",
+    "preact-compat": "^3.18.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "riot-route": "^3.1.2"

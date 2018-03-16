@@ -4,13 +4,9 @@ import {createElement} from 'react';
 export interface JSXService {
   register(name: string, component): JSXService;
 
-  remove(query: string): JSXService;
+  render(query: string, component): JSXService;
 
-  render(query: string, component, isReplaced = false): JSXService;
-
-  create(name: string,
-         props = {},
-         children: JSX.Element | JSX.Element[] = []);
+  create(name: string, props?, children?: JSX.Element | JSX.Element[]);
 }
 
 class JSXServiceImpl implements JSXService {
@@ -25,16 +21,7 @@ class JSXServiceImpl implements JSXService {
     return this;
   }
 
-  remove(query: string) {
-    const nodes = document.querySelectorAll(query);
-    for (let i = 0; i < nodes.length; i++) {
-      let node = nodes.item(i);
-      node.innerHTML = '';
-    }
-    return this;
-  }
-
-  render(query: string, component, isReplaced = false) {
+  render(query: string, component) {
     const nodes = document.querySelectorAll(query);
     for (let i = 0; i < nodes.length; i++) {
       let node = nodes.item(i);
