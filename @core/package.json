@@ -1,9 +1,0 @@
-{
-  "name": "@sardonyxwt/ligui/@core",
-  "version": "1.5.3",
-  "description": "",
-  "main": "dist/ligui.core.min.js",
-  "typings": "dist/@types/index.d.ts",
-  "author": "sardonyx.wt@gmail.com",
-  "license": "MIT"
-}
