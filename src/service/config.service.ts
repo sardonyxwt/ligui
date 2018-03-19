@@ -62,8 +62,8 @@ class ConfigServiceImpl implements ConfigService {
     );
     this.scope.registerAction(
       CONFIG_SCOPE_ACTION_LOAD,
-      (scope, props, resolve) => resolve(
-        Object.assign(scope, {[props.name]: props.config})
+      (scope, {name, config}, resolve) => resolve(
+        Object.assign(scope, {[name]: config})
       )
     );
     this.scope.freeze();

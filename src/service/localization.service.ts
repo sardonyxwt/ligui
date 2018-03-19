@@ -109,10 +109,10 @@ class LocalizationServiceImpl implements LocalizationService {
     );
     this.scope.registerAction(
       LOCALIZATION_SCOPE_ACTION_ADD,
-      (scope, props, resolve) => {
+      (scope, {id, localization}, resolve) => {
         const localizations = Object.assign(
           scope.localizations,
-          {[props.id]: props.localization}
+          {[id]: localization}
         );
         resolve(Object.assign(scope, {localizations}));
       }
