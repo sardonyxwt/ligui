@@ -1,18 +1,18 @@
-import { Scope } from '../';
-export interface ConfigProviderState {
+import { Scope } from '@sardonyxwt/state-store';
+export interface ConfigServiceState {
     configs: {
         [key: string]: any;
     };
 }
-export interface ConfigProviderConfig {
+export interface ConfigServiceConfig {
     loader: (name: string) => Promise<any>;
-    initState?: ConfigProviderState;
+    initState?: ConfigServiceState;
 }
 export interface ConfigService {
-    set(name: string, config: any): Promise<ConfigProviderState>;
+    set(name: string, config: any): Promise<ConfigServiceState>;
     get<T = any>(name: string): Promise<T>;
-    getScope(): Scope<ConfigProviderState>;
-    configure(config: ConfigProviderConfig): any;
+    getScope(): Scope<ConfigServiceState>;
+    configure(config: ConfigServiceConfig): any;
 }
 export declare const CONFIG_SCOPE_NAME = "CONFIG_SCOPE";
 export declare const CONFIG_SCOPE_ACTION_LOAD = "LOAD_CONFIG";

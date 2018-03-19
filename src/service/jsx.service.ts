@@ -1,17 +1,19 @@
-import { h, render, AnyComponent } from 'preact';
+import {render} from 'react-dom';
+import {createElement} from 'react';
 
 export interface JSXService {
-  register(name: string, component: AnyComponent<any, any>): JSXService;
-  render(query: string, component: JSX.Element, isReplaced?: boolean): JSXService;
-  create(name: string, props?: {}, children?: JSX.Element | JSX.Element[]): JSX.Element
-  remove(query: string);
+  register(name: string, component): JSXService;
+
+  render(query: string, component): JSXService;
+
+  create(name: string, props?, children?: JSX.Element | JSX.Element[]);
 }
 
-class JsxServiceImpl implements JSXService {
+class JSXServiceImpl implements JSXService {
 
-  private components = {};
+  protected components = {};
 
-  register(name: string, component: AnyComponent<any, any>) {
+  register(name: string, component) {
     if (name in this.components) {
       throw new Error(`Component with same name is register.`);
     }
@@ -19,32 +21,19 @@ class JsxServiceImpl implements JSXService {
     return this;
   }
 
-  render(query: string, component: JSX.Element, isReplaced = false) {
+  render(query: string, component) {
     const nodes = document.querySelectorAll(query);
     for (let i = 0; i < nodes.length; i++) {
       let node = nodes.item(i);
-      render(component, node, isReplaced ? node.firstElementChild : null)
+      render(component, node)
     }
     return this;
   }
 
   create(name: string, props = {}, children: JSX.Element | JSX.Element[] = []) {
-    return h(this.components[name] || name, props, children);
-  }
-
-  remove(query: string) {
-    const nodes = document.querySelectorAll(query);
-    for (let i = 0; i < nodes.length; i++) {
-      let node = nodes.item(i);
-      node.innerHTML = '';
-    }
+    return createElement(this.components[name] || name, props, children);
   }
 
 }
 
-export const jsxService: JSXService = new JsxServiceImpl();
-
-export {
-  h, render, Component, AnyComponent,
-  ComponentProps, ComponentLifecycle, FunctionalComponent, ComponentConstructor
-} from 'preact';
+export const jsxService: JSXService = new JSXServiceImpl();
