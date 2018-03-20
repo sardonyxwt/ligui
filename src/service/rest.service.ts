@@ -34,25 +34,25 @@ class RestServiceImpl implements RestService {
   }
 
   post(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign(this._defaultProps, options, {
+    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
       method: 'POST'
     }));
   }
 
   put(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign(this._defaultProps, options, {
+    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
       method: 'PUT'
     }));
   }
 
   get(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign(this._defaultProps, options, {
+    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
       method: 'GET'
     }));
   }
 
   del(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign(this._defaultProps, options, {
+    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
       method: 'DELETE'
     }));
   }

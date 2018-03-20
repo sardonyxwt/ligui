@@ -17,9 +17,7 @@ function createConfig(options) {
   ];
 
   const plugins = [
-    new CleanPlugin([
-      `./dist`]
-    ),
+    new CleanPlugin([`./dist`]),
     new StatsPlugin(`./dist/@stat/webpack.${ext}.json`, {}, false),
     new VisualizerPlugin({
       filename: `./dist/@stat/visualization.${ext}.html`
