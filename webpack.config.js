@@ -6,7 +6,7 @@ const StatsPlugin = require('stats-webpack-plugin');
 
 function createConfig(options) {
 
-  const ext = `${options.jsxLib}.${options.includeLib ? 'vendor' : 'lib'}`;
+  const ext = `${options.includeLib ? 'vendor' : 'lib'}`;
 
   const rules = [
     {
@@ -41,11 +41,7 @@ function createConfig(options) {
     profile: true,
     devtool: 'source-map',
     resolve: {
-      extensions: ['.js', '.ts', '.json', '.webpack.js'],
-      alias: options.jsxLib === 'react' ? {} : {
-        'react': 'preact-compat',
-        'react-dom': 'preact-compat'
-      }
+      extensions: ['.js', '.ts', '.json', '.webpack.js']
     },
     externals: options.includeLib ? {} : {
       'react': 'react',
@@ -60,7 +56,6 @@ function createConfig(options) {
 }
 
 const variantsOptions = {
-  jsxLib: ['react', 'preact'],
   includeLib: [true, false]
 };
 
