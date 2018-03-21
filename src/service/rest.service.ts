@@ -18,7 +18,9 @@ class RestServiceImpl implements RestService {
     credentials: 'same-origin',
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'pragma': 'no-cache',
+      'cache-control': 'no-cache'
     }
   };
 
