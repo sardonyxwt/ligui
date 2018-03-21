@@ -7,6 +7,8 @@ export interface JSXService {
   render(query: string, component): JSXService;
 
   create(name: string, props?, children?: JSX.Element | JSX.Element[]);
+
+  remove(query: string): JSXService;
 }
 
 class JSXServiceImpl implements JSXService {
@@ -32,6 +34,15 @@ class JSXServiceImpl implements JSXService {
 
   create(name: string, props = {}, children: JSX.Element | JSX.Element[] = []) {
     return createElement(this.components[name] || name, props, children);
+  }
+
+  remove(query: string) {
+    const nodes = document.querySelectorAll(query);
+    for (let i = 0; i < nodes.length; i++) {
+      let node = nodes.item(i);
+      node.innerHTML = '';
+    }
+    return this;
   }
 
 }
