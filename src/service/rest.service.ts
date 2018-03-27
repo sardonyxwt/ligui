@@ -64,10 +64,12 @@ class RestServiceImpl implements RestService {
       options.body = JSON.stringify(options.body);
     }
     return fetch(this.buildUrl(endpoint, options), options).then(response => {
-      if (!response.ok) {
-        throw Error(response.statusText);
+      if (response.status >= 200 && response.status < 300) {
+        return Promise.resolve(response)
       }
-      return response;
+      return Promise.reject(
+        new Error(response.statusText || response.status.toString())
+      );
     })
   }
 
