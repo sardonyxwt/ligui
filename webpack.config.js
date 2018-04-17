@@ -6,7 +6,7 @@ const StatsPlugin = require('stats-webpack-plugin');
 
 function createConfig(options) {
 
-  const ext = `${options.includeLib ? 'vendor' : 'lib'}`;
+  const ext = `${options.isLib ? 'lib' : 'vendor'}`;
 
   const rules = [
     {
@@ -33,7 +33,8 @@ function createConfig(options) {
     entry: `./src/index.ts`,
     output: {
       path: __dirname,
-      filename: `dist/ligui.${ext}.min.js`
+      filename: `dist/ligui.${ext}.min.js`,
+      libraryTarget: 'umd'
     },
     stats: {
       source: false
@@ -43,10 +44,10 @@ function createConfig(options) {
     resolve: {
       extensions: ['.js', '.ts', '.json', '.webpack.js']
     },
-    externals: options.includeLib ? {} : {
+    externals: options.isLib ? {
       'react': 'react',
       'react-dom': 'react-dom'
-    },
+    } : {},
     module: {
       rules
     },
@@ -56,7 +57,7 @@ function createConfig(options) {
 }
 
 const variantsOptions = {
-  includeLib: [true, false]
+  isLib: [true, false]
 };
 
 module.exports = env => CreateVariants({env}, variantsOptions, createConfig);

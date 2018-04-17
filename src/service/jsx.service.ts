@@ -1,5 +1,5 @@
-import {render} from 'react-dom';
-import {createElement} from 'react';
+import * as ReactDOM from 'react-dom';
+import * as React from 'react';
 
 export interface JSXService {
   register(name: string, component): JSXService;
@@ -27,13 +27,13 @@ class JSXServiceImpl implements JSXService {
     const nodes = document.querySelectorAll(query);
     for (let i = 0; i < nodes.length; i++) {
       let node = nodes.item(i);
-      render(component, node)
+      ReactDOM.render(component, node)
     }
     return this;
   }
 
   create(name: string, props = {}, children: JSX.Element | JSX.Element[] = []) {
-    return createElement(this.components[name] || name, props, children);
+    return React.createElement(this.components[name] || name, props, children);
   }
 
   remove(query: string) {

@@ -2,6 +2,9 @@ export interface RequestProps extends RequestInit {
     queryParams?: {
         [key: string]: string;
     };
+    pathParams?: {
+        [key: string]: string;
+    };
 }
 export interface RestService {
     defaultProps: RequestInit;

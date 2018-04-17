@@ -36,15 +36,13 @@ class ConfigServiceImpl implements ConfigService {
     if (config) {
       return Promise.resolve(config);
     }
-    if (this.configCache.has(name)) {
-      return this.configCache.get(name);
-    }
     return this.configCache.get(name).then(config => {
       this.configCache.remove(name);
-      return this.scope.dispatch(
+      this.scope.dispatch(
         CONFIG_SCOPE_ACTION_LOAD,
         {name, config}
       ).then(scope => scope[name]);
+      return config;
     });
   }
 
