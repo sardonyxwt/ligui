@@ -1,5 +1,6 @@
 export interface RequestProps extends RequestInit {
   queryParams?: { [key: string]: string }
+  pathParams?: { [key: string]: string }
 }
 
 export interface RestService {
@@ -67,15 +68,19 @@ class RestServiceImpl implements RestService {
       if (response.status >= 200 && response.status < 300) {
         return Promise.resolve(response)
       }
-      return Promise.reject(
-        new Error(response.statusText || response.status.toString())
-      );
+      return Promise.reject(response);
     })
   }
 
   buildUrl(endpoint: string, options: RequestProps = {}) {
     let url = endpoint;
-    const queryParams = options.queryParams;
+    const { queryParams, pathParams } = options;
+    if (pathParams) { // todo update logic and add exception
+      Object.getOwnPropertyNames(pathParams).forEach(key => {
+        url = url.replace(new RegExp(`{${key}}`, 'g'), pathParams[key]);
+      });
+      url.replace(new RegExp('/{.*}', 'g'), '')
+    }
     if (queryParams) {
       url += '?';
       url += Object.getOwnPropertyNames(queryParams)
