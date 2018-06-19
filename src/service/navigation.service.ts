@@ -1,4 +1,4 @@
-import {createScope, Scope} from '@sardonyxwt/state-store';
+import { createScope, Scope } from '@sardonyxwt/state-store';
 
 export interface NavigationState {
   routeName: string;
@@ -36,13 +36,13 @@ class NavigationServiceImpl implements NavigationService {
 
   private scope: Scope<NavigationServiceState>;
 
-  navigate(routeName: string, params, stepBackCount: number = 0) {
+  navigate(routeName: string, params, stepBackCount = 0) {
     return this.scope.dispatch(NAVIGATION_SCOPE_ACTION_CHANGE, {
       routeName, params, stepBackCount
     });
   }
 
-  goBack(stepBackCount: number = 1) {
+  goBack(stepBackCount = 1) {
     return this.scope.dispatch(NAVIGATION_SCOPE_ACTION_CHANGE, {
       stepBackCount
     });
@@ -88,7 +88,7 @@ class NavigationServiceImpl implements NavigationService {
           stack: newStack
         });
       });
-    this.scope.freeze();
+    this.scope.lock();
   }
 
 }

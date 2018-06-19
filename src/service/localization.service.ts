@@ -1,5 +1,5 @@
 import * as SynchronizedUtil from '@sardonyxwt/utils/synchronized';
-import {createScope, Scope} from '@sardonyxwt/state-store';
+import { createScope, Scope } from '@sardonyxwt/state-store';
 
 export type Translator = (key: string) => string;
 
@@ -132,7 +132,7 @@ class LocalizationServiceImpl implements LocalizationService {
         resolve(Object.assign(scope, {currentLocale}));
       }
     );
-    this.scope.freeze();
+    this.scope.lock();
     this.localizationCache = SynchronizedUtil.createSyncCache<Localization>((key: string) => {
       const [locale, id] = key.split(':');
       return config.loader(locale, id);

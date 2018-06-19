@@ -65,7 +65,7 @@ class ResourceServiceImpl implements ResourceService {
       (scope, {path, resource}, resolve) => {
         resolve(Object.assign(scope, {[path]: resource}))
       });
-    this.scope.freeze();
+    this.scope.lock();
     this.resourceCache = SynchronizedUtil.createSyncCache<any>(config.loader);
   }
 

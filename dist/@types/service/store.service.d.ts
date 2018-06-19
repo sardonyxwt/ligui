@@ -1,4 +1,4 @@
-import { Scope } from "@sardonyxwt/state-store";
+import { Scope } from '@sardonyxwt/state-store';
 export interface StoreService {
     createScope<T>(name?: string, initState?: T): Scope<T>;
     getScope(scopeName: any): Scope<any>;

@@ -1,5 +1,5 @@
-import {render} from 'react-dom';
-import {createElement} from 'react';
+import { render } from 'react-dom';
+import { createElement } from 'react';
 
 export interface JSXService {
   register(name: string, component): JSXService;
