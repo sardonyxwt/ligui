@@ -21,7 +21,7 @@ export interface LocalizationService {
     getLocales(): string[];
     getDefaultLocale(): string;
     getCurrentLocale(): string;
-    subscribe(id: string, subscriber: (t: Translator) => void): void;
+    subscribe(id: string | string[], subscriber: (t: Translator) => void): void;
     configure(config: LocalizationServiceConfig): void;
 }
 export declare const LOCALIZATION_SCOPE_NAME = "LOCALIZATION_SCOPE";

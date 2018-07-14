@@ -1,4 +1,5 @@
 import * as SynchronizedUtil from '@sardonyxwt/utils/synchronized';
+import * as JSONUtil from '@sardonyxwt/utils/json';
 import { createScope, Scope } from '@sardonyxwt/state-store';
 
 export type Translator = (key: string) => string;
@@ -30,13 +31,13 @@ export interface LocalizationService {
 
   getCurrentLocale(): string;
 
-  subscribe(id: string, subscriber: (t: Translator) => void): void;
+  subscribe(id: string | string[], subscriber: (t: Translator) => void): void;
 
   configure(config: LocalizationServiceConfig): void;
 }
 
 interface Subscriber {
-  id: string;
+  id: string | string[];
   callback: (t: Translator) => void;
 }
 
@@ -70,32 +71,58 @@ class LocalizationServiceImpl implements LocalizationService {
     return this.scope.getState().currentLocale;
   }
 
-  subscribe(id: string, callback: (t: Translator) => void) {
+  subscribe(id: string | string[], callback: (t: Translator) => void) {
 
     const {scope, localizationCache} = this;
 
     this.subscribers.push({id, callback});
 
-    let localizationId = `${scope.getState().currentLocale}:${id}`;
-    let localization = scope.getState().localizations[localizationId];
-    if (localization) {
-      callback((key: string) => localization[key]);
-      return;
-    }
+    let createLocalizationPromise = (id: string) => {
+
+      let localizationId = `${scope.getState().currentLocale}:${id}`;
+      let localization = scope.getState().localizations[localizationId];
+
+      if (localization) {
+        return Promise.resolve(localization);
+      }
+
+      const isFirstCall = !localizationCache.has(localizationId);
+      return this.localizationCache.get(localizationId).then(localization => {
+        if (isFirstCall) {
+          scope.dispatch(
+            LOCALIZATION_SCOPE_ACTION_ADD,
+            {id, localization}
+          ).then(
+            () => localizationCache.remove(localizationId)
+          );
+        }
+        return localization;
+      });
+    };
+
     callback(id => id);
 
-    const isFirstCall = !localizationCache.has(localizationId);
-    this.localizationCache.get(localizationId).then(localization => {
-      if (isFirstCall) {
-        scope.dispatch(
-          LOCALIZATION_SCOPE_ACTION_ADD,
-          {id, localization}
-        ).then(
-          () => localizationCache.remove(localizationId)
-        );
-      }
-      callback((key: string) => localization[key]);
-    });
+
+    if (Array.isArray(id)) {
+      let resultLocalization = {};
+
+      const localizationPromises = id.map(
+        id => createLocalizationPromise(id).then(
+          localization => resultLocalization[id] = localization
+        )
+      );
+
+      SynchronizedUtil.syncPromises(localizationPromises).then(
+        () => {
+          let localization = JSONUtil.flatten(resultLocalization);
+          callback((key: string) => localization[key])
+        }
+      )
+    } else {
+      createLocalizationPromise(id).then(
+        localization => callback((key: string) => localization[key])
+      );
+    }
 
   }
 
