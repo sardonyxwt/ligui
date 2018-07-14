@@ -1,6 +1,6 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "2.0.7",
+  "version": "2.1.2",
   "description": "Ligui",
   "main": "dist/ligui.lib.min.js",
   "typings": "dist/@types/index.d.ts",
@@ -43,16 +43,16 @@
     "testRegex": "/(test|src)/.*\\.(test|spec)\\.(ts|js)$"
   },
   "dependencies": {
-    "@sardonyxwt/state-store": "^2.3.1",
+    "@sardonyxwt/state-store": "^2.3.81",
     "@sardonyxwt/utils": "^1.6.3",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react": "^16.4.0",
+    "react-dom": "^16.4.0"
   },
   "devDependencies": {
     "@types/jest": "^21.1.9",
     "@types/node": "^9.3.0",
-    "@types/react": "^16.0.40",
-    "@types/react-dom": "^15.5.7",
+    "@types/react": "^16.3.14",
+    "@types/react-dom": "^16.0.5",
     "clean-webpack-plugin": "^0.1.19",
     "cross-env": "5.1.1",
     "jest": "^22.0.4",
@@ -62,7 +62,7 @@
     "ts-loader": "^4.0.1",
     "tslint": "^5.9.1",
     "typescript": "^2.6.0",
-    "webpack": "^4.1.1",
+    "webpack": "^4.16.0",
     "webpack-bundle-analyzer": "^2.9.1",
     "webpack-cli": "^2.0.11",
     "webpack-visualizer-plugin": "^0.1.11"

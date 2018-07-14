@@ -88,7 +88,7 @@ class NavigationServiceImpl implements NavigationService {
           stack: newStack
         });
       });
-    this.scope.freeze();
+    this.scope.lock();
   }
 
 }

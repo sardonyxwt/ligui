@@ -1,3 +1,4 @@
+/// <reference types="react" />
 export interface JSXService {
     register(name: string, component: any): JSXService;
     render(query: string, component: any): JSXService;

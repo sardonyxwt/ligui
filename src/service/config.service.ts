@@ -64,7 +64,7 @@ class ConfigServiceImpl implements ConfigService {
         Object.assign(scope, {[name]: config})
       )
     );
-    this.scope.freeze();
+    this.scope.lock();
 
     this.configCache = SynchronizedUtil.createSyncCache<any>(config.loader);
   }
