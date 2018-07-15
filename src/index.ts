@@ -5,10 +5,10 @@ import { configService, ConfigService } from './service/config.service';
 import { resourceService, ResourceService } from './service/resource.service';
 import { navigationService, NavigationService } from './service/navigation.service';
 import { localizationService, LocalizationService } from './service/localization.service';
-import { ToastApi } from "./api/toast.api";
-import { DialogApi } from "./api/dialog.api";
-import { ContextmenuApi } from "./api/contextmenu.api";
-import { NotificationApi } from "./api/notification.api";
+import { ToastApi } from './api/toast.api';
+import { DialogApi } from './api/dialog.api';
+import { ContextmenuApi } from './api/contextmenu.api';
+import { NotificationApi } from './api/notification.api';
 
 export {
   ToastApi,
