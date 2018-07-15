@@ -79,13 +79,13 @@ class RestServiceImpl implements RestService {
       Object.getOwnPropertyNames(pathParams).forEach(key => {
         url = url.replace(new RegExp(`{${key}}`, 'g'), pathParams[key]);
       });
-      url.replace(new RegExp('/{.*}', 'g'), '')
     }
+    url.replace(new RegExp('/{.*}', 'g'), '')
     if (queryParams) {
-      url += '?';
-      url += Object.getOwnPropertyNames(queryParams)
+      let queryUrl = Object.getOwnPropertyNames(queryParams)
         .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(queryParams[k]))
         .join('&');
+      if (queryUrl) url += `?${queryParams}`;
     }
     return url;
   }
