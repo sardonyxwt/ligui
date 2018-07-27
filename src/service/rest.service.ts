@@ -85,7 +85,7 @@ class RestServiceImpl implements RestService {
       let queryUrl = Object.getOwnPropertyNames(queryParams)
         .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(queryParams[k]))
         .join('&');
-      if (queryUrl) url += `?${queryParams}`;
+      if (queryUrl) url += `?${queryUrl}`;
     }
     return url;
   }
