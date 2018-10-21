@@ -1,5 +1,4 @@
 export interface DialogApi<DialogProps = {}> {
-  custom(dialogProps: DialogProps);
-  confirm(dialogProps: DialogProps);
-  alert(dialogProps: DialogProps);
+  show(dialogProps: DialogProps): string;
+  hide(id: string)
 }

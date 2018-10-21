@@ -1,6 +1,5 @@
-import * as SynchronizedUtil from '@sardonyxwt/utils/synchronized';
 import * as JSONUtil from '@sardonyxwt/utils/json';
-import { createScope, Scope } from '@sardonyxwt/state-store';
+import {createSyncScope, SyncScope} from '@sardonyxwt/state-store';
 
 export type Translator = (key: string) => string;
 
@@ -12,7 +11,7 @@ export interface LocalizationServiceState {
   locales: string[];
   defaultLocale: string;
   currentLocale: string;
-  localizations: { [key: string]: Localization }
+  localizations: { [locale: string]: Localization }
 }
 
 export interface LocalizationServiceConfig {
@@ -21,149 +20,114 @@ export interface LocalizationServiceConfig {
 }
 
 export interface LocalizationService {
-  changeLocale(locale: string): Promise<LocalizationServiceState>;
-
-  getScope(): Scope<LocalizationServiceState>;
-
-  getLocales(): string[];
-
-  getDefaultLocale(): string;
-
-  getCurrentLocale(): string;
-
-  subscribe(id: string | string[], subscriber: (t: Translator) => void): void;
-
+  readonly locales: string[];
+  readonly defaultLocale: string;
+  readonly currentLocale: string;
+  readonly translator: Translator;
+  readonly scope: SyncScope<LocalizationServiceState>;
+  onLocaleChange(callback: (oldLocale: string, newLocale: string) => void): void;
+  changeLocale(locale: string): void;
+  loadLocalizations(id: string | string[]): Promise<void>
   configure(config: LocalizationServiceConfig): void;
 }
 
-interface Subscriber {
-  id: string | string[];
-  callback: (t: Translator) => void;
-}
-
 export const LOCALIZATION_SCOPE_NAME = 'LOCALIZATION_SCOPE';
-export const LOCALIZATION_SCOPE_ACTION_ADD = 'ADD_LOCALIZATION';
-export const LOCALIZATION_SCOPE_ACTION_CHANGE = 'CHANGE_LOCALIZATION';
+export const LOCALIZATION_SCOPE_ACTION_ADD = 'add';
+export const LOCALIZATION_SCOPE_ACTION_CHANGE_LOCALE = 'changeLocale';
 
 class LocalizationServiceImpl implements LocalizationService {
 
-  private scope: Scope<LocalizationServiceState>;
-  private localizationCache: SynchronizedUtil.SynchronizedCache<Localization>;
-  private subscribers: Subscriber[] = [];
+  private _loader: (locale: string, id: string) => Promise<Localization>;
+  private _scope: SyncScope<LocalizationServiceState>;
+  private _localizationPromises: {[key: string]: Promise<void>} = {};
 
-  changeLocale(locale: string): Promise<LocalizationServiceState> {
-    return this.scope.dispatch(LOCALIZATION_SCOPE_ACTION_CHANGE, locale);
+  get locales(): string[] {
+    return this._scope.state.locales.slice();
   }
 
-  getScope() {
-    return this.scope;
+  get defaultLocale(): string {
+    return this._scope.state.defaultLocale;
   }
 
-  getLocales(): string[] {
-    return this.scope.getState().locales.slice();
+  get currentLocale(): string {
+    return this._scope.state.currentLocale;
   }
 
-  getDefaultLocale(): string {
-    return this.scope.getState().defaultLocale;
+  get translator(): Translator {
+    return id => this._scope.state.localizations[this.currentLocale][id];
   }
 
-  getCurrentLocale(): string {
-    return this.scope.getState().currentLocale;
+  get scope() {
+    return this._scope;
   }
 
-  subscribe(id: string | string[], callback: (t: Translator) => void) {
+  onLocaleChange(callback: (oldLocale: string, newLocale: string) => void) {
+    this._scope.subscribe(({oldState, newState}) =>
+      callback(oldState.currentLocale, newState.currentLocale));
+  }
 
-    const {scope, localizationCache} = this;
+  changeLocale(locale: string): void {
+    this._scope.dispatch(LOCALIZATION_SCOPE_ACTION_CHANGE_LOCALE, locale);
+  }
 
-    this.subscribers.push({id, callback});
+  loadLocalizations(id: string | string[]): Promise<void> {
+    const {_scope, _loader, currentLocale} = this;
+
+    const ids = Array.isArray(id) ? [...id] : [id];
 
     let createLocalizationPromise = (id: string) => {
+      let localizationId = `${currentLocale}:${id}`;
 
-      let localizationId = `${scope.getState().currentLocale}:${id}`;
-      let localization = scope.getState().localizations[localizationId];
-
-      if (localization) {
-        return Promise.resolve(localization);
+      if (!(localizationId in this._localizationPromises)) {
+        this._localizationPromises[localizationId] = _loader(currentLocale, id)
+          .then(localization => {
+            _scope.dispatch(
+              LOCALIZATION_SCOPE_ACTION_ADD,
+              {currentLocale, id, localization}
+            );
+          });
       }
-
-      const isFirstCall = !localizationCache.has(localizationId);
-      return this.localizationCache.get(localizationId).then(localization => {
-        if (isFirstCall) {
-          scope.dispatch(
-            LOCALIZATION_SCOPE_ACTION_ADD,
-            {id, localization}
-          ).then(
-            () => localizationCache.remove(localizationId)
-          );
-        }
-        return localization;
-      });
+      return this._localizationPromises[localizationId];
     };
 
-    callback(id => id);
-
-
-    if (Array.isArray(id)) {
-      let resultLocalization = {};
-
-      const localizationPromises = id.map(
-        id => createLocalizationPromise(id).then(
-          localization => resultLocalization[id] = localization
-        )
-      );
-
-      SynchronizedUtil.syncPromises(localizationPromises).then(
-        () => {
-          let localization = JSONUtil.flatten(resultLocalization);
-          callback((key: string) => localization[key])
-        }
-      )
-    } else {
-      createLocalizationPromise(id).then(
-        localization => callback((key: string) => localization[key])
-      );
-    }
-
+    return Promise.all(ids.map(id => createLocalizationPromise(id)))
+      .then(() => null);
   }
 
   configure(config: LocalizationServiceConfig) {
-    if (this.scope) {
+    if (this._scope) {
       throw new Error('ResourceService must configure only once.');
     }
-    this.scope = createScope<LocalizationServiceState>(
+    this._scope = createSyncScope<LocalizationServiceState>(
       LOCALIZATION_SCOPE_NAME,
       config.initState
     );
     this.scope.registerAction(
       LOCALIZATION_SCOPE_ACTION_ADD,
-      (scope, {id, localization}, resolve) => {
-        const localizations = Object.assign(
-          scope.localizations,
-          {[id]: localization}
-        );
-        resolve(Object.assign(scope, {localizations}));
+      (state, {currentLocale, id, localization}) => {
+        const localizations = {
+          ...state.localizations,
+          [currentLocale]: JSONUtil.flatten({
+            ...state.localizations[currentLocale],
+            [id]: localization
+          })
+        };
+        return {...state, localizations};
       }
     );
     this.scope.registerAction(
-      LOCALIZATION_SCOPE_ACTION_CHANGE,
-      (scope, currentLocale, resolve) => {
-        const isSupportLocale = scope.locales.find(
+      LOCALIZATION_SCOPE_ACTION_CHANGE_LOCALE,
+      (state, currentLocale: string) => {
+        const isSupportLocale = state.locales.find(
           locale => locale === currentLocale
         );
         if (!isSupportLocale) {
           throw new Error('Locale not supported.');
         }
-        const subscribers = this.subscribers.slice();
-        this.subscribers = [];
-        subscribers.forEach(({id, callback}) => this.subscribe(id, callback));
-        resolve(Object.assign(scope, {currentLocale}));
+        return {...state, currentLocale};
       }
     );
     this.scope.lock();
-    this.localizationCache = SynchronizedUtil.createSyncCache<Localization>((key: string) => {
-      const [locale, id] = key.split(':');
-      return config.loader(locale, id);
-    });
   }
 
 }

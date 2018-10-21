@@ -1,48 +1,27 @@
-import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 
 export interface JSXService {
-  register(name: string, component): JSXService;
-
-  render(query: string, component): JSXService;
-
-  create(name: string, props?, children?: JSX.Element | JSX.Element[]);
-
-  remove(query: string): JSXService;
+  registerFactory<T extends {}>(name: string, factory: React.Factory<T>): JSXService;
+  node<T>(name: string, props: T, children: React.ReactNode[]): React.ReactElement<T>;
 }
 
 class JSXServiceImpl implements JSXService {
 
-  protected components = {};
+  private factories: {[factoryName: string]: React.Factory<{}>} = {};
 
-  register(name: string, component) {
-    if (name in this.components) {
-      throw new Error(`Component with same name is register.`);
+  registerFactory<T extends {}>(name: string, factory: React.Factory<T>) {
+    if (name in this.factories) {
+      throw new Error(`Factory with same name is register.`);
     }
-    this.components[name] = component;
+    this.factories[name] = factory;
     return this;
   }
 
-  render(query: string, component) {
-    const nodes = document.querySelectorAll(query);
-    for (let i = 0; i < nodes.length; i++) {
-      let node = nodes.item(i);
-      ReactDOM.render(component, node)
+  node<T>(name: string, props: T, children: React.ReactNode[]) {
+    if (name in this.factories) {
+      return (this.factories[name] as React.Factory<T>)(props, children);
     }
-    return this;
-  }
-
-  create(name: string, props = {}, children: JSX.Element | JSX.Element[] = []) {
-    return React.createElement(this.components[name] || name, props, children);
-  }
-
-  remove(query: string) {
-    const nodes = document.querySelectorAll(query);
-    for (let i = 0; i < nodes.length; i++) {
-      let node = nodes.item(i);
-      node.innerHTML = '';
-    }
-    return this;
+    return React.createElement(name, props, children);
   }
 
 }

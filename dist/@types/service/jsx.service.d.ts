@@ -1,8 +1,6 @@
-/// <reference types="react" />
+import * as React from 'react';
 export interface JSXService {
-    register(name: string, component: any): JSXService;
-    render(query: string, component: any): JSXService;
-    create(name: string, props?: any, children?: JSX.Element | JSX.Element[]): any;
-    remove(query: string): JSXService;
+    registerFactory<T extends {}>(name: string, factory: React.Factory<T>): JSXService;
+    node<T>(name: string, props: T, children: React.ReactNode[]): React.ReactElement<T>;
 }
 export declare const jsxService: JSXService;

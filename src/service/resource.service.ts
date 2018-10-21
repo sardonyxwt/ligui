@@ -1,5 +1,5 @@
 import * as SynchronizedUtil from '@sardonyxwt/utils/synchronized';
-import { createScope, Scope } from '@sardonyxwt/state-store';
+import {createSyncScope, SyncScope} from '@sardonyxwt/state-store';
 
 export interface ResourceServiceState {
   resources: { [key: string]: any }
@@ -11,12 +11,9 @@ export interface ResourceServiceConfig {
 }
 
 export interface ResourceService {
-  set(path: string, resource: any): Promise<ResourceServiceState>;
-
+  set(path: string, resource: any): void;
   get(path: string, isSave?: boolean): Promise<any>;
-
-  getScope(): Scope<ResourceServiceState>;
-
+  getScope(): SyncScope<ResourceServiceState>;
   configure(config: ResourceServiceConfig): void;
 }
 
@@ -25,7 +22,7 @@ export const RESOURCES_SCOPE_ACTION_ADD = 'ADD_RESOURCE';
 
 class ResourceServiceImpl implements ResourceService {
 
-  private scope: Scope<ResourceServiceState>;
+  private scope: SyncScope<ResourceServiceState>;
   private resourceCache: SynchronizedUtil.SynchronizedCache<any>;
 
   set(path: string, resource) {
@@ -35,7 +32,7 @@ class ResourceServiceImpl implements ResourceService {
   }
 
   get(path: string, isCache?: boolean): Promise<any> {
-    const resource = this.scope.getState().resources[path];
+    const resource = this.scope.state.resources[path];
     if (resource) {
       return Promise.resolve(resource);
     }
@@ -58,15 +55,13 @@ class ResourceServiceImpl implements ResourceService {
     if (this.scope) {
       throw new Error('ResourceService must configure only once.');
     }
-    this.scope = createScope<ResourceServiceState>(
+    this.scope = createSyncScope<ResourceServiceState>(
       RESOURCES_SCOPE_NAME,
       config.initState || {resources: {}}
     );
     this.scope.registerAction(
       RESOURCES_SCOPE_ACTION_ADD,
-      (scope, {path, resource}, resolve) => {
-        resolve(Object.assign(scope, {[path]: resource}))
-      });
+      (scope, {path, resource}) => Object.assign(scope, {[path]: resource}));
     this.scope.lock();
     this.resourceCache = SynchronizedUtil.createSyncCache<any>(config.loader);
   }

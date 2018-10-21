@@ -1,3 +1,4 @@
+const path = require('path');
 const CreateVariants = require('parallel-webpack').createVariants;
 const CleanPlugin = require('clean-webpack-plugin');
 const VisualizerPlugin = require('webpack-visualizer-plugin');
@@ -41,17 +42,24 @@ function createConfig(options) {
     },
     profile: true,
     devtool: 'source-map',
-    resolve: {
-      extensions: ['.js', '.ts', '.json', '.webpack.js']
-    },
     externals: options.isLib ? {
       'react': 'react',
-      'react-dom': 'react-dom'
+      'react-router': 'react-router',
+      'history': 'history'
     } : {},
     module: {
       rules
     },
-    plugins
+    plugins,
+    resolve: {
+      extensions: ['.js', '.ts', '.tsx','.json', '.webpack.js'],
+      alias: {
+        'service': path.resolve(__dirname, './src/service'),
+        'hoc': path.resolve(__dirname, './src/hoc'),
+        'api': path.resolve(__dirname, './src/api'),
+        'decorator': path.resolve(__dirname, './src/decorator')
+      }
+    }
   }
 
 }

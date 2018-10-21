@@ -1,4 +1,5 @@
 export interface RequestProps extends RequestInit {
+    body?: BodyInit | object | number | any;
     queryParams?: {
         [key: string]: string;
     };
@@ -6,8 +7,15 @@ export interface RequestProps extends RequestInit {
         [key: string]: string;
     };
 }
+export interface RestMiddleware {
+    onRequest?(url: string, props: RequestProps): RequestProps;
+    onResponse?<T>(url: string, props: RequestProps, response: Response): any;
+}
 export interface RestService {
     defaultProps: RequestInit;
+    readonly middleware: RestMiddleware[];
+    addMiddleware(middleware: RestMiddleware): string;
+    removeMiddleware(id: string): boolean;
     post(endpoint: string, options?: RequestProps): Promise<Response>;
     put(endpoint: string, options?: RequestProps): Promise<Response>;
     get(endpoint: string, options?: RequestProps): Promise<Response>;

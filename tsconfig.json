@@ -4,6 +4,8 @@
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
+    "jsx": "react",
+    "jsxFactory": "React.createElement",
     "alwaysStrict": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -18,7 +20,7 @@
       "node_modules/@types/"
     ],
     "sourceMap": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
       "@core": ["./@core/dist/@types/index.d.ts"]
     },
