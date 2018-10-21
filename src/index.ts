@@ -1,5 +1,6 @@
 import { context } from 'hoc/context.hoc';
 import { connect } from 'hoc/connect.hoc';
+import { localization } from 'hoc/localization.hoc';
 import { jsxService, JSXService } from 'service/jsx.service';
 import { restService, RestService } from 'service/rest.service';
 import { storeService, StoreService } from 'service/store.service';
@@ -40,6 +41,7 @@ const ligui: Ligui = new LiguiImpl();
 global['ligui'] = ligui;
 global['ContextHOC'] = context;
 global['ConnectHOC'] = connect;
+global['LocalizationHOC'] = localization;
 
 export {
   ligui,
@@ -53,5 +55,6 @@ export {
   ContextmenuApi,
   NotificationApi,
   context,
-  connect
+  connect,
+  localization
 }
