@@ -1,6 +1,6 @@
-import { context } from 'hoc/context.hoc';
-import { connect } from 'hoc/connect.hoc';
-import { localization } from 'hoc/localization.hoc';
+import { context, ContextHOCInjectedProps } from 'hoc/context.hoc';
+import { connect, SubscribeScopeSetting } from 'hoc/connect.hoc';
+import { localization, LocalizationHOCInjectedProps } from 'hoc/localization.hoc';
 import { jsxService, JSXService } from 'service/jsx.service';
 import { restService, RestService } from 'service/rest.service';
 import { storeService, StoreService } from 'service/store.service';
@@ -56,5 +56,8 @@ export {
   NotificationApi,
   context,
   connect,
-  localization
+  localization,
+  ContextHOCInjectedProps,
+  SubscribeScopeSetting,
+  LocalizationHOCInjectedProps
 }

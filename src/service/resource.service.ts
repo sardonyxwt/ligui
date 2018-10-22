@@ -1,5 +1,5 @@
 import * as SynchronizedUtil from '@sardonyxwt/utils/synchronized';
-import {createSyncScope, SyncScope} from '@sardonyxwt/state-store';
+import { createSyncScope, SyncScope } from '@sardonyxwt/state-store';
 
 export interface ResourceServiceState {
   resources: { [key: string]: any }

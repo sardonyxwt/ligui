@@ -1,6 +1,6 @@
-import { context } from 'hoc/context.hoc';
-import { connect } from 'hoc/connect.hoc';
-import { localization } from 'hoc/localization.hoc';
+import { context, ContextHOCInjectedProps } from 'hoc/context.hoc';
+import { connect, SubscribeScopeSetting } from 'hoc/connect.hoc';
+import { localization, LocalizationHOCInjectedProps } from 'hoc/localization.hoc';
 import { JSXService } from 'service/jsx.service';
 import { RestService } from 'service/rest.service';
 import { StoreService } from 'service/store.service';
@@ -25,4 +25,4 @@ export interface Ligui {
     };
 }
 declare const ligui: Ligui;
-export { ligui, JSXService, RestService, StoreService, ResourceService, LocalizationService, ToastApi, DialogApi, ContextmenuApi, NotificationApi, context, connect, localization };
+export { ligui, JSXService, RestService, StoreService, ResourceService, LocalizationService, ToastApi, DialogApi, ContextmenuApi, NotificationApi, context, connect, localization, ContextHOCInjectedProps, SubscribeScopeSetting, LocalizationHOCInjectedProps };

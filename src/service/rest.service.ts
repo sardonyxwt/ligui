@@ -1,4 +1,4 @@
-import {uniqueId} from '@sardonyxwt/utils/generator';
+import { uniqueId } from '@sardonyxwt/utils/generator';
 
 export interface RequestProps extends RequestInit {
   body?: BodyInit | object | number | any;

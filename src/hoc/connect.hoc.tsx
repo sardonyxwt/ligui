@@ -1,7 +1,7 @@
 // tslint:disable:variable-name
 import * as React from 'react';
-import {getScope} from "@sardonyxwt/state-store";
-import {uniqueId} from "@sardonyxwt/utils/generator";
+import { getScope } from '@sardonyxwt/state-store';
+import { uniqueId } from '@sardonyxwt/utils/generator';
 
 export interface SubscribeScopeSetting {
   scopeName: string;

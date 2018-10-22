@@ -1,5 +1,5 @@
 import * as JSONUtil from '@sardonyxwt/utils/json';
-import {createSyncScope, SyncScope} from '@sardonyxwt/state-store';
+import { createSyncScope, SyncScope } from '@sardonyxwt/state-store';
 
 export type Translator = (key: string) => string;
 
