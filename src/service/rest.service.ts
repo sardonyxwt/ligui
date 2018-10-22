@@ -1,3 +1,4 @@
+import fetch from 'unfetch';
 import { uniqueId } from '@sardonyxwt/utils/generator';
 
 export interface RequestProps extends RequestInit {

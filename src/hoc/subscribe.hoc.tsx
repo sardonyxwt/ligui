@@ -8,7 +8,7 @@ export interface SubscribeScopeSetting {
   actions?: string[];
 }
 
-interface ConnectHOCState {
+interface SubscribeHOCState {
   $scopesUpdateCount: number;
 }
 
@@ -20,7 +20,7 @@ interface ScopeActionTree {
 
 const scopeActionTree: ScopeActionTree = {};
 
-export function connect<T>(injectedScopeStates: (string | SubscribeScopeSetting)[]) {
+export function subscribe<T>(injectedScopeStates: (string | SubscribeScopeSetting)[]) {
 
   return <TOriginalProps extends {}>(
     Component: React.ComponentType<TOriginalProps>
@@ -32,7 +32,7 @@ export function connect<T>(injectedScopeStates: (string | SubscribeScopeSetting)
         : setting;
     }
 
-    class ConnectHOC extends React.Component<TOriginalProps, ConnectHOCState> {
+    class SubscribeHOC extends React.Component<TOriginalProps, SubscribeHOCState> {
 
       private subscriberId = uniqueId('ScopeActionTreeSubscriberId');
       static displayName = Component.displayName || Component.name;
@@ -77,9 +77,9 @@ export function connect<T>(injectedScopeStates: (string | SubscribeScopeSetting)
       }
     }
 
-    Object.keys(Component).forEach(key => ConnectHOC[key] = Component[key]);
+    Object.keys(Component).forEach(key => SubscribeHOC[key] = Component[key]);
 
-    return ConnectHOC as any;
+    return SubscribeHOC as any;
 
   };
 

@@ -1,5 +1,5 @@
 import { context, ContextHOCInjectedProps } from 'hoc/context.hoc';
-import { connect, SubscribeScopeSetting } from 'hoc/connect.hoc';
+import { subscribe, SubscribeScopeSetting } from 'hoc/subscribe.hoc';
 import { localization, LocalizationHOCInjectedProps } from 'hoc/localization.hoc';
 import { jsxService, JSXService } from 'service/jsx.service';
 import { restService, RestService } from 'service/rest.service';
@@ -40,7 +40,7 @@ const ligui: Ligui = new LiguiImpl();
 
 global['ligui'] = ligui;
 global['ContextHOC'] = context;
-global['ConnectHOC'] = connect;
+global['SubscribeHOC'] = subscribe;
 global['LocalizationHOC'] = localization;
 
 export {
@@ -55,7 +55,7 @@ export {
   ContextmenuApi,
   NotificationApi,
   context,
-  connect,
+  subscribe,
   localization,
   ContextHOCInjectedProps,
   SubscribeScopeSetting,
