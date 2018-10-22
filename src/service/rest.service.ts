@@ -1,7 +1,6 @@
 import { uniqueId } from '@sardonyxwt/utils/generator';
 
 export interface RequestProps extends RequestInit {
-  body?: BodyInit | object | number | any;
   queryParams?: { [key: string]: string };
   pathParams?: { [key: string]: string };
 }
@@ -87,15 +86,8 @@ class RestServiceImpl implements RestService {
     }));
   }
 
-  request(endpoint: string, options: RequestProps = {}) {
+  request(endpoint: string, options: RequestProps = {}): Promise<Response> {
     let requestProps = options;
-
-    if (requestProps.headers
-      && requestProps.headers['Content-Type']
-      && requestProps.headers['Content-Type'].includes('application/json')
-    ) {
-      requestProps.body = JSON.stringify(requestProps.body);
-    }
 
     const url = this.buildUrl(endpoint, requestProps);
 
@@ -103,7 +95,7 @@ class RestServiceImpl implements RestService {
       .filter(it => !!it.onRequest)
       .forEach(it => requestProps = it.onRequest(url, requestProps));
 
-    return window.fetch(url, requestProps).then(response => {
+    return fetch(url, requestProps).then(response => {
 
       this.middleware
         .filter(it => !!it.onResponse)

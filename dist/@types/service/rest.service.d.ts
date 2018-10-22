@@ -1,5 +1,4 @@
 export interface RequestProps extends RequestInit {
-    body?: BodyInit | object | number | any;
     queryParams?: {
         [key: string]: string;
     };

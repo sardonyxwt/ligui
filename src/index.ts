@@ -1,17 +1,17 @@
-import { context, ContextHOCInjectedProps } from 'hoc/context.hoc';
-import { subscribe, SubscribeScopeSetting } from 'hoc/subscribe.hoc';
-import { localization, LocalizationHOCInjectedProps } from 'hoc/localization.hoc';
-import { jsxService, JSXService } from 'service/jsx.service';
-import { restService, RestService } from 'service/rest.service';
-import { storeService, StoreService } from 'service/store.service';
-import { resourceService, ResourceService } from 'service/resource.service';
-import { localizationService, LocalizationService } from 'service/localization.service';
-import { ToastApi } from 'api/toast.api';
-import { DialogApi } from 'api/dialog.api';
-import { ContextmenuApi } from 'api/contextmenu.api';
-import { NotificationApi } from 'api/notification.api';
+import { context, ContextHOCInjectedProps } from './hoc/context.hoc';
+import { subscribe, SubscribeScopeSetting } from './hoc/subscribe.hoc';
+import { localization, LocalizationHOCInjectedProps } from './hoc/localization.hoc';
+import { jsxService, JSXService } from './service/jsx.service';
+import { restService, RestService } from './service/rest.service';
+import { storeService, StoreService } from './service/store.service';
+import { resourceService, ResourceService } from './service/resource.service';
+import { localizationService, LocalizationService } from './service/localization.service';
+import { ToastApi } from './api/toast.api';
+import { DialogApi } from './api/dialog.api';
+import { ContextmenuApi } from './api/contextmenu.api';
+import { NotificationApi } from './api/notification.api';
 
-export * from 'decorator/router.decorator';
+export * from './decorator/router.decorator';
 
 export interface Ligui {
   jsx: JSXService;

@@ -1,6 +1,6 @@
 /* tslint:disable:variable-name*/
 import * as React from 'react';
-import { localizationService, Translator } from 'service/localization.service';
+import { localizationService, Translator } from '../service/localization.service';
 
 export interface LocalizationHOCInjectedProps {
   t: Translator;

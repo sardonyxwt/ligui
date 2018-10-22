@@ -53,12 +53,6 @@ function createConfig(options) {
     plugins,
     resolve: {
       extensions: ['.js', '.ts', '.tsx','.json', '.webpack.js'],
-      alias: {
-        'service': path.resolve(__dirname, './src/service'),
-        'hoc': path.resolve(__dirname, './src/hoc'),
-        'api': path.resolve(__dirname, './src/api'),
-        'decorator': path.resolve(__dirname, './src/decorator')
-      }
     }
   }
 
