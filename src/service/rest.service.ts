@@ -1,5 +1,6 @@
-import fetch from 'unfetch';
 import { uniqueId } from '@sardonyxwt/utils/generator';
+
+const contextualFetch = fetch.bind(global);
 
 export interface RequestProps extends RequestInit {
   body?: BodyInit | object | number | any;
@@ -104,7 +105,7 @@ class RestServiceImpl implements RestService {
       .filter(it => !!it.onRequest)
       .forEach(it => requestProps = it.onRequest(url, requestProps));
 
-    return fetch(url, requestProps).then(response => {
+    return contextualFetch(url, requestProps).then(response => {
 
       this.middleware
         .filter(it => !!it.onResponse)
