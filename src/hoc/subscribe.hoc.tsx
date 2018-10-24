@@ -79,7 +79,7 @@ export function subscribe<T>(injectedScopeStates: (string | SubscribeScopeSettin
 
     Object.keys(Component).forEach(key => SubscribeHOC[key] = Component[key]);
 
-    return SubscribeHOC as any;
+    return SubscribeHOC as React.ComponentType<TOriginalProps>;
 
   };
 

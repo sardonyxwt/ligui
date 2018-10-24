@@ -49,7 +49,7 @@ export function localization(id: string | string[]) {
 
     Object.keys(Component).forEach(key => ContextHOC[key] = Component[key]);
 
-    return ContextHOC as any;
+    return ContextHOC as React.ComponentType<TOriginalProps>;
 
   };
 

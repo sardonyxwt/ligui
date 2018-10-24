@@ -26,7 +26,7 @@ export function context<TContext>(Consumer: React.Consumer<TContext>) {
 
     Object.keys(Component).forEach(key => ContextHOC[key] = Component[key]);
 
-    return ContextHOC as any;
+    return ContextHOC as React.ComponentType<TOriginalProps>;
 
   };
 
