@@ -3,4 +3,4 @@ import { Translator } from '../service/localization.service';
 export interface LocalizationHOCInjectedProps {
     t: Translator;
 }
-export declare function localization(id: string | string[]): <TOriginalProps extends {}>(Component: React.ComponentType<TOriginalProps & LocalizationHOCInjectedProps>) => React.ComponentType<TOriginalProps>;
+export declare function localization(id: string | string[]): <P extends LocalizationHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(Component: C) => C;

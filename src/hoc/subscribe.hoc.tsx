@@ -20,10 +20,10 @@ interface ScopeActionTree {
 
 const scopeActionTree: ScopeActionTree = {};
 
-export function subscribe<T>(injectedScopeStates: (string | SubscribeScopeSetting)[]) {
+export function subscribe(injectedScopeStates: (string | SubscribeScopeSetting)[]) {
 
-  return <TOriginalProps extends {}>(
-    Component: React.ComponentType<TOriginalProps>
+  return <P extends {}, C extends React.ComponentType<P> = React.ComponentType<P>>(
+    Component: C
   ) => {
 
     function resolveSetting(setting: string | SubscribeScopeSetting): SubscribeScopeSetting {
@@ -32,7 +32,7 @@ export function subscribe<T>(injectedScopeStates: (string | SubscribeScopeSettin
         : setting;
     }
 
-    class SubscribeHOC extends React.Component<TOriginalProps, SubscribeHOCState> {
+    class SubscribeHOC extends React.Component<P, SubscribeHOCState> {
 
       private subscriberId = uniqueId('ScopeActionTreeSubscriberId');
       static displayName = Component.displayName || Component.name;
@@ -71,15 +71,17 @@ export function subscribe<T>(injectedScopeStates: (string | SubscribeScopeSettin
       }
 
       render() {
+        const RenderComponent = Component as any;
+
         return (
-          <Component {...this.props} data-scope-update-count={this.state.$scopesUpdateCount}/>
+          <RenderComponent {...this.props} data-scope-update-count={this.state.$scopesUpdateCount}/>
         );
       }
     }
 
     Object.keys(Component).forEach(key => SubscribeHOC[key] = Component[key]);
 
-    return SubscribeHOC as React.ComponentType<TOriginalProps>;
+    return SubscribeHOC as any as C;
 
   };
 

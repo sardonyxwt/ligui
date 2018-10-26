@@ -12,11 +12,11 @@ interface LocalizationHOCState {
 
 export function localization(id: string | string[]) {
 
-  return <TOriginalProps extends {}>(
-    Component: React.ComponentType<TOriginalProps & LocalizationHOCInjectedProps>
+  return <P extends LocalizationHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(
+    Component: C
   ) => {
 
-    class ContextHOC extends React.Component<TOriginalProps, LocalizationHOCState> {
+    class ContextHOC extends React.Component<P, LocalizationHOCState> {
 
       static displayName = Component.displayName || Component.name;
 
@@ -41,15 +41,17 @@ export function localization(id: string | string[]) {
           return null;
         }
 
+        const RenderComponent = Component as any;
+
         return (
-            <Component {...this.props} t={translator}/>
+            <RenderComponent {...this.props} t={translator}/>
         );
       }
-    };
+    }
 
     Object.keys(Component).forEach(key => ContextHOC[key] = Component[key]);
 
-    return ContextHOC as React.ComponentType<TOriginalProps>;
+    return ContextHOC as any as C;
 
   };
 

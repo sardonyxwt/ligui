@@ -7,18 +7,20 @@ export interface ContextHOCInjectedProps<TContext> {
 
 export function context<TContext>(Consumer: React.Consumer<TContext>) {
 
-  return <TOriginalProps extends {}>(
-    Component: React.ComponentType<TOriginalProps & ContextHOCInjectedProps<TContext>>
+  return <P extends ContextHOCInjectedProps<TContext>, C extends React.ComponentType<P> = React.ComponentType<P>>(
+    Component: C
   ) => {
 
-    class ContextHOC extends React.Component<TOriginalProps> {
+    class ContextHOC extends React.Component<P> {
 
       static displayName = Component.displayName || Component.name;
 
       render() {
+        const RenderComponent = Component as any;
+
         return (
           <Consumer>
-            {context => <Component {...this.props} context={context}/>}
+            {context => <RenderComponent {...this.props} context={context}/>}
           </Consumer>
         );
       }
@@ -26,7 +28,7 @@ export function context<TContext>(Consumer: React.Consumer<TContext>) {
 
     Object.keys(Component).forEach(key => ContextHOC[key] = Component[key]);
 
-    return ContextHOC as React.ComponentType<TOriginalProps>;
+    return ContextHOC as C;
 
   };
 
