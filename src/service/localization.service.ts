@@ -98,6 +98,7 @@ class LocalizationServiceImpl implements LocalizationService {
     if (this._scope) {
       throw new Error('ResourceService must configure only once.');
     }
+    this._loader = config.loader;
     this._scope = createSyncScope<LocalizationServiceState>(
       LOCALIZATION_SCOPE_NAME,
       config.initState
