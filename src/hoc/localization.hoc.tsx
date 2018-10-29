@@ -10,7 +10,7 @@ interface LocalizationHOCState {
   translator: Translator;
 }
 
-export function localization(id: string | string[]) {
+export function localization(id: string | string[], Preloader: React.ComponentType = null) {
 
   return <P extends LocalizationHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(
     Component: C
@@ -38,7 +38,7 @@ export function localization(id: string | string[]) {
         const {translator} = this.state;
 
         if (!translator) {
-          return null;
+          return <Preloader/>;
         }
 
         const RenderComponent = Component as any;

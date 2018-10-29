@@ -1,5 +1,4 @@
-import * as JSONUtil from '@sardonyxwt/utils/json';
-import { createSyncScope, ScopeMacroType, SyncScope } from '@sardonyxwt/state-store';
+import { createSyncScope, SyncScope } from '@sardonyxwt/state-store';
 
 export type LocalizationLoader = (locale: string, id: string) => Localization | Promise<Localization>;
 export type Translator = (key: string) => string;
@@ -115,7 +114,7 @@ class LocalizationServiceImpl implements LocalizationService {
       initState
     ) as LocalizationScope;
 
-    const setLocalizationDispatcher = scope.registerAction(
+    scope.registerAction(
       LOCALIZATION_SCOPE_ACTION_SET,
       (state, {locale, id, localization}) => {
         const localizations = {
@@ -129,7 +128,7 @@ class LocalizationServiceImpl implements LocalizationService {
       }
     );
 
-    const changeCurrentLocaleDispatcher = scope.registerAction(
+    scope.registerAction(
       LOCALIZATION_SCOPE_ACTION_CHANGE_LOCALE,
       (state, currentLocale: string) => {
         const isSupportLocale = state.locales.find(
@@ -142,43 +141,34 @@ class LocalizationServiceImpl implements LocalizationService {
       }
     );
 
-    scope.registerMacro(
-      'localizations',
-      (state, props: {locale: string, localization: Localization}) => setLocalizationDispatcher(props),
-      ScopeMacroType.SETTER
-    );
-
-    scope.registerMacro(
-      'currentLocale',
-      (state, currentLocale: string) => changeCurrentLocaleDispatcher(currentLocale),
-      ScopeMacroType.SETTER
-    );
-
     scope.lock();
 
     return scope;
   };
 
   private configureTranslator(): Translator {
-    let localizations = JSONUtil.flatten(this._scope.state.localizations);
+    const results = {};
     return (path: string) => {
       const currentLocale = this._scope.state.currentLocale;
-      const key = `${currentLocale}.${path}`;
-      const id = path.split('.')[0];
-      if (key in localizations) {
-        return localizations[key];
+
+      const resultKey = `${currentLocale}.${path}`;
+      if (resultKey in results) {
+        return results[resultKey];
       }
-      if (this._scope.state.localizations[currentLocale] && this._scope.state.localizations[currentLocale][id]) {
-        const localizationFromStore = this._scope.state.localizations[currentLocale][id];
-        localizations = JSONUtil.flatten({
-          ...localizations,
-          [currentLocale]: {
-            [id]: localizationFromStore
-          }
-        });
-        return localizations[key];
+
+      const pathParts = path.split('.');
+
+      let result = this._scope.state.localizations[currentLocale];
+      for (let i = 0; i < pathParts.length; i++) {
+        let pathPart = pathParts[i];
+        if (pathPart in result) {
+          result = result[pathPart];
+        } else {
+          return `I18N(${currentLocale} ${path}): localization not present.`;
+        }
       }
-      return `I18N(${currentLocale} ${path}): localization not present.`;
+      results[resultKey] = result;
+      return result as any as string;
     }
   }
 
