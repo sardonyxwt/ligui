@@ -77,7 +77,7 @@ class LocalizationServiceImpl implements LocalizationService {
   }
 
   loadLocalizations(id: string | string[]): Promise<Translator> {
-    const {_scope, _loader, currentLocale} = this;
+    const {_scope, _loader, currentLocale, defaultLocale} = this;
 
     const ids = Array.isArray(id) ? [...id] : [id];
 
@@ -88,10 +88,10 @@ class LocalizationServiceImpl implements LocalizationService {
         if (_scope.state.localizations[currentLocale] && _scope.state.localizations[currentLocale][id]) {
           this._localizationPromises[localizationId] = Promise.resolve();
         } else {
-          this._localizationPromises[localizationId] = Promise.resolve(_loader(currentLocale, id))
-            .then(localization => {
-              _scope.setLocalization({locale: currentLocale, id, localization});
-            });
+          this._localizationPromises[localizationId] =
+            Promise.resolve(_loader(currentLocale, id))
+              .then(null, () => _loader(defaultLocale, id))
+              .then(localization => _scope.setLocalization({locale: currentLocale, id, localization}));
         }
       }
       return this._localizationPromises[localizationId];

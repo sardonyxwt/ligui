@@ -20,7 +20,7 @@ export function context<TContext>(Consumer: React.Consumer<TContext>) {
 
         return (
           <Consumer>
-            {context => <RenderComponent {...this.props} context={context}/>}
+            {context => <RenderComponent {...this.props} context={this.props.context || context}/>}
           </Consumer>
         );
       }

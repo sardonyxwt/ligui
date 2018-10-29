@@ -3,7 +3,7 @@ import * as React from 'react';
 import { localizationService, Translator } from '../service/localization.service';
 
 export interface LocalizationHOCInjectedProps {
-  t: Translator;
+  t?: Translator;
 }
 
 interface LocalizationHOCState {
@@ -25,6 +25,9 @@ export function localization(id: string | string[], Preloader?: React.ComponentT
       };
 
       componentDidMount() {
+        if (this.props.t) {
+          return;
+        }
         const setup = () => {
           localizationService.loadLocalizations(id).then((translator) => {
             this.setState({translator})
@@ -35,16 +38,17 @@ export function localization(id: string | string[], Preloader?: React.ComponentT
       }
 
       render() {
+        const {t} = this.props;
         const {translator} = this.state;
 
-        if (!translator) {
+        if (!(t || translator)) {
           return Preloader ? <Preloader/> : null;
         }
 
         const RenderComponent = Component as any;
 
         return (
-            <RenderComponent {...this.props} t={translator}/>
+            <RenderComponent {...this.props} t={t || translator}/>
         );
       }
     }
