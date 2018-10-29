@@ -10,7 +10,7 @@ interface LocalizationHOCState {
   translator: Translator;
 }
 
-export function localization(id: string | string[], Preloader?: React.ComponentType) {
+export function localization(ids: string[], Preloader?: React.ComponentType) {
 
   return <P extends LocalizationHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(
     Component: C
@@ -24,17 +24,26 @@ export function localization(id: string | string[], Preloader?: React.ComponentT
         translator: null
       };
 
+      constructor(props) {
+        super(props);
+        if (localizationService.isLocalizationsLoaded(ids)) {
+          this.state = {translator: localizationService.translator};
+        }
+      }
+
       componentDidMount() {
         if (this.props.t) {
           return;
         }
         const setup = () => {
-          localizationService.loadLocalizations(id).then((translator) => {
-            this.setState({translator})
+          localizationService.loadLocalizations(ids).then((translator) => {
+            this.setState({translator});
           });
         };
         localizationService.onLocaleChange(setup.bind(this));
-        setup();
+        if (!this.state.translator) {
+          setup();
+        }
       }
 
       render() {

@@ -36,7 +36,8 @@ export interface LocalizationService {
   readonly scope: LocalizationScope;
   onLocaleChange(callback: (oldLocale: string, newLocale: string) => void): void;
   changeLocale(locale: string): void;
-  loadLocalizations(id: string | string[]): Promise<Translator>
+  loadLocalizations(id: string[]): Promise<Translator>
+  isLocalizationsLoaded(id: string[]): boolean;
   configure(config: LocalizationServiceConfig): void;
 }
 
@@ -76,10 +77,8 @@ class LocalizationServiceImpl implements LocalizationService {
     this._scope.changeLocale(locale);
   }
 
-  loadLocalizations(id: string | string[]): Promise<Translator> {
+  loadLocalizations(ids: string[]): Promise<Translator> {
     const {_scope, _loader, currentLocale, defaultLocale} = this;
-
-    const ids = Array.isArray(id) ? [...id] : [id];
 
     let createLocalizationPromise = (id: string) => {
       let localizationId = `${currentLocale}:${id}`;
@@ -99,6 +98,22 @@ class LocalizationServiceImpl implements LocalizationService {
 
     return Promise.all(ids.map(id => createLocalizationPromise(id)))
       .then(() => this._translator);
+  }
+
+  isLocalizationsLoaded(ids: string[]) {
+    const {_scope: {state: {localizations}}, currentLocale} = this;
+
+    if (!localizations[currentLocale]) {
+      return false;
+    }
+
+    ids.forEach(id => {
+      if (!localizations[currentLocale][id]) {
+        return false;
+      }
+    });
+
+    return true;
   }
 
   configure({initState, loader}: LocalizationServiceConfig) {

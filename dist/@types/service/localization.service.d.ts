@@ -35,7 +35,8 @@ export interface LocalizationService {
     readonly scope: LocalizationScope;
     onLocaleChange(callback: (oldLocale: string, newLocale: string) => void): void;
     changeLocale(locale: string): void;
-    loadLocalizations(id: string | string[]): Promise<Translator>;
+    loadLocalizations(id: string[]): Promise<Translator>;
+    isLocalizationsLoaded(id: string[]): boolean;
     configure(config: LocalizationServiceConfig): void;
 }
 export declare const localizationService: LocalizationService;
