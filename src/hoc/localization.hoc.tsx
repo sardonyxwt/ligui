@@ -26,8 +26,8 @@ export function localization(id: string | string[]) {
 
       componentDidMount() {
         const setup = () => {
-          localizationService.loadLocalizations(id).then(() => {
-            this.setState({translator: localizationService.translator})
+          localizationService.loadLocalizations(id).then((translator) => {
+            this.setState({translator})
           });
         };
         localizationService.onLocaleChange(setup.bind(this));

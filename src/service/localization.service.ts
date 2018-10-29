@@ -1,22 +1,32 @@
 import * as JSONUtil from '@sardonyxwt/utils/json';
-import { createSyncScope, SyncScope } from '@sardonyxwt/state-store';
+import { createSyncScope, ScopeMacroType, SyncScope } from '@sardonyxwt/state-store';
 
+export type LocalizationLoader = (locale: string, id: string) => Localization | Promise<Localization>;
 export type Translator = (key: string) => string;
 
 export interface Localization {
-  [key: string]: string
+  [key: string]: Localization
 }
 
-export interface LocalizationServiceState {
+export interface LocalizationScopeState {
   locales: string[];
   defaultLocale: string;
   currentLocale: string;
   localizations: { [locale: string]: Localization }
 }
 
+export const LOCALIZATION_SCOPE_NAME = 'LOCALIZATION_SCOPE';
+export const LOCALIZATION_SCOPE_ACTION_SET = 'setLocalization';
+export const LOCALIZATION_SCOPE_ACTION_CHANGE_LOCALE = 'changeLocale';
+
+export interface LocalizationScope extends SyncScope<LocalizationScopeState> {
+  [LOCALIZATION_SCOPE_ACTION_SET](props: {locale: string, id: string, localization: Localization})
+  [LOCALIZATION_SCOPE_ACTION_CHANGE_LOCALE](locale: string)
+}
+
 export interface LocalizationServiceConfig {
-  loader: (locale: string, id: string) => Promise<Localization>;
-  initState: LocalizationServiceState;
+  loader?: LocalizationLoader;
+  initState: LocalizationScopeState;
 }
 
 export interface LocalizationService {
@@ -24,25 +34,22 @@ export interface LocalizationService {
   readonly defaultLocale: string;
   readonly currentLocale: string;
   readonly translator: Translator;
-  readonly scope: SyncScope<LocalizationServiceState>;
+  readonly scope: LocalizationScope;
   onLocaleChange(callback: (oldLocale: string, newLocale: string) => void): void;
   changeLocale(locale: string): void;
-  loadLocalizations(id: string | string[]): Promise<void>
+  loadLocalizations(id: string | string[]): Promise<Translator>
   configure(config: LocalizationServiceConfig): void;
 }
 
-export const LOCALIZATION_SCOPE_NAME = 'LOCALIZATION_SCOPE';
-export const LOCALIZATION_SCOPE_ACTION_ADD = 'add';
-export const LOCALIZATION_SCOPE_ACTION_CHANGE_LOCALE = 'changeLocale';
-
 class LocalizationServiceImpl implements LocalizationService {
 
-  private _loader: (locale: string, id: string) => Promise<Localization>;
-  private _scope: SyncScope<LocalizationServiceState>;
+  private _loader: LocalizationLoader;
+  private _scope: LocalizationScope = null;
+  private _translator: Translator;
   private _localizationPromises: {[key: string]: Promise<void>} = {};
 
   get locales(): string[] {
-    return this._scope.state.locales.slice();
+    return this._scope.state.locales;
   }
 
   get defaultLocale(): string {
@@ -54,7 +61,7 @@ class LocalizationServiceImpl implements LocalizationService {
   }
 
   get translator(): Translator {
-    return id => this._scope.state.localizations[this.currentLocale][id];
+    return this._translator;
   }
 
   get scope() {
@@ -67,10 +74,10 @@ class LocalizationServiceImpl implements LocalizationService {
   }
 
   changeLocale(locale: string): void {
-    this._scope.dispatch(LOCALIZATION_SCOPE_ACTION_CHANGE_LOCALE, locale);
+    this._scope.changeLocale(locale);
   }
 
-  loadLocalizations(id: string | string[]): Promise<void> {
+  loadLocalizations(id: string | string[]): Promise<Translator> {
     const {_scope, _loader, currentLocale} = this;
 
     const ids = Array.isArray(id) ? [...id] : [id];
@@ -82,12 +89,9 @@ class LocalizationServiceImpl implements LocalizationService {
         if (_scope.state.localizations[currentLocale] && _scope.state.localizations[currentLocale][id]) {
           this._localizationPromises[localizationId] = Promise.resolve();
         } else {
-          this._localizationPromises[localizationId] = _loader(currentLocale, id)
+          this._localizationPromises[localizationId] = Promise.resolve(_loader(currentLocale, id))
             .then(localization => {
-              _scope.dispatch(
-                LOCALIZATION_SCOPE_ACTION_ADD,
-                {currentLocale, id, localization}
-              );
+              _scope.setLocalization({locale: currentLocale, id, localization});
             });
         }
       }
@@ -95,32 +99,37 @@ class LocalizationServiceImpl implements LocalizationService {
     };
 
     return Promise.all(ids.map(id => createLocalizationPromise(id)))
-      .then(() => null);
+      .then(() => this._translator);
   }
 
-  configure(config: LocalizationServiceConfig) {
-    if (this._scope) {
-      throw new Error('ResourceService must configure only once.');
-    }
-    this._loader = config.loader;
-    this._scope = createSyncScope<LocalizationServiceState>(
+  configure({initState, loader}: LocalizationServiceConfig) {
+    this._scope = this.configureScope(initState);
+    this._translator = this.configureTranslator();
+    this._loader = loader;
+  }
+
+  private configureScope(initState: LocalizationScopeState) {
+
+    const scope = createSyncScope<LocalizationScopeState>(
       LOCALIZATION_SCOPE_NAME,
-      config.initState
-    );
-    this.scope.registerAction(
-      LOCALIZATION_SCOPE_ACTION_ADD,
-      (state, {currentLocale, id, localization}) => {
+      initState
+    ) as LocalizationScope;
+
+    const setLocalizationDispatcher = scope.registerAction(
+      LOCALIZATION_SCOPE_ACTION_SET,
+      (state, {locale, id, localization}) => {
         const localizations = {
           ...state.localizations,
-          [currentLocale]: JSONUtil.flatten({
-            ...state.localizations[currentLocale],
+          [locale]: {
+            ...state.localizations[locale],
             [id]: localization
-          })
+          }
         };
         return {...state, localizations};
       }
     );
-    this.scope.registerAction(
+
+    const changeCurrentLocaleDispatcher = scope.registerAction(
       LOCALIZATION_SCOPE_ACTION_CHANGE_LOCALE,
       (state, currentLocale: string) => {
         const isSupportLocale = state.locales.find(
@@ -132,7 +141,45 @@ class LocalizationServiceImpl implements LocalizationService {
         return {...state, currentLocale};
       }
     );
-    this.scope.lock();
+
+    scope.registerMacro(
+      'localizations',
+      (state, props: {locale: string, localization: Localization}) => setLocalizationDispatcher(props),
+      ScopeMacroType.SETTER
+    );
+
+    scope.registerMacro(
+      'currentLocale',
+      (state, currentLocale: string) => changeCurrentLocaleDispatcher(currentLocale),
+      ScopeMacroType.SETTER
+    );
+
+    scope.lock();
+
+    return scope;
+  };
+
+  private configureTranslator(): Translator {
+    let localizations = JSONUtil.flatten(this._scope.state.localizations);
+    return (path: string) => {
+      const currentLocale = this._scope.state.currentLocale;
+      const key = `${currentLocale}.${path}`;
+      const id = path.split('.')[0];
+      if (key in localizations) {
+        return localizations[key];
+      }
+      if (this._scope.state.localizations[currentLocale] && this._scope.state.localizations[currentLocale][id]) {
+        const localizationFromStore = this._scope.state.localizations[currentLocale][id];
+        localizations = JSONUtil.flatten({
+          ...localizations,
+          [currentLocale]: {
+            [id]: localizationFromStore
+          }
+        });
+        return localizations[key];
+      }
+      return `I18N(${currentLocale} ${path}): localization not present.`;
+    }
   }
 
 }
