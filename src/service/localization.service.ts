@@ -79,13 +79,17 @@ class LocalizationServiceImpl implements LocalizationService {
       let localizationId = `${currentLocale}:${id}`;
 
       if (!(localizationId in this._localizationPromises)) {
-        this._localizationPromises[localizationId] = _loader(currentLocale, id)
-          .then(localization => {
-            _scope.dispatch(
-              LOCALIZATION_SCOPE_ACTION_ADD,
-              {currentLocale, id, localization}
-            );
-          });
+        if (_scope.state.localizations[currentLocale] && _scope.state.localizations[currentLocale][id]) {
+          this._localizationPromises[localizationId] = Promise.resolve();
+        } else {
+          this._localizationPromises[localizationId] = _loader(currentLocale, id)
+            .then(localization => {
+              _scope.dispatch(
+                LOCALIZATION_SCOPE_ACTION_ADD,
+                {currentLocale, id, localization}
+              );
+            });
+        }
       }
       return this._localizationPromises[localizationId];
     };
