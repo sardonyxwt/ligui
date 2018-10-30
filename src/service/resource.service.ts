@@ -55,10 +55,11 @@ class ResourceServiceImpl implements ResourceService {
     if (this.scope) {
       throw new Error('ResourceService must configure only once.');
     }
-    this.scope = createSyncScope<ResourceServiceState>(
-      RESOURCES_SCOPE_NAME,
-      config.initState || {resources: {}}
-    );
+    this.scope = createSyncScope<ResourceServiceState>({
+      name: RESOURCES_SCOPE_NAME,
+      initState: config.initState || {resources: {}},
+      isSubscribeMacroAutoCreateEnable: true
+    });
     this.scope.registerAction(
       RESOURCES_SCOPE_ACTION_ADD,
       (scope, {path, resource}) => Object.assign(scope, {[path]: resource}));

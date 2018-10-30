@@ -124,10 +124,11 @@ class LocalizationServiceImpl implements LocalizationService {
 
   private configureScope(initState: LocalizationScopeState) {
 
-    const scope = createSyncScope<LocalizationScopeState>(
-      LOCALIZATION_SCOPE_NAME,
-      initState
-    ) as LocalizationScope;
+    const scope = createSyncScope<LocalizationScopeState>({
+      name: LOCALIZATION_SCOPE_NAME,
+      initState,
+      isSubscribeMacroAutoCreateEnable: true
+    }) as LocalizationScope;
 
     scope.registerAction(
       LOCALIZATION_SCOPE_ACTION_SET,

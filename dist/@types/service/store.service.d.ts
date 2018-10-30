@@ -1,8 +1,8 @@
-import { Scope, SyncScope, AsyncScope, ScopeMiddleware, StoreDevTool } from '@sardonyxwt/state-store';
+import { AsyncScope, Scope, ScopeConfig, StoreDevTool, SyncScope } from '@sardonyxwt/state-store';
 export interface StoreService {
-    createSyncScope<T>(name?: string, initState?: T, middleware?: ScopeMiddleware<T, T>[]): SyncScope<T>;
-    createAsyncScope<T>(name?: string, initState?: T, middleware?: ScopeMiddleware<T, Promise<T>>[]): AsyncScope<T>;
-    composeScope(name: string, scopes: (Scope | string)[], middleware?: ScopeMiddleware<any, Promise<any>>[]): AsyncScope<{}>;
+    createSyncScope<T>(config?: ScopeConfig<T, T>): SyncScope<T>;
+    createAsyncScope<T>(config?: ScopeConfig<T, Promise<T>>): AsyncScope<T>;
+    composeScope(scopes: (Scope | string)[], config?: ScopeConfig<any, Promise<{}>>): AsyncScope<{}>;
     getScope(scopeName: string): Scope;
     getState(): {};
     setStoreDevTool(devTool: StoreDevTool): void;
