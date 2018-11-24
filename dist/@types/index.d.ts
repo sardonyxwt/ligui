@@ -1,4 +1,3 @@
-export * from 'reflect-metadata';
 export * from 'inversify';
 export * from './api/contextmenu.api';
 export * from './api/dialog.api';
@@ -19,6 +18,7 @@ export * from './service/localization.service';
 export * from './service/resource.service';
 export * from './service/rest.service';
 export * from './service/store.service';
+import 'reflect-metadata';
 import { Container } from 'inversify';
 import { JSXService } from './service/jsx.service';
 import { RestService } from './service/rest.service';
