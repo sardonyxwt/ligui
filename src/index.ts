@@ -1,3 +1,5 @@
+export * from 'reflect-metadata';
+export * from 'inversify';
 export * from './api/contextmenu.api';
 export * from './api/dialog.api';
 export * from './api/notification.api';
@@ -17,6 +19,7 @@ export * from './service/localization.service';
 export * from './service/resource.service';
 export * from './service/rest.service';
 export * from './service/store.service';
+import { Container } from 'inversify';
 import { jsxService, JSXService } from './service/jsx.service';
 import { restService, RestService } from './service/rest.service';
 import { storeService, StoreService } from './service/store.service';
@@ -49,19 +52,42 @@ export interface LiguiApi {
   notification?: NotificationApi;
 }
 
+export enum LiguiTypes {
+  JSX_SERVICE = 'LIG_JSX_SERVICE',
+  REST_SERVICE = 'LIG_REST_SERVICE',
+  STORE_SERVICE = 'LIG_STORE_SERVICE',
+  RESOURCE_SERVICE = 'LIG_RESOURCE_SERVICE',
+  LOCALIZATION_SERVICE = 'LIG_LOCALIZATION_SERVICE',
+
+  TOAST_API = 'LIG_TOAST_APIE',
+  DIALOG_API = 'LIG_DIALOG_API',
+  CONTEXTMENU_API = 'LIG_CONTEXTMENU_API',
+  NOTIFICATION_API = 'LIG_NOTIFICATION_API',
+}
+
 export interface Ligui {
   readonly jsx: JSXService;
   readonly rest: RestService;
   readonly store: StoreService;
   readonly resource: ResourceService;
   readonly localization: LocalizationService;
+  readonly container: Container;
   readonly api: LiguiApi;
   readonly isConfigured: boolean;
-  setup(config: LiguiConfig): void
+  setup(config: LiguiConfig): void;
 }
 
+let api: LiguiApi = {};
 let isConfigured = false;
-let api = {};
+let container = new Container({
+  skipBaseClassChecks: true,
+});
+
+container.bind<JSXService>(LiguiTypes.JSX_SERVICE).toConstantValue(jsxService);
+container.bind<RestService>(LiguiTypes.REST_SERVICE).toConstantValue(restService);
+container.bind<StoreService>(LiguiTypes.STORE_SERVICE).toConstantValue(storeService);
+container.bind<ResourceService>(LiguiTypes.RESOURCE_SERVICE).toConstantValue(resourceService);
+container.bind<LocalizationService>(LiguiTypes.LOCALIZATION_SERVICE).toConstantValue(localizationService);
 
 class LiguiImpl implements Ligui {
 
@@ -85,6 +111,10 @@ class LiguiImpl implements Ligui {
     return localizationService;
   }
 
+  get container() {
+    return container;
+  }
+
   get api() {
     return api;
   }
@@ -102,6 +132,19 @@ class LiguiImpl implements Ligui {
 
     if (config.api) {
       api = config.api;
+      const {toast, contextmenu, dialog, notification} = api;
+      if (toast) {
+        container.bind<ToastApi>(LiguiTypes.TOAST_API).toConstantValue(toast);
+      }
+      if (contextmenu) {
+        container.bind<ContextmenuApi>(LiguiTypes.CONTEXTMENU_API).toConstantValue(contextmenu);
+      }
+      if (dialog) {
+        container.bind<DialogApi>(LiguiTypes.DIALOG_API).toConstantValue(dialog);
+      }
+      if (notification) {
+        container.bind<NotificationApi>(LiguiTypes.NOTIFICATION_API).toConstantValue(notification);
+      }
     }
     if (config.globalName) {
       global[config.globalName] = this;

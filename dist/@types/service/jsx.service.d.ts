@@ -1,7 +1,8 @@
 import * as React from 'react';
 export interface JSXService {
     registerFactory<T extends {}>(name: string, factory: React.Factory<T>): JSXService;
-    node<T>(name: string, props: T, children?: React.ReactNode[]): React.ReactElement<T>;
-    render<T>(container: Element, element: React.ReactElement<T>): any;
+    node<T extends {}>(name: string, props?: T, ...children: React.ReactNode[]): React.ReactElement<T>;
+    render<T extends {}>(container: Element, element: React.ReactElement<T>): any;
+    renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): any;
 }
 export declare const jsxService: JSXService;

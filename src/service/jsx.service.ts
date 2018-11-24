@@ -3,8 +3,9 @@ import * as ReactDOM from 'react-dom';
 
 export interface JSXService {
   registerFactory<T extends {}>(name: string, factory: React.Factory<T>): JSXService;
-  node<T>(name: string, props: T, children?: React.ReactNode[]): React.ReactElement<T>;
-  render<T>(container: Element, element: React.ReactElement<T>);
+  node<T extends {}>(name: string, props?: T, ...children: React.ReactNode[]): React.ReactElement<T>;
+  render<T extends {}>(container: Element, element: React.ReactElement<T>);
+  renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]);
 }
 
 class JSXServiceImpl implements JSXService {
@@ -28,15 +29,19 @@ class JSXServiceImpl implements JSXService {
     return this;
   }
 
-  node<T>(name: string, props: T, children: React.ReactNode[]) {
+  node<T extends {}>(name: string, props?: T, ...children: React.ReactNode[]) {
     if (name in this.factories) {
       return (this.factories[name] as React.Factory<T>)(props, children);
     }
     return React.createElement(name, props, children);
   }
 
-  render<T>(container: Element, element: React.ReactElement<T>) {
+  render<T extends {}>(container: Element, element: React.ReactElement<T>) {
     ReactDOM.render(element, container)
+  }
+
+  renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]) {
+    ReactDOM.render(this.node(name, props, children), container)
   }
 
 }

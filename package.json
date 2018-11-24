@@ -1,6 +1,6 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "4.0.2",
+  "version": "4.1.0",
   "description": "Ligui",
   "main": "dist/ligui.lib.min.js",
   "typings": "dist/@types/index.d.ts",
@@ -45,8 +45,10 @@
   "dependencies": {
     "@sardonyxwt/state-store": "3.4.3",
     "@sardonyxwt/utils": "^1.6.4",
+    "inversify": "^5.0.1",
     "react": "^16.6.0",
-    "react-dom": "^16.6.0"
+    "react-dom": "^16.6.0",
+    "reflect-metadata": "^0.1.12"
   },
   "devDependencies": {
     "@types/jest": "^21.1.9",
