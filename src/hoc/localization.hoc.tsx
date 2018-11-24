@@ -1,7 +1,6 @@
 /* tslint:disable:variable-name*/
 import * as React from 'react';
-import { localizationLoader } from '../loader/localization.loader';
-import { localizationScope, Translator } from '../scope/localization.scope';
+import { localizationService, Translator } from '..';
 
 export interface LocalizationHOCInjectedProps {
   t?: Translator;
@@ -27,8 +26,8 @@ export function localization(ids: string[], Preloader?: React.ComponentType) {
 
       constructor(props) {
         super(props);
-        if (localizationScope.isLocalizationsLoaded(ids)) {
-          this.state = {translator: localizationScope.translator};
+        if (localizationService.isLocalizationsLoaded(ids)) {
+          this.state = {translator: localizationService.translate};
         }
       }
 
@@ -37,11 +36,11 @@ export function localization(ids: string[], Preloader?: React.ComponentType) {
           return;
         }
         const setup = () => {
-          localizationLoader.loadLocalizations(ids).then((translator) => {
+          localizationService.loadLocalizations(ids).then((translator) => {
             this.setState({translator});
           });
         };
-        localizationScope.onChangeLocale(setup.bind(this));
+        localizationService.onChangeLocale(setup.bind(this));
         if (!this.state.translator) {
           setup();
         }

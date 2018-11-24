@@ -1,7 +1,6 @@
 /* tslint:disable:variable-name*/
 import * as React from 'react';
-import { resourceLoader } from '../loader/resource.loader';
-import { resourceScope, Resources } from '../scope/resource.scope';
+import { resourceService, Resources } from '..';
 
 export interface ResourceHOCInjectedProps {
   r?: Resources;
@@ -27,8 +26,8 @@ export function resource(ids: string[], Preloader?: React.ComponentType) {
 
       constructor(props) {
         super(props);
-        if (resourceScope.isResourcesLoaded(ids)) {
-          this.state = {resources: resourceScope.resources};
+        if (resourceService.isResourcesLoaded(ids)) {
+          this.state = {resources: resourceService.resources};
         }
       }
 
@@ -37,11 +36,11 @@ export function resource(ids: string[], Preloader?: React.ComponentType) {
           return;
         }
         const setup = () => {
-          resourceLoader.loadResources(ids).then((resources) => {
+          resourceService.loadResources(ids).then((resources) => {
             this.setState({resources});
           });
         };
-        resourceScope.onSetResource(setup.bind(this));
+        resourceService.onSetResource(setup.bind(this));
         if (!this.state.resources) {
           setup();
         }

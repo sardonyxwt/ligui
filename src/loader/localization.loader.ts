@@ -1,4 +1,4 @@
-import { localizationScope, Localization, Translator } from '../scope/localization.scope';
+import { localizationScope, Localization, Translator } from '..';
 
 export type LLoader = (locale: string, id: string) => Localization | Promise<Localization>;
 
@@ -33,7 +33,7 @@ class LocalizationLoaderImpl implements LocalizationLoader {
     };
 
     return Promise.all(keys.map(key => createLocalizationPromise(key)))
-      .then(() => localizationScope.translator);
+      .then(() => localizationScope.translate);
   }
 
   set loader(loader: LLoader) {

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Resources } from '../scope/resource.scope';
+import { Resources } from '..';
 export interface ResourceHOCInjectedProps {
     r?: Resources;
 }

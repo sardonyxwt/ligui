@@ -1,4 +1,4 @@
-import { resourceScope, Resources } from '../scope/resource.scope';
+import { resourceScope, Resources } from '..';
 
 export type RLoader = (key: string) => any | Promise<any>;
 

@@ -1,18 +1,18 @@
-import { localizationScope, LocalizationScopeAddons } from '../scope/localization.scope';
-import { LLoader, localizationLoader, LocalizationLoader } from '../loader/localization.loader';
+import { localizationScope, LocalizationScopeAddons, localizationLoader, LocalizationLoader, LLoader } from '..';
 
 export interface LocalizationService extends LocalizationScopeAddons, LocalizationLoader {}
 
 class LocalizationServiceImpl implements LocalizationService {
 
-  addLocalization = localizationScope.addLocalization;
-  changeLocale = localizationScope.changeLocale;
-  configure = localizationScope.configure;
-  isLocalizationsLoaded = localizationScope.isLocalizationsLoaded;
-  onAddLocalization = localizationScope.onAddLocalization;
-  onChangeLocale = localizationScope.onChangeLocale;
-  onConfigure = localizationScope.onConfigure;
-  loadLocalizations = localizationLoader.loadLocalizations;
+  addLocalization = localizationScope.addLocalization.bind(localizationScope);
+  changeLocale = localizationScope.changeLocale.bind(localizationScope);
+  configure = localizationScope.configure.bind(localizationScope);
+  translate = localizationScope.translate.bind(localizationScope);
+  isLocalizationsLoaded = localizationScope.isLocalizationsLoaded.bind(localizationScope);
+  onAddLocalization = localizationScope.onAddLocalization.bind(localizationScope);
+  onChangeLocale = localizationScope.onChangeLocale.bind(localizationScope);
+  onConfigure = localizationScope.onConfigure.bind(localizationScope);
+  loadLocalizations = localizationLoader.loadLocalizations.bind(localizationLoader);
 
   get currentLocale() {
     return localizationScope.currentLocale;
@@ -36,10 +36,6 @@ class LocalizationServiceImpl implements LocalizationService {
 
   get localizations() {
     return localizationScope.localizations;
-  }
-
-  get translator() {
-    return localizationScope.translator;
   }
 
   get loader() {

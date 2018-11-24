@@ -1,17 +1,16 @@
-import { resourceScope, ResourceScopeAddons } from '../scope/resource.scope';
-import { resourceLoader, ResourceLoader, RLoader } from '../loader/resource.loader';
+import { resourceScope, resourceLoader, ResourceLoader, RLoader, ResourceScopeAddons } from '..';
 
 export interface ResourceService extends ResourceScopeAddons, ResourceLoader {}
 
 class ResourceServiceImpl implements ResourceService {
 
-  configure = resourceScope.configure;
-  getResource = resourceScope.getResource;
-  isResourcesLoaded = resourceScope.isResourcesLoaded;
-  onConfigure = resourceScope.onConfigure;
-  onSetResource = resourceScope.onSetResource;
-  setResource = resourceScope.setResource;
-  loadResources = resourceLoader.loadResources;
+  configure = resourceScope.configure.bind(resourceScope);
+  getResource = resourceScope.getResource.bind(resourceScope);
+  isResourcesLoaded = resourceScope.isResourcesLoaded.bind(resourceScope);
+  onConfigure = resourceScope.onConfigure.bind(resourceScope);
+  onSetResource = resourceScope.onSetResource.bind(resourceScope);
+  setResource = resourceScope.setResource.bind(resourceScope);
+  loadResources = resourceLoader.loadResources.bind(resourceLoader);
 
   get resources() {
     return resourceScope.resources;

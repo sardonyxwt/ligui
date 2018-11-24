@@ -1,4 +1,4 @@
-import { Localization, Translator } from '../scope/localization.scope';
+import { Localization, Translator } from '..';
 export declare type LLoader = (locale: string, id: string) => Localization | Promise<Localization>;
 export interface LocalizationLoader {
     loader: LLoader;

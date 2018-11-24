@@ -35,8 +35,8 @@ export interface LocalizationScopeAddons {
   readonly currentLocale: string;
   readonly localizations: Localizations;
   readonly currentLocalization: Localization;
-  readonly translator: Translator;
   readonly isConfigured: boolean
+  translate(path: string): string;
   configure(props: LocalizationScopeConfigureActionProps): void;
   changeLocale(locale: string): void;
   addLocalization(props: LocalizationScopeAddLocalizationActionProps): void;
@@ -50,12 +50,13 @@ export interface LocalizationScope extends SyncScope<LocalizationScopeState>, Lo
 
 function checkLocale(locales, locale) {
   const isLocalNotAvailable = !locales.find(it => it === locale);
+
   if (isLocalNotAvailable) {
     throw new Error('Locale not present in locales.');
   }
 }
 
-export const localizationScope = createSyncScope<LocalizationScopeState>({
+const localizationScope = createSyncScope<LocalizationScopeState>({
   name: LOCALIZATION_SCOPE_NAME,
   initState: null,
   isSubscribeMacroAutoCreateEnable: true
@@ -67,11 +68,14 @@ localizationScope.registerAction(LOCALIZATION_SCOPE_CONFIGURE_ACTION, (state, {
   if (state) {
     throw new Error('Configure action can be call only once.');
   }
+
   checkLocale(locales, defaultLocale);
   checkLocale(locales, currentLocale);
+
   if (!localizations) {
     throw new Error('Localizations can not be null.');
   }
+
   return {locales, defaultLocale, currentLocale, localizations};
 });
 
@@ -84,6 +88,7 @@ localizationScope.registerAction(LOCALIZATION_SCOPE_ADD_LOCALIZATION_ACTION, (st
   key, locale, localization
 }: LocalizationScopeAddLocalizationActionProps) => {
   checkLocale(state.locales, locale);
+
   const localizations = {
     ...state.localizations,
     [locale]: {
@@ -91,16 +96,30 @@ localizationScope.registerAction(LOCALIZATION_SCOPE_ADD_LOCALIZATION_ACTION, (st
       [key]: localization
     }
   };
+
   return {...state, localizations};
 });
 
-localizationScope.registerMacro('locales', state => state.locales, ScopeMacroType.GETTER);
-localizationScope.registerMacro('defaultLocale', state => state.defaultLocale, ScopeMacroType.GETTER);
-localizationScope.registerMacro('currentLocale', state => state.currentLocale, ScopeMacroType.GETTER);
-localizationScope.registerMacro('localizations', state => state.localizations, ScopeMacroType.GETTER);
-localizationScope.registerMacro('currentLocalization',
-  ({currentLocale, localizations}) => localizations[currentLocale], ScopeMacroType.GETTER);
-localizationScope.registerMacro('isLocalizationsLoaded', ({currentLocale, localizations}, keys: string[]) => {
+localizationScope.registerMacro('locales', state => state ? state.locales : null, ScopeMacroType.GETTER);
+localizationScope.registerMacro('defaultLocale', state => state ? state.defaultLocale : null, ScopeMacroType.GETTER);
+localizationScope.registerMacro('currentLocale', state => state ? state.currentLocale : null, ScopeMacroType.GETTER);
+localizationScope.registerMacro('localizations', state => state ? state.localizations : null, ScopeMacroType.GETTER);
+localizationScope.registerMacro('currentLocalization', state => {
+  if (!state) {
+    return null;
+  }
+
+  const {localizations, currentLocale} = state;
+
+  return localizations[currentLocale];
+}, ScopeMacroType.GETTER);
+localizationScope.registerMacro('isLocalizationsLoaded', (state, keys: string[]) => {
+  if (!state) {
+    return false;
+  }
+
+  const {currentLocale, localizations} = state;
+
   if (!localizations[currentLocale]) {
     return false;
   }
@@ -112,18 +131,30 @@ localizationScope.registerMacro('isLocalizationsLoaded', ({currentLocale, locali
   });
 
   return true;
-}, ScopeMacroType.GETTER);
-localizationScope.registerMacro('translator', ({currentLocale, locales}, path: string) => {
-  let result = locales[currentLocale];
+});
+localizationScope.registerMacro('translate', (state, path: string) => {
+  if (!state) {
+    return null;
+  }
+
+  const {currentLocale, localizations} = state;
+
+  let result = localizations[currentLocale];
   const pathParts = path.split('.');
+
   for (let i = 0; i < pathParts.length; i++) {
     result = result[pathParts[i]];
     if (!result) {
       break;
     }
   }
+
   return result;
-}, ScopeMacroType.GETTER);
+});
 localizationScope.registerMacro('isConfigured', state => !!state, ScopeMacroType.GETTER);
 
 localizationScope.lock();
+
+export {
+  localizationScope
+}

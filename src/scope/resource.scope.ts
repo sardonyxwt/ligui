@@ -31,7 +31,7 @@ export interface ResourceScopeAddons {
 
 export interface ResourceScope extends SyncScope<ResourceScopeState>, ResourceScopeAddons {}
 
-export const resourceScope = createSyncScope<ResourceScopeState>({
+const resourceScope = createSyncScope<ResourceScopeState>({
   name: RESOURCE_SCOPE_NAME,
   initState: null,
   isSubscribeMacroAutoCreateEnable: true
@@ -43,6 +43,7 @@ resourceScope.registerAction(RESOURCE_SCOPE_CONFIGURE_ACTION, ((state, {
   if (state) {
     throw new Error('Configure action can be call only once.');
   }
+
   return {resources};
 }));
 
@@ -52,11 +53,15 @@ resourceScope.registerAction(RESOURCE_SCOPE_SET_RESOURCE_ACTION, ({resources}, {
   return {resources: {...resources, [key]: resource}};
 });
 
-resourceScope.registerMacro('resources', state => state.resources, ScopeMacroType.GETTER);
-resourceScope.registerMacro('getResource', (state, key: string) => state.resources[key], ScopeMacroType.FUNCTION);
-resourceScope.registerMacro('isResourcesLoaded', ({resources}, keys: string[]) => {
+resourceScope.registerMacro('resources', state => state ? state.resources : null, ScopeMacroType.GETTER);
+resourceScope.registerMacro('getResource', (state, key: string) => state ? state.resources[key] : null);
+resourceScope.registerMacro('isResourcesLoaded', (state, keys: string[]) => {
+  if (!state) {
+    return false;
+  }
+
   keys.forEach(key => {
-    if (!resources[key]) {
+    if (!state.resources[key]) {
       return false;
     }
   });
@@ -66,3 +71,7 @@ resourceScope.registerMacro('isResourcesLoaded', ({resources}, keys: string[]) =
 resourceScope.registerMacro('isConfigured', state => !!state, ScopeMacroType.GETTER);
 
 resourceScope.lock();
+
+export {
+  resourceScope
+}

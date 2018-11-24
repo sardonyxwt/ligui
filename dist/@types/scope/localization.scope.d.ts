@@ -29,8 +29,8 @@ export interface LocalizationScopeAddons {
     readonly currentLocale: string;
     readonly localizations: Localizations;
     readonly currentLocalization: Localization;
-    readonly translator: Translator;
     readonly isConfigured: boolean;
+    translate(path: string): string;
     configure(props: LocalizationScopeConfigureActionProps): void;
     changeLocale(locale: string): void;
     addLocalization(props: LocalizationScopeAddLocalizationActionProps): void;
@@ -41,4 +41,5 @@ export interface LocalizationScopeAddons {
 }
 export interface LocalizationScope extends SyncScope<LocalizationScopeState>, LocalizationScopeAddons {
 }
-export declare const localizationScope: LocalizationScope;
+declare const localizationScope: LocalizationScope;
+export { localizationScope };

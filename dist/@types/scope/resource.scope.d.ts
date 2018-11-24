@@ -26,4 +26,5 @@ export interface ResourceScopeAddons {
 }
 export interface ResourceScope extends SyncScope<ResourceScopeState>, ResourceScopeAddons {
 }
-export declare const resourceScope: ResourceScope;
+declare const resourceScope: ResourceScope;
+export { resourceScope };
