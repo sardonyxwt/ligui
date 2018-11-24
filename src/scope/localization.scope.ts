@@ -29,7 +29,7 @@ export interface LocalizationScopeAddLocalizationActionProps {
   localization: Localization;
 }
 
-export interface LocalizationScope extends SyncScope<LocalizationScopeState> {
+export interface LocalizationScopeAddons {
   readonly locales: string[];
   readonly defaultLocale: string;
   readonly currentLocale: string;
@@ -45,6 +45,8 @@ export interface LocalizationScope extends SyncScope<LocalizationScopeState> {
   onChangeLocale(e: ScopeEvent<LocalizationScopeState>);
   onAddLocalization(e: ScopeEvent<LocalizationScopeState>);
 }
+
+export interface LocalizationScope extends SyncScope<LocalizationScopeState>, LocalizationScopeAddons {}
 
 function checkLocale(locales, locale) {
   const isLocalNotAvailable = !locales.find(it => it === locale);

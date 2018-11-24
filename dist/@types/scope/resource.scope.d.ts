@@ -14,7 +14,7 @@ export interface ResourceScopeAddResourceActionProps {
     key: string;
     resource: any;
 }
-export interface ResourceScope extends SyncScope<ResourceScopeState> {
+export interface ResourceScopeAddons {
     readonly resources: Resources;
     readonly isConfigured: boolean;
     configure(props: ResourceScopeState): void;
@@ -23,5 +23,7 @@ export interface ResourceScope extends SyncScope<ResourceScopeState> {
     isResourcesLoaded(keys: string[]): boolean;
     onConfigure(e: ScopeEvent<ResourceScopeState>): any;
     onSetResource(e: ScopeEvent<ResourceScopeState>): any;
+}
+export interface ResourceScope extends SyncScope<ResourceScopeState>, ResourceScopeAddons {
 }
 export declare const resourceScope: ResourceScope;

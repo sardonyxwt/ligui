@@ -23,7 +23,7 @@ export interface LocalizationScopeAddLocalizationActionProps {
     locale: string;
     localization: Localization;
 }
-export interface LocalizationScope extends SyncScope<LocalizationScopeState> {
+export interface LocalizationScopeAddons {
     readonly locales: string[];
     readonly defaultLocale: string;
     readonly currentLocale: string;
@@ -38,5 +38,7 @@ export interface LocalizationScope extends SyncScope<LocalizationScopeState> {
     onConfigure(e: ScopeEvent<LocalizationScopeState>): any;
     onChangeLocale(e: ScopeEvent<LocalizationScopeState>): any;
     onAddLocalization(e: ScopeEvent<LocalizationScopeState>): any;
+}
+export interface LocalizationScope extends SyncScope<LocalizationScopeState>, LocalizationScopeAddons {
 }
 export declare const localizationScope: LocalizationScope;
