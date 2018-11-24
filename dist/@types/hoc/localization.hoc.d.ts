@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Translator } from '../service/localization.service';
+import { Translator } from '../scope/localization.scope';
 export interface LocalizationHOCInjectedProps {
     t?: Translator;
 }

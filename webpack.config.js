@@ -1,4 +1,3 @@
-const path = require('path');
 const CreateVariants = require('parallel-webpack').createVariants;
 const CleanPlugin = require('clean-webpack-plugin');
 const VisualizerPlugin = require('webpack-visualizer-plugin');
@@ -44,8 +43,7 @@ function createConfig(options) {
     devtool: 'source-map',
     externals: options.isLib ? {
       'react': 'react',
-      'react-router': 'react-router',
-      'history': 'history'
+      'react-dom': 'react-dom',
     } : {},
     module: {
       rules
