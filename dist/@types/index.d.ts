@@ -68,7 +68,6 @@ export interface Ligui {
     readonly localization: LocalizationService;
     readonly container: Container;
     readonly api: LiguiApi;
-    readonly version: string;
     readonly isConfigured: boolean;
     setup(config: LiguiConfig): void;
 }
