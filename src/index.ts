@@ -74,6 +74,7 @@ export interface Ligui {
   readonly container: Container;
   readonly api: LiguiApi;
   readonly isConfigured: boolean;
+  resolve<T = any>(id: string): T;
   setup(config: LiguiConfig): void;
 }
 
@@ -121,6 +122,10 @@ class LiguiImpl implements Ligui {
 
   get isConfigured() {
     return isConfigured;
+  }
+
+  resolve<T = any>(id: string): T {
+    return container.get<T>(id);
   }
 
   setup(config: LiguiConfig) {
