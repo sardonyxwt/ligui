@@ -134,7 +134,7 @@ localizationScope.registerMacro('isLocalizationsLoaded', (state, keys: string[])
   return true;
 });
 localizationScope.registerMacro('translate', (state, path: string) => {
-  if (!state) {
+  if (!state || typeof path !== 'string') {
     return null;
   }
 
