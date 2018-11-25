@@ -8,20 +8,16 @@ resourceService.onSetResource(e =>
   Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key](e)));
 
 export function useResources(keys: string[]) {
-  let firstLoadComplete = false;
-  const listenerId = uniqueId('UseResourcesHook');
-  const [resources, setResources] = React.useState<Resources>(null);
-
-  const setup = () => resourceService.loadResources(keys).then(setResources);
-
-  if (resourceService.isResourcesLoaded(keys)) {
-    setResources(resourceService.resources);
-    firstLoadComplete = true;
-  } else {
-    setup().then(() => firstLoadComplete = true);
-  }
+  const [resources, setResources] = React.useState<Resources>(() => {
+    if (resourceService.isResourcesLoaded(keys)) {
+      return resourceService.resources;
+    }
+    resourceService.loadResources(keys).then(setResources);
+    return null;
+  });
 
   React.useEffect(() => {
+    const listenerId = uniqueId('UseResourcesHook');
     subscribers[listenerId] = (e: ScopeEvent<ResourceScopeState>) => {
       const {key} = e.props as ResourceScopeAddResourceActionProps;
       if (!!keys.find(it => it === key)) {

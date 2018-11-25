@@ -10,22 +10,17 @@ localizationService.onChangeLocale(() =>
 export const defaultFallbackTranslator = (id) => id;
 
 export function useLocalization(keys: string[], fallbackTranslator: Translator = null) {
-  const listenerId = uniqueId('UseLocalizationHook');
-  const [translator, setTranslator] = React.useState<Translator>(
-    localizationService.isLocalizationsLoaded(keys)
-      ? () => localizationService.translate
-      : () => fallbackTranslator
-  );
-
-  const updateTranslator = () =>
+  const [translator, setTranslator] = React.useState<Translator>(() => {
+    if (localizationService.isLocalizationsLoaded(keys)) {
+      return localizationService.translate;
+    }
     localizationService.loadLocalizations(keys).then(setTranslator);
-
-  if (!localizationService.isLocalizationsLoaded(keys)) {
-    updateTranslator();
-  }
+    return fallbackTranslator;
+  });
 
   React.useEffect(() => {
-    subscribers[listenerId] = updateTranslator;
+    const listenerId = uniqueId('UseLocalizationHook');
+    subscribers[listenerId] = () => setTranslator(localizationService.translate);
     return () => delete subscribers[listenerId];
   });
 
