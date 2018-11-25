@@ -1,4 +1,4 @@
-import { ScopeEvent, SyncScope } from '@sardonyxwt/state-store';
+import { ScopeListener, SyncScope } from '@sardonyxwt/state-store';
 export declare const LOCALIZATION_SCOPE_NAME = "localization";
 export declare const LOCALIZATION_SCOPE_CONFIGURE_ACTION = "configure";
 export declare const LOCALIZATION_SCOPE_CHANGE_LOCALE_ACTION = "changeLocale";
@@ -35,9 +35,10 @@ export interface LocalizationScopeAddons {
     changeLocale(locale: string): void;
     addLocalization(props: LocalizationScopeAddLocalizationActionProps): void;
     isLocalizationsLoaded(keys: string[]): boolean;
-    onConfigure(e: ScopeEvent<LocalizationScopeState>): any;
-    onChangeLocale(e: ScopeEvent<LocalizationScopeState>): any;
-    onAddLocalization(e: ScopeEvent<LocalizationScopeState>): any;
+    onConfigure(listener: ScopeListener<LocalizationScopeState>): string;
+    onChangeLocale(listener: ScopeListener<LocalizationScopeState>): string;
+    onAddLocalization(listener: ScopeListener<LocalizationScopeState>): string;
+    unsubscribe(id: string): boolean;
 }
 export interface LocalizationScope extends SyncScope<LocalizationScopeState>, LocalizationScopeAddons {
 }

@@ -10,6 +10,7 @@ class ResourceServiceImpl implements ResourceService {
   onConfigure = resourceScope.onConfigure.bind(resourceScope);
   onSetResource = resourceScope.onSetResource.bind(resourceScope);
   setResource = resourceScope.setResource.bind(resourceScope);
+  unsubscribe = resourceScope.unsubscribe.bind(resourceScope);
   loadResources = resourceLoader.loadResources.bind(resourceLoader);
 
   get resources() {

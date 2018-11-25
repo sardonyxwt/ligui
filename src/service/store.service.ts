@@ -1,5 +1,6 @@
 import * as store from '@sardonyxwt/state-store';
 import { AsyncScope, Scope, ScopeConfig, StoreDevTool, SyncScope } from '@sardonyxwt/state-store';
+export * from '@sardonyxwt/state-store';
 
 export interface StoreService {
   createSyncScope<T>(config?: ScopeConfig<T, T>): SyncScope<T>;

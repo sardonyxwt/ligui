@@ -12,6 +12,7 @@ class LocalizationServiceImpl implements LocalizationService {
   onAddLocalization = localizationScope.onAddLocalization.bind(localizationScope);
   onChangeLocale = localizationScope.onChangeLocale.bind(localizationScope);
   onConfigure = localizationScope.onConfigure.bind(localizationScope);
+  unsubscribe = localizationScope.unsubscribe.bind(localizationScope);
   loadLocalizations = localizationLoader.loadLocalizations.bind(localizationLoader);
 
   get currentLocale() {

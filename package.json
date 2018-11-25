@@ -1,8 +1,8 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "4.1.2",
+  "version": "4.2.0",
   "description": "Ligui",
-  "main": "dist/ligui.lib.min.js",
+  "main": "dist/ligui.min.js",
   "typings": "dist/@types/index.d.ts",
   "keywords": [
     "sclib",
@@ -46,15 +46,15 @@
     "@sardonyxwt/state-store": "3.4.3",
     "@sardonyxwt/utils": "^1.6.4",
     "inversify": "^5.0.1",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0",
+    "react": "^16.7.0-alpha.2",
+    "react-dom": "^16.7.0-alpha.2",
     "reflect-metadata": "^0.1.12"
   },
   "devDependencies": {
     "@types/jest": "^21.1.9",
     "@types/node": "^9.6.35",
-    "@types/react": "^16.4.18",
-    "@types/react-dom": "^16.0.9",
+    "@types/react": "^16.7.7",
+    "@types/react-dom": "^16.0.10",
     "@types/react-router": "^4.4.1",
     "clean-webpack-plugin": "^0.1.19",
     "cross-env": "5.1.1",
