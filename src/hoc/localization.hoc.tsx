@@ -1,5 +1,6 @@
 /* tslint:disable:variable-name*/
 import * as React from 'react';
+import { uniqueId } from '@sardonyxwt/utils/generator';
 import { localizationService, Translator } from '..';
 
 export interface LocalizationHOCInjectedProps {
@@ -10,7 +11,12 @@ interface LocalizationHOCState {
   translator: Translator;
 }
 
-export function localization(ids: string[], Preloader?: React.ComponentType) {
+const subscribers: {[key: string]: Function} = {};
+
+localizationService.onChangeLocale(() =>
+  Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key]()));
+
+export function withLocalization(keys: string[], Preloader?: React.ComponentType) {
 
   return <P extends LocalizationHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(
     Component: C
@@ -20,13 +26,15 @@ export function localization(ids: string[], Preloader?: React.ComponentType) {
 
       static displayName = Component.displayName || Component.name;
 
+      private listenerId = uniqueId('UseLocalizationHook');
+
       state = {
         translator: null
       };
 
       constructor(props) {
         super(props);
-        if (localizationService.isLocalizationsLoaded(ids)) {
+        if (localizationService.isLocalizationsLoaded(keys)) {
           this.state = {translator: localizationService.translate};
         }
       }
@@ -36,14 +44,18 @@ export function localization(ids: string[], Preloader?: React.ComponentType) {
           return;
         }
         const setup = () => {
-          localizationService.loadLocalizations(ids).then((translator) => {
+          localizationService.loadLocalizations(keys).then((translator) => {
             this.setState({translator});
           });
         };
-        localizationService.onChangeLocale(setup.bind(this));
+        subscribers[this.listenerId] = setup;
         if (!this.state.translator) {
           setup();
         }
+      }
+
+      componentWillUnmount() {
+        delete subscribers[this.listenerId];
       }
 
       render() {

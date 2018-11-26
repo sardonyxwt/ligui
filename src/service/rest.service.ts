@@ -23,69 +23,59 @@ export interface RestService {
   buildUrl(endpoint: string, options?: RequestProps): string;
 }
 
-class RestServiceImpl implements RestService {
+const middleware: {[id: string]: RestMiddleware} = {};
 
-  private _middleware: {[id: string]: RestMiddleware} = {};
+let defaultProps: RequestInit = {
+  credentials: 'same-origin',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'pragma': 'no-cache',
+    'cache-control': 'no-cache'
+  }
+};
 
-  private _defaultProps: RequestInit = {
-    credentials: 'same-origin',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'pragma': 'no-cache',
-      'cache-control': 'no-cache'
-    }
-  };
-
+export const restService: RestService = Object.freeze({
   get middleware() {
-    return Object.keys(this._middleware).map(key => this._middleware[key]);
-  }
-
+    return Object.keys(middleware).map(key => middleware[key]);
+  },
   get defaultProps() {
-    return this._defaultProps;
-  }
-
+    return defaultProps;
+  },
   set defaultProps(props: RequestInit) {
     if (typeof props !== 'object') {
       throw new Error('Props must not null');
     }
-    this._defaultProps = props;
-  }
-
+    defaultProps = props;
+  },
   addMiddleware(middleware: RestMiddleware) {
     const id = uniqueId('RestMiddlewareId');
-    this._middleware[id] = middleware;
+    middleware[id] = middleware;
     return id;
-  }
-
+  },
   removeMiddleware(id: string) {
-    return delete this._middleware[id];
-  }
-
+    return delete middleware[id];
+  },
   post(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
+    return this.request(endpoint, Object.assign({}, defaultProps, options, {
       method: 'POST'
     }));
-  }
-
+  },
   put(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
+    return this.request(endpoint, Object.assign({}, defaultProps, options, {
       method: 'PUT'
     }));
-  }
-
+  },
   get(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
+    return this.request(endpoint, Object.assign({}, defaultProps, options, {
       method: 'GET'
     }));
-  }
-
+  },
   del(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
+    return this.request(endpoint, Object.assign({}, defaultProps, options, {
       method: 'DELETE'
     }));
-  }
-
+  },
   request(endpoint: string, options: RequestProps = {}): Promise<Response> {
     let requestProps = options;
 
@@ -107,8 +97,7 @@ class RestServiceImpl implements RestService {
 
       return Promise.reject(response);
     });
-  }
-
+  },
   buildUrl(endpoint: string, options: RequestProps = {}) {
     let url = endpoint;
     const { queryParams, pathParams } = options;
@@ -126,7 +115,4 @@ class RestServiceImpl implements RestService {
     }
     return url;
   }
-
-}
-
-export const restService: RestService = new RestServiceImpl();
+});

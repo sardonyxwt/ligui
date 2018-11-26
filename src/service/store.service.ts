@@ -12,4 +12,4 @@ export interface StoreService {
   ROOT_SCOPE: AsyncScope<{}>;
 }
 
-export const storeService: StoreService = store;
+export const storeService: StoreService = Object.freeze(store);

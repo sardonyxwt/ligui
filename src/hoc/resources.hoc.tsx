@@ -1,6 +1,7 @@
 /* tslint:disable:variable-name*/
 import * as React from 'react';
-import { resourceService, Resources } from '..';
+import { uniqueId } from '@sardonyxwt/utils/generator';
+import { resourceService, Resources, ResourceScopeState, ResourceScopeAddResourceActionProps, ScopeEvent, ScopeListener } from '..';
 
 export interface ResourceHOCInjectedProps {
   r?: Resources;
@@ -10,7 +11,12 @@ interface ResourceHOCState {
   resources: Resources;
 }
 
-export function resource(ids: string[], Preloader?: React.ComponentType) {
+const subscribers: {[key: string]: ScopeListener<ResourceScopeState>} = {};
+
+resourceService.onSetResource(e =>
+  Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key](e)));
+
+export function withResources(keys: string[], Preloader?: React.ComponentType) {
 
   return <P extends ResourceHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(
     Component: C
@@ -20,13 +26,15 @@ export function resource(ids: string[], Preloader?: React.ComponentType) {
 
       static displayName = Component.displayName || Component.name;
 
+      private listenerId = uniqueId('UseResourcesHook');
+
       state = {
         resources: null
       };
 
       constructor(props) {
         super(props);
-        if (resourceService.isResourcesLoaded(ids)) {
+        if (resourceService.isResourcesLoaded(keys)) {
           this.state = {resources: resourceService.resources};
         }
       }
@@ -35,15 +43,21 @@ export function resource(ids: string[], Preloader?: React.ComponentType) {
         if (this.props.r) {
           return;
         }
-        const setup = () => {
-          resourceService.loadResources(ids).then((resources) => {
+        subscribers[this.listenerId] = (e: ScopeEvent<ResourceScopeState>) => {
+          const {key} = e.props as ResourceScopeAddResourceActionProps;
+          if (!!keys.find(it => it === key)) {
+            this.setState({resources: resourceService.resources});
+          }
+        };
+        if (!this.state.resources) {
+          resourceService.loadResources(keys).then((resources) => {
             this.setState({resources});
           });
-        };
-        resourceService.onSetResource(setup.bind(this));
-        if (!this.state.resources) {
-          setup();
         }
+      }
+
+      componentWillUnmount() {
+        delete subscribers[this.listenerId];
       }
 
       render() {

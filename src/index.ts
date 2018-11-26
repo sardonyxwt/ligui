@@ -14,19 +14,21 @@ export * from './service/localization.service';
 export * from './service/resource.service';
 export * from './service/rest.service';
 export * from './service/store.service';
+export * from './service/container.service';
+export * from './hook/dependency.hook';
 export * from './hook/localization.hook';
 export * from './hook/resources.hook';
-export * from './hook/scope.hook';
+export * from './hook/state.hook';
 export * from './hoc/context.hoc';
-export * from './hoc/subscribe.hoc';
-export * from './hoc/resource.hoc';
+export * from './hoc/state.hoc';
+export * from './hoc/resources.hoc';
 export * from './hoc/localization.hoc';
 import 'reflect-metadata';
-import { Container } from 'inversify';
 import { jsxService, JSXService } from './service/jsx.service';
 import { restService, RestService } from './service/rest.service';
 import { storeService, StoreService } from './service/store.service';
 import { resourceService, ResourceService } from './service/resource.service';
+import { containerService, ContainerService, LiguiTypes } from './service/container.service';
 import { localizationService, LocalizationService } from './service/localization.service';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
@@ -55,82 +57,42 @@ export interface LiguiApi {
   notification?: NotificationApi;
 }
 
-export enum LiguiTypes {
-  JSX_SERVICE = 'LIG_JSX_SERVICE',
-  REST_SERVICE = 'LIG_REST_SERVICE',
-  STORE_SERVICE = 'LIG_STORE_SERVICE',
-  RESOURCE_SERVICE = 'LIG_RESOURCE_SERVICE',
-  LOCALIZATION_SERVICE = 'LIG_LOCALIZATION_SERVICE',
-
-  TOAST_API = 'LIG_TOAST_APIE',
-  DIALOG_API = 'LIG_DIALOG_API',
-  CONTEXTMENU_API = 'LIG_CONTEXTMENU_API',
-  NOTIFICATION_API = 'LIG_NOTIFICATION_API',
-}
-
-export interface Ligui {
+export interface Ligui extends ContainerService {
   readonly jsx: JSXService;
   readonly rest: RestService;
   readonly store: StoreService;
   readonly resource: ResourceService;
   readonly localization: LocalizationService;
-  readonly container: Container;
   readonly api: LiguiApi;
   readonly isConfigured: boolean;
-  resolve<T = any>(id: string): T;
   setup(config: LiguiConfig): void;
 }
 
 let api: LiguiApi = {};
 let isConfigured = false;
-let container = new Container({
-  skipBaseClassChecks: true,
-});
 
-container.bind<JSXService>(LiguiTypes.JSX_SERVICE).toConstantValue(jsxService);
-container.bind<RestService>(LiguiTypes.REST_SERVICE).toConstantValue(restService);
-container.bind<StoreService>(LiguiTypes.STORE_SERVICE).toConstantValue(storeService);
-container.bind<ResourceService>(LiguiTypes.RESOURCE_SERVICE).toConstantValue(resourceService);
-container.bind<LocalizationService>(LiguiTypes.LOCALIZATION_SERVICE).toConstantValue(localizationService);
-
-class LiguiImpl implements Ligui {
-
+export const ligui: Ligui = Object.freeze(Object.assign({
   get jsx() {
-   return jsxService;
-  }
-
+    return jsxService;
+  },
   get rest() {
     return restService;
-  }
-
+  },
   get store() {
     return storeService;
-  }
-
+  },
   get resource() {
     return resourceService;
-  }
-
+  },
   get localization() {
     return localizationService;
-  }
-
-  get container() {
-    return container;
-  }
-
+  },
   get api() {
     return api;
-  }
-
+  },
   get isConfigured() {
     return isConfigured;
-  }
-
-  resolve<T = any>(id: string): T {
-    return container.get<T>(id);
-  }
-
+  },
   setup(config: LiguiConfig) {
     if (isConfigured) {
       throw new Error('Ligui can configured only once.')
@@ -142,16 +104,16 @@ class LiguiImpl implements Ligui {
       api = config.api;
       const {toast, contextmenu, dialog, notification} = api;
       if (toast) {
-        container.bind<ToastApi>(LiguiTypes.TOAST_API).toConstantValue(toast);
+        containerService.container.bind<ToastApi>(LiguiTypes.TOAST_API).toConstantValue(toast);
       }
       if (contextmenu) {
-        container.bind<ContextmenuApi>(LiguiTypes.CONTEXTMENU_API).toConstantValue(contextmenu);
+        containerService.container.bind<ContextmenuApi>(LiguiTypes.CONTEXTMENU_API).toConstantValue(contextmenu);
       }
       if (dialog) {
-        container.bind<DialogApi>(LiguiTypes.DIALOG_API).toConstantValue(dialog);
+        containerService.container.bind<DialogApi>(LiguiTypes.DIALOG_API).toConstantValue(dialog);
       }
       if (notification) {
-        container.bind<NotificationApi>(LiguiTypes.NOTIFICATION_API).toConstantValue(notification);
+        containerService.container.bind<NotificationApi>(LiguiTypes.NOTIFICATION_API).toConstantValue(notification);
       }
     }
     if (config.globalName) {
@@ -173,7 +135,4 @@ class LiguiImpl implements Ligui {
       storeService.setStoreDevTool(config.storeDevTools);
     }
   }
-
-}
-
-export const ligui: Ligui = new LiguiImpl();
+}, containerService));

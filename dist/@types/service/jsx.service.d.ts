@@ -4,5 +4,6 @@ export interface JSXService {
     node<T extends {}>(name: string, props?: T, ...children: React.ReactNode[]): React.ReactElement<T>;
     render<T extends {}>(container: Element, element: React.ReactElement<T>): any;
     renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): any;
+    classes(classes: (string | [string, boolean])[]): string;
 }
 export declare const jsxService: JSXService;

@@ -14,19 +14,21 @@ export * from './service/localization.service';
 export * from './service/resource.service';
 export * from './service/rest.service';
 export * from './service/store.service';
+export * from './service/container.service';
+export * from './hook/dependency.hook';
 export * from './hook/localization.hook';
 export * from './hook/resources.hook';
-export * from './hook/scope.hook';
+export * from './hook/state.hook';
 export * from './hoc/context.hoc';
-export * from './hoc/subscribe.hoc';
-export * from './hoc/resource.hoc';
+export * from './hoc/state.hoc';
+export * from './hoc/resources.hoc';
 export * from './hoc/localization.hoc';
 import 'reflect-metadata';
-import { Container } from 'inversify';
 import { JSXService } from './service/jsx.service';
 import { RestService } from './service/rest.service';
 import { StoreService } from './service/store.service';
 import { ResourceService } from './service/resource.service';
+import { ContainerService } from './service/container.service';
 import { LocalizationService } from './service/localization.service';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
@@ -52,27 +54,14 @@ export interface LiguiApi {
     contextmenu?: ContextmenuApi;
     notification?: NotificationApi;
 }
-export declare enum LiguiTypes {
-    JSX_SERVICE = "LIG_JSX_SERVICE",
-    REST_SERVICE = "LIG_REST_SERVICE",
-    STORE_SERVICE = "LIG_STORE_SERVICE",
-    RESOURCE_SERVICE = "LIG_RESOURCE_SERVICE",
-    LOCALIZATION_SERVICE = "LIG_LOCALIZATION_SERVICE",
-    TOAST_API = "LIG_TOAST_APIE",
-    DIALOG_API = "LIG_DIALOG_API",
-    CONTEXTMENU_API = "LIG_CONTEXTMENU_API",
-    NOTIFICATION_API = "LIG_NOTIFICATION_API"
-}
-export interface Ligui {
+export interface Ligui extends ContainerService {
     readonly jsx: JSXService;
     readonly rest: RestService;
     readonly store: StoreService;
     readonly resource: ResourceService;
     readonly localization: LocalizationService;
-    readonly container: Container;
     readonly api: LiguiApi;
     readonly isConfigured: boolean;
-    resolve<T = any>(id: string): T;
     setup(config: LiguiConfig): void;
 }
 export declare const ligui: Ligui;
