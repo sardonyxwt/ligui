@@ -5,7 +5,8 @@ export interface JSXService {
   registerFactory<T extends {}>(name: string, factory: React.Factory<T>): JSXService;
   node<T extends {}>(name: string, props?: T, ...children: React.ReactNode[]): React.ReactElement<T>;
   render<T extends {}>(container: Element, element: React.ReactElement<T>);
-  renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]);
+  renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
+  ['render*']?(container: Element, props?, children?: React.ReactNode[]): void;
   classes(classes: (string | [string, boolean])[]): string;
 }
 
@@ -22,7 +23,7 @@ const registerFactory = <T extends {}>(name: string, factory: React.Factory<T>) 
     return name.charAt(0).toUpperCase() + name.slice(1);
   };
   factories[name] = factory;
-  this[`render${capitalizeFirstLetterActionName()}`] = (container: Element, props, children: React.ReactNode[]) => {
+  this[`render${capitalizeFirstLetterActionName()}`] = (container: Element, props?, children?: React.ReactNode[]) => {
     render(container, factory(props, children))
   };
   return this;
