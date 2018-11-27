@@ -23,7 +23,7 @@ const registerFactory = <T extends {}>(name: string, factory: React.Factory<T>) 
   };
   factories[name] = factory;
   this[`render${capitalizeFirstLetterActionName()}`] = (container: Element, props, children: React.ReactNode[]) => {
-    this.render(container, factory(props, children))
+    render(container, factory(props, children))
   };
   return this;
 };
@@ -40,7 +40,7 @@ const render = <T extends {}>(container: Element, element: React.ReactElement<T>
 };
 
 const renderComponent = <T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]) => {
-  ReactDOM.render(this.node(name, props, children), container)
+  ReactDOM.render(node(name, props, children), container)
 };
 
 const classes = (classes: (string | [string, boolean])[]) => {
@@ -59,7 +59,7 @@ const classes = (classes: (string | [string, boolean])[]) => {
 };
 
 export const jsxService: JSXService = Object.freeze({
-  registerFactory,
+  registerFactory: registerFactory.bind(this),
   node,
   render,
   renderComponent,
