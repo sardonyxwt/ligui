@@ -2,7 +2,7 @@ import { resourceScope, resourceLoader, ResourceLoader, RLoader, ResourceScopeAd
 
 export interface ResourceService extends ResourceScopeAddons, ResourceLoader {}
 
-export const resourceService: ResourceService = {
+export const resourceService: ResourceService = Object.freeze({
   configure: resourceScope.configure.bind(resourceScope),
   getResource: resourceScope.getResource.bind(resourceScope),
   isResourcesLoaded: resourceScope.isResourcesLoaded.bind(resourceScope),
@@ -23,4 +23,4 @@ export const resourceService: ResourceService = {
   set loader(loader: RLoader) {
     resourceLoader.loader = loader;
   }
-};
+});

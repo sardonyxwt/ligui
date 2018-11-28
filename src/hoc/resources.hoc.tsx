@@ -71,7 +71,7 @@ export function withResources(keys: string[], Preloader?: React.ComponentType) {
         const RenderComponent = Component as any;
 
         return (
-            <RenderComponent {...this.props} t={resources || r}/>
+          <RenderComponent {...this.props} t={resources || r}/>
         );
       }
     }

@@ -19,7 +19,7 @@ export function useLocalization(keys: string[], fallbackTranslator: Translator =
   });
 
   React.useEffect(() => {
-    const listenerId = uniqueId('UseLocalizationHook');
+    const listenerId = uniqueId('LigLocalizationHook');
     subscribers[listenerId] = () => setTranslator(localizationService.translate);
     return () => delete subscribers[listenerId];
   });

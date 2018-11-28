@@ -7,43 +7,36 @@ export interface LocalizationLoader {
   loadLocalizations(keys: string[]): Promise<Translator>
 }
 
-class LocalizationLoaderImpl implements LocalizationLoader {
+let loader: LLoader;
+const localizationPromises: {[key: string]: Promise<void>} = {};
 
-  private _loader: LLoader;
-  private readonly _localizationPromises: {[key: string]: Promise<void>} = {};
-
+export const localizationLoader: LocalizationLoader = Object.assign({
   loadLocalizations(keys: string[]): Promise<Translator> {
-    const {_loader, _localizationPromises} = this;
     const {currentLocale, defaultLocale, localizations, addLocalization} = localizationScope;
 
     let createLocalizationPromise = (key: string) => {
       let localizationKey = `${currentLocale}:${key}`;
 
-      if (!(localizationKey in _localizationPromises)) {
+      if (!(localizationKey in localizationPromises)) {
         if (localizations[currentLocale] && localizations[currentLocale][key]) {
-          _localizationPromises[localizationKey] = Promise.resolve();
+          localizationPromises[localizationKey] = Promise.resolve();
         } else {
-          _localizationPromises[localizationKey] =
-            Promise.resolve(_loader(currentLocale, key))
-              .then(null, () => _loader(defaultLocale, key))
+          localizationPromises[localizationKey] =
+            Promise.resolve(loader(currentLocale, key))
+              .then(null, () => loader(defaultLocale, key))
               .then(localization => addLocalization({locale: currentLocale, key, localization}));
         }
       }
-      return _localizationPromises[localizationKey];
+      return localizationPromises[localizationKey];
     };
 
     return Promise.all(keys.map(key => createLocalizationPromise(key)))
       .then(() => localizationScope.translate);
-  }
-
-  set loader(loader: LLoader) {
-    this._loader = loader;
-  }
-
+  },
+  set loader(newLoader: LLoader) {
+    loader = newLoader;
+  },
   get loader() {
-    return this._loader;
+    return loader;
   }
-
-}
-
-export const localizationLoader: LocalizationLoader = new LocalizationLoaderImpl();
+});

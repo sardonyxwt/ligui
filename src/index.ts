@@ -16,6 +16,7 @@ export * from './service/rest.service';
 export * from './service/store.service';
 export * from './service/container.service';
 export * from './hook/dependency.hook';
+export * from './hook/id.hook';
 export * from './hook/localization.hook';
 export * from './hook/resources.hook';
 export * from './hook/state.hook';
@@ -24,6 +25,7 @@ export * from './hoc/state.hoc';
 export * from './hoc/resources.hoc';
 export * from './hoc/localization.hoc';
 import 'reflect-metadata';
+import { uniqueId } from '@sardonyxwt/utils/generator';
 import { jsxService, JSXService } from './service/jsx.service';
 import { restService, RestService } from './service/rest.service';
 import { storeService, StoreService } from './service/store.service';
@@ -65,6 +67,7 @@ export interface Ligui extends ContainerService {
   readonly localization: LocalizationService;
   readonly api: LiguiApi;
   readonly isConfigured: boolean;
+  uniqueId(prefix?, useSeed?): string;
   setup(config: LiguiConfig): void;
 }
 
@@ -93,6 +96,7 @@ export const ligui: Ligui = Object.freeze(Object.assign({
   get isConfigured() {
     return isConfigured;
   },
+  uniqueId,
   setup(config: LiguiConfig) {
     if (isConfigured) {
       throw new Error('Ligui can configured only once.')

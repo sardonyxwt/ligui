@@ -13,6 +13,7 @@ export interface EntityHelper<T, D = T> {
     copyArray?: (sources: T[]) => T[];
     copyArrays?: (...sources: (T[])[]) => T[];
     resolveArray?: (source: T | T[]) => T[];
+    arrayFrom?: (...sources: (T | T[])[]) => T[];
 }
 export declare const entity: <T extends {}>(props?: {
     defaultProps?: Partial<T>;

@@ -17,7 +17,7 @@ export function useResources(keys: string[]) {
   });
 
   React.useEffect(() => {
-    const listenerId = uniqueId('UseResourcesHook');
+    const listenerId = uniqueId('LigResourcesHook');
     subscribers[listenerId] = (e: ScopeEvent<ResourceScopeState>) => {
       const {key} = e.props as ResourceScopeAddResourceActionProps;
       if (!!keys.find(it => it === key)) {

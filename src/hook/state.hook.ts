@@ -14,7 +14,7 @@ export function useState<T = any>(scope: Scope<T>, actions: string[] = null): T 
   const [state, setState] = React.useState(scope.state);
 
   React.useEffect(() => {
-    const listenerId = uniqueId('UseScopeHook');
+    const listenerId = uniqueId('LigStateHook');
     if (!(scope.name in scopeActionTree)) {
       const scopeSubscribers = scopeActionTree[scope.name] = {};
       scope.subscribe(e =>

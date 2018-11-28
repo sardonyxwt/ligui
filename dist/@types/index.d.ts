@@ -16,6 +16,7 @@ export * from './service/rest.service';
 export * from './service/store.service';
 export * from './service/container.service';
 export * from './hook/dependency.hook';
+export * from './hook/id.hook';
 export * from './hook/localization.hook';
 export * from './hook/resources.hook';
 export * from './hook/state.hook';
@@ -62,6 +63,7 @@ export interface Ligui extends ContainerService {
     readonly localization: LocalizationService;
     readonly api: LiguiApi;
     readonly isConfigured: boolean;
+    uniqueId(prefix?: any, useSeed?: any): string;
     setup(config: LiguiConfig): void;
 }
 export declare const ligui: Ligui;

@@ -7,41 +7,34 @@ export interface ResourceLoader {
   loadResources(keys: string[]): Promise<Resources>;
 }
 
-class ResourceLoaderImpl implements ResourceLoader {
+let loader: RLoader;
+const resourcePromises: {[key: string]: Promise<void>} = {};
 
-  private _loader: RLoader;
-  private readonly _resourcePromises: {[key: string]: Promise<void>} = {};
-
-  loadResources(keys: string[], isCache?: boolean): Promise<Resources> {
-    const {_loader, _resourcePromises} = this;
+export const resourceLoader: ResourceLoader = Object.assign({
+  loadResources(keys: string[]): Promise<Resources> {
     const {resources, setResource} = resourceScope;
 
     let createResourcePromise = (key: string) => {
-      if (!(key in _resourcePromises)) {
+      if (!(key in resourcePromises)) {
         if (resources[key]) {
-          _resourcePromises[key] = Promise.resolve();
+          resourcePromises[key] = Promise.resolve();
         } else {
-          _resourcePromises[key] =
-            Promise.resolve(_loader(key))
-              .then(null, () => _loader(key))
+          resourcePromises[key] =
+            Promise.resolve(loader(key))
+              .then(null, () => loader(key))
               .then(resource => setResource({key, resource}));
         }
       }
-      return _resourcePromises[key];
+      return resourcePromises[key];
     };
 
     return Promise.all(keys.map(key => createResourcePromise(key)))
       .then(() => resourceScope.resources);
-  }
-
-  set loader(loader: RLoader) {
-    this._loader = loader;
-  }
-
+  },
+  set loader(newLoader: RLoader) {
+    loader = newLoader;
+  },
   get loader() {
-    return this._loader;
+    return loader;
   }
-
-}
-
-export const resourceLoader: ResourceLoader = new ResourceLoaderImpl();
+});

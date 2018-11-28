@@ -69,7 +69,7 @@ export function withLocalization(keys: string[], Preloader?: React.ComponentType
         const RenderComponent = Component as any;
 
         return (
-            <RenderComponent {...this.props} t={t || translator}/>
+          <RenderComponent {...this.props} t={t || translator}/>
         );
       }
     }
