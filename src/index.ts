@@ -120,9 +120,6 @@ export const ligui: Ligui = Object.freeze(Object.assign({
         containerService.container.bind<NotificationApi>(LiguiTypes.NOTIFICATION_API).toConstantValue(notification);
       }
     }
-    if (config.globalName) {
-      global[config.globalName] = this;
-    }
     if (config.resourceLoader) {
       resourceService.loader = config.resourceLoader;
     }
@@ -137,6 +134,10 @@ export const ligui: Ligui = Object.freeze(Object.assign({
     }
     if (config.storeDevTools) {
       storeService.setStoreDevTool(config.storeDevTools);
+    }
+    if (config.globalName) {
+      global[config.globalName] = this;
+      console.log(`Ligui registered in global scope with name: ${config.globalName}`);
     }
   }
 }, containerService));
