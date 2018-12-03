@@ -1,4 +1,4 @@
-import { Container } from 'inversify';
+import { Container, decorate } from 'inversify';
 import { jsxService, JSXService } from './jsx.service';
 import { restService, RestService } from './rest.service';
 import { storeService, StoreService } from './store.service';
@@ -42,6 +42,7 @@ export interface ContainerService {
   resolveAll<T = any>(id: ContainerId): T[];
   resolveAllNamed<T = any>(id: ContainerId, name: ContainerKey): T[];
   resolveAllTagged<T = any>(id: ContainerId, key: ContainerKey, value: any): T[];
+  decorate(decorator: (ClassDecorator | ParameterDecorator | MethodDecorator), target: any, parameterIndex?: number | string): void;
 }
 
 export const containerService = Object.freeze({
@@ -63,6 +64,7 @@ export const containerService = Object.freeze({
   resolveAllTagged<T = any>(id: ContainerId, key: ContainerKey, value: any): T[] {
     return container.getAllTagged(id, key, value);
   },
+  decorate,
   get container() {
     return container;
   }
