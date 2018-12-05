@@ -1,15 +1,13 @@
 import * as store from '@sardonyxwt/state-store';
-import { AsyncScope, Scope, ScopeConfig, StoreDevTool, SyncScope } from '@sardonyxwt/state-store';
+import { Scope, ScopeConfig, StoreDevTool } from '@sardonyxwt/state-store';
 export * from '@sardonyxwt/state-store';
 
 export interface StoreService {
-  createSyncScope<T>(config?: ScopeConfig<T, T>): SyncScope<T>;
-  createAsyncScope<T>(config?: ScopeConfig<T, Promise<T>>): AsyncScope<T>;
-  composeScope(scopes: (Scope | string)[], config?: ScopeConfig<any, Promise<{}>>): AsyncScope<{}>;
+  createScope<T>(config?: ScopeConfig<T>): Scope<T>;
+  composeScope<T = {}>(scopes: (Scope | string)[], config?: ScopeConfig<any>): Scope<T>;
   getScope(scopeName: string): Scope;
   getState(): {};
   setStoreDevTool(devTool: StoreDevTool): void;
-  ROOT_SCOPE: AsyncScope<{}>;
 }
 
 export const storeService: StoreService = Object.freeze(store);

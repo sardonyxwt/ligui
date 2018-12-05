@@ -1,4 +1,4 @@
-import { createSyncScope, ScopeListener, ScopeMacroType, SyncScope } from '@sardonyxwt/state-store';
+import { createScope, ScopeListener, ScopeMacroType, Scope } from '@sardonyxwt/state-store';
 
 export const LOCALIZATION_SCOPE_NAME = 'localization';
 export const LOCALIZATION_SCOPE_CONFIGURE_ACTION = 'configure';
@@ -47,7 +47,7 @@ export interface LocalizationScopeAddons {
   unsubscribe(id: string): boolean;
 }
 
-export interface LocalizationScope extends SyncScope<LocalizationScopeState>, LocalizationScopeAddons {}
+export interface LocalizationScope extends Scope<LocalizationScopeState>, LocalizationScopeAddons {}
 
 function checkLocale(locales, locale) {
   const isLocalNotAvailable = !locales.find(it => it === locale);
@@ -57,7 +57,7 @@ function checkLocale(locales, locale) {
   }
 }
 
-const localizationScope = createSyncScope<LocalizationScopeState>({
+const localizationScope = createScope<LocalizationScopeState>({
   name: LOCALIZATION_SCOPE_NAME,
   initState: null,
   isSubscribeMacroAutoCreateEnable: true

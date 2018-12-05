@@ -1,4 +1,4 @@
-import { ScopeListener, SyncScope } from '@sardonyxwt/state-store';
+import { ScopeListener, Scope } from '@sardonyxwt/state-store';
 export declare const RESOURCE_SCOPE_NAME = "resource";
 export declare const RESOURCE_SCOPE_CONFIGURE_ACTION = "configure";
 export declare const RESOURCE_SCOPE_SET_RESOURCE_ACTION = "setResource";
@@ -25,7 +25,7 @@ export interface ResourceScopeAddons {
     onSetResource(listener: ScopeListener<ResourceScopeState>): string;
     unsubscribe(id: string): boolean;
 }
-export interface ResourceScope extends SyncScope<ResourceScopeState>, ResourceScopeAddons {
+export interface ResourceScope extends Scope<ResourceScopeState>, ResourceScopeAddons {
 }
 declare const resourceScope: ResourceScope;
 export { resourceScope };
