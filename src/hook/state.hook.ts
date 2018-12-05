@@ -10,7 +10,7 @@ interface ScopeActionTree {
 
 const scopeActionTree: ScopeActionTree = {};
 
-export function useState<T = any>(scope: Scope<T>, actions: string[] = null, retention: number): T {
+export function useState<T = any>(scope: Scope<T>, actions: string[] = null, retention = 0): T {
   const [state, setState] = React.useState(scope.state);
 
   React.useEffect(() => {

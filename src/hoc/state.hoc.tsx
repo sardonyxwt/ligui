@@ -15,7 +15,7 @@ interface ScopeActionTree {
 
 const scopeActionTree: ScopeActionTree = {};
 
-export function withState<T>(scope: string | Scope<T>, actions: string[] = null, retention: number) {
+export function withState<T>(scope: string | Scope<T>, actions: string[] = null, retention = 0) {
 
   return <P extends {}, C extends React.ComponentType<P> = React.ComponentType<P>>(
     Component: C
