@@ -15,7 +15,7 @@ interface ScopeActionTree {
 
 const scopeActionTree: ScopeActionTree = {};
 
-export function withState<T>(scope: string | Scope<T>, actions: string[] = null) {
+export function withState<T>(scope: string | Scope<T>, actions: string[] = null, retention: number) {
 
   return <P extends {}, C extends React.ComponentType<P> = React.ComponentType<P>>(
     Component: C
@@ -26,6 +26,7 @@ export function withState<T>(scope: string | Scope<T>, actions: string[] = null)
       static displayName = Component.displayName || Component.name;
 
       private listenerId = uniqueId('UseScopeHook');
+      private timeoutId: number;
       private scope = typeof scope === 'string' ? storeService.getScope(scope) : scope;
 
       constructor(props) {
@@ -34,7 +35,7 @@ export function withState<T>(scope: string | Scope<T>, actions: string[] = null)
       }
 
       componentDidMount() {
-        const {scope, listenerId} = this;
+        const {scope, timeoutId, listenerId} = this;
         if (!(scope.name in scopeActionTree)) {
           const scopeSubscribers = scopeActionTree[scope.name] = {};
           scope.subscribe(e =>
@@ -42,6 +43,11 @@ export function withState<T>(scope: string | Scope<T>, actions: string[] = null)
         }
         scopeActionTree[scope.name][listenerId] = (actionName) => {
           if (actions && !actions.find(it => it === actionName)) {
+            return;
+          }
+          if (retention && retention > 0) {
+            clearTimeout(timeoutId);
+            this.timeoutId = window.setTimeout(() => this.setState(scope.state), retention);
             return;
           }
           this.setState(scope.state);

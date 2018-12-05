@@ -10,11 +10,12 @@ interface ScopeActionTree {
 
 const scopeActionTree: ScopeActionTree = {};
 
-export function useState<T = any>(scope: Scope<T>, actions: string[] = null): T {
+export function useState<T = any>(scope: Scope<T>, actions: string[] = null, retention: number): T {
   const [state, setState] = React.useState(scope.state);
 
   React.useEffect(() => {
     const listenerId = uniqueId('LigStateHook');
+    let timeoutId: number;
     if (!(scope.name in scopeActionTree)) {
       const scopeSubscribers = scopeActionTree[scope.name] = {};
       scope.subscribe(e =>
@@ -22,6 +23,11 @@ export function useState<T = any>(scope: Scope<T>, actions: string[] = null): T 
     }
     scopeActionTree[scope.name][listenerId] = (actionName) => {
       if (actions && !actions.find(it => it === actionName)) {
+        return;
+      }
+      if (retention && retention > 0) {
+        clearTimeout(timeoutId);
+        timeoutId = window.setTimeout(() => setState(scope.state), retention);
         return;
       }
       setState(scope.state);
