@@ -26,6 +26,7 @@ export * from './hoc/resources.hoc';
 export * from './hoc/localization.hoc';
 import 'reflect-metadata';
 import { uniqueId } from '@sardonyxwt/utils/generator';
+import { arrayFrom, clone, cloneArray, cloneArrays, copyArray, copyArrays, resolveArray } from './extension/entity';
 import { jsxService, JSXService } from './service/jsx.service';
 import { restService, RestService } from './service/rest.service';
 import { storeService, StoreService } from './service/store.service';
@@ -67,6 +68,13 @@ export interface Ligui extends ContainerService {
   readonly localization: LocalizationService;
   readonly api: LiguiApi;
   readonly isConfigured: boolean;
+  clone: <T>(source: T) => T;
+  cloneArray: <T>(sources: T[]) => T[];
+  cloneArrays: <T>(...sources: (T[])[]) => T[];
+  copyArray: <T>(sources: T[]) => T[];
+  copyArrays: <T>(...sources: (T[])[]) => T[];
+  resolveArray: <T>(source: T | T[]) => T[];
+  arrayFrom: <T>(...sources: (T | T[])[]) => T[];
   uniqueId(prefix?, useSeed?): string;
   setup(config: LiguiConfig): void;
 }
@@ -96,6 +104,13 @@ export const ligui: Ligui = Object.freeze(Object.assign({
   get isConfigured() {
     return isConfigured;
   },
+  clone,
+  cloneArray,
+  cloneArrays,
+  copyArray,
+  copyArrays,
+  resolveArray,
+  arrayFrom,
   uniqueId,
   setup(config: LiguiConfig) {
     if (isConfigured) {

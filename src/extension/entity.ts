@@ -47,28 +47,29 @@ function createBuilder(constructor, defaultParams = {}) {
   return builder;
 }
 
+export const clone = <T>(source: T): T => Object.assign( Object.create( Object.getPrototypeOf(source)), source);
+export const cloneArray = <T>(sources: T[]): T[] => sources.map(clone);
+export const cloneArrays = <T>(...sourceArrays: (T[])[]): T[] => {
+  const result = [];
+  sourceArrays.forEach(sourceArray =>
+    sourceArray.forEach(source => result.push(clone(source))));
+  return result;
+};
+export const copyArray = <T>(sources: T[]): T[] => [...sources];
+export const copyArrays = <T>(...sourceArrays: (T[])[]): T[] => {
+  const result = [];
+  sourceArrays.forEach(sourceArray => result.push(...sourceArray));
+  return result;
+};
+export const resolveArray = <T>(source: T | T[]): T[] => Array.isArray(source) ? source : [source];
+export const arrayFrom = <T>(...sources: (T | T[])[]): T[] => copyArrays(...sources.map(resolveArray));
+
 export const entity =
   <T extends {}>(props: {
     defaultProps?: Partial<T>;
   } = {}) => <C extends new (...args: any[]) => any>(constructor: C) => {
 
     const builder = (initProps?) => createBuilder(constructor, props.defaultProps || initProps);
-    const clone = (source: C) => Object.assign( Object.create( Object.getPrototypeOf(source)), source);
-    const cloneArray = (sources: C[]) => sources.map(clone);
-    const cloneArrays = (...sourceArrays: (C[])[]) => {
-      const result = [];
-      sourceArrays.forEach(sourceArray =>
-        sourceArray.forEach(source => result.push(clone(source))));
-      return result;
-    };
-    const copyArray = (sources: C[]) => [...sources];
-    const copyArrays = (...sourceArrays: (C[])[]) => {
-      const result = [];
-      sourceArrays.forEach(sourceArray => result.push(...sourceArray));
-      return result;
-    };
-    const resolveArray = (source: C | C[]) => Array.isArray(source) ? source : [source];
-    const arrayFrom = (...sources: (C | C[])[]) => copyArrays(...sources.map(resolveArray));
 
     constructor['$'] = {
       builder,

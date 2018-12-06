@@ -63,6 +63,13 @@ export interface Ligui extends ContainerService {
     readonly localization: LocalizationService;
     readonly api: LiguiApi;
     readonly isConfigured: boolean;
+    clone: <T>(source: T) => T;
+    cloneArray: <T>(sources: T[]) => T[];
+    cloneArrays: <T>(...sources: (T[])[]) => T[];
+    copyArray: <T>(sources: T[]) => T[];
+    copyArrays: <T>(...sources: (T[])[]) => T[];
+    resolveArray: <T>(source: T | T[]) => T[];
+    arrayFrom: <T>(...sources: (T | T[])[]) => T[];
     uniqueId(prefix?: any, useSeed?: any): string;
     setup(config: LiguiConfig): void;
 }
