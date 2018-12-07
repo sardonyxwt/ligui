@@ -7,7 +7,7 @@ export interface StoreService {
   composeScope<T = {}>(scopes: (Scope | string)[], config?: ScopeConfig<any>): Scope<T>;
   getScope(scopeName: string): Scope;
   getState(): {};
-  setStoreDevTool(devTool: StoreDevTool): void;
+  setStoreDevTool(devTool: Partial<StoreDevTool>): void;
 }
 
 export const storeService: StoreService = Object.freeze(store);

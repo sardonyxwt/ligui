@@ -47,7 +47,7 @@ export interface LiguiConfig {
     resourceInitState?: ResourceScopeConfigureActionProps;
     localizationLoader?: LLoader;
     localizationInitState?: LocalizationScopeConfigureActionProps;
-    storeDevTools?: StoreDevTool;
+    storeDevTools?: Partial<StoreDevTool>;
 }
 export interface LiguiApi {
     toast?: ToastApi;
