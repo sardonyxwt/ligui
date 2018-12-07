@@ -1,6 +1,6 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "Ligui",
   "main": "dist/ligui.min.js",
   "typings": "dist/@types/index.d.ts",
@@ -43,7 +43,7 @@
     "testRegex": "/(test|src)/.*\\.(test|spec)\\.(ts|js)$"
   },
   "dependencies": {
-    "@sardonyxwt/state-store": "4.3.0",
+    "@sardonyxwt/state-store": "4.4.0",
     "@sardonyxwt/utils": "^1.6.4",
     "inversify": "^5.0.1",
     "react": "^16.7.0-alpha.2",
