@@ -1,4 +1,4 @@
 export interface PreloaderApi {
-  show(spinNames: string[]);
-  hide(spinNames: string[]);
+  show(spinName: string);
+  hide(spinName: string);
 }
