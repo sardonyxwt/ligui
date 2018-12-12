@@ -2,6 +2,7 @@ export * from 'inversify';
 export * from './api/contextmenu.api';
 export * from './api/dialog.api';
 export * from './api/notification.api';
+export * from './api/preloader.api';
 export * from './api/toast.api';
 export * from './extension/converter';
 export * from './extension/entity';
@@ -35,6 +36,7 @@ import { containerService, ContainerService, LiguiTypes } from './service/contai
 import { localizationService, LocalizationService } from './service/localization.service';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
+import { PreloaderApi } from './api/preloader.api';
 import { ContextmenuApi } from './api/contextmenu.api';
 import { NotificationApi } from './api/notification.api';
 import { RLoader } from './loader/resource.loader';
@@ -56,6 +58,7 @@ export interface LiguiConfig {
 export interface LiguiApi {
   toast?: ToastApi;
   dialog?: DialogApi;
+  preloader?: PreloaderApi;
   contextmenu?: ContextmenuApi;
   notification?: NotificationApi;
 }
@@ -121,12 +124,15 @@ export const ligui: Ligui = Object.freeze(Object.assign({
 
     if (config.api) {
       api = config.api;
-      const {toast, contextmenu, dialog, notification} = api;
+      const {toast, contextmenu, preloader, dialog, notification} = api;
       if (toast) {
         containerService.container.bind<ToastApi>(LiguiTypes.TOAST_API).toConstantValue(toast);
       }
       if (contextmenu) {
         containerService.container.bind<ContextmenuApi>(LiguiTypes.CONTEXTMENU_API).toConstantValue(contextmenu);
+      }
+      if (preloader) {
+        containerService.container.bind<PreloaderApi>(LiguiTypes.PRELOADER_API).toConstantValue(preloader);
       }
       if (dialog) {
         containerService.container.bind<DialogApi>(LiguiTypes.DIALOG_API).toConstantValue(dialog);

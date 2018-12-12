@@ -2,6 +2,7 @@ export * from 'inversify';
 export * from './api/contextmenu.api';
 export * from './api/dialog.api';
 export * from './api/notification.api';
+export * from './api/preloader.api';
 export * from './api/toast.api';
 export * from './extension/converter';
 export * from './extension/entity';
@@ -33,6 +34,7 @@ import { ContainerService } from './service/container.service';
 import { LocalizationService } from './service/localization.service';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
+import { PreloaderApi } from './api/preloader.api';
 import { ContextmenuApi } from './api/contextmenu.api';
 import { NotificationApi } from './api/notification.api';
 import { RLoader } from './loader/resource.loader';
@@ -52,6 +54,7 @@ export interface LiguiConfig {
 export interface LiguiApi {
     toast?: ToastApi;
     dialog?: DialogApi;
+    preloader?: PreloaderApi;
     contextmenu?: ContextmenuApi;
     notification?: NotificationApi;
 }
