@@ -1,8 +1,8 @@
 import { uniqueId } from '@sardonyxwt/utils/generator';
 
 export interface RequestProps extends RequestInit {
-  queryParams?: { [key: string]: string };
-  pathParams?: { [key: string]: string };
+  queryParams?: { [key: string]: string | number };
+  pathParams?: { [key: string]: string | number };
 }
 
 export interface RestMiddleware {
@@ -103,13 +103,13 @@ export const restService: RestService = Object.freeze({
     const { queryParams, pathParams } = options;
     if (pathParams) { // todo update logic and add exception
       Object.getOwnPropertyNames(pathParams).forEach(key => {
-        url = url.replace(new RegExp(`{${key}}`, 'g'), pathParams[key]);
+        url = url.replace(new RegExp(`{${key}}`, 'g'), `${pathParams[key]}`);
       });
     }
     url.replace(new RegExp('/{.*}', 'g'), '');
     if (queryParams) {
       let queryUrl = Object.getOwnPropertyNames(queryParams)
-        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(queryParams[k]))
+        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(`${queryParams[k]}`))
         .join('&');
       if (queryUrl) url += `?${queryUrl}`;
     }

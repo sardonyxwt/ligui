@@ -1,9 +1,9 @@
 export interface RequestProps extends RequestInit {
     queryParams?: {
-        [key: string]: string;
+        [key: string]: string | number;
     };
     pathParams?: {
-        [key: string]: string;
+        [key: string]: string | number;
     };
 }
 export interface RestMiddleware {
