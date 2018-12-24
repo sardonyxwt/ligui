@@ -48,9 +48,9 @@ export const restService: RestService = Object.freeze({
     }
     defaultProps = props;
   },
-  addMiddleware(middleware: RestMiddleware) {
+  addMiddleware(newMiddleware: RestMiddleware) {
     const id = uniqueId('RestMiddlewareId');
-    middleware[id] = middleware;
+    middleware[id] = newMiddleware;
     return id;
   },
   removeMiddleware(id: string) {
