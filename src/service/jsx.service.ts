@@ -6,7 +6,7 @@ export interface JSXService {
   node<T extends {}>(name: string, props?: T, ...children: React.ReactNode[]): React.ReactElement<T>;
   render<T extends {}>(container: Element, element: React.ReactElement<T>);
   renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
-  classes(classes: (string | [string, boolean])[]): string;
+  classes(...classes: (string | [string, boolean])[]): string;
 }
 
 const factories: {[factoryName: string]: React.Factory<{}>} = {};
@@ -33,7 +33,7 @@ const renderComponent = <T extends {}>(container: Element, name: string, props?:
   ReactDOM.render(node(name, props, children), container)
 };
 
-const classes = (classes: (string | [string, boolean])[]) => {
+const classes = (...classes: (string | [string, boolean])[]) => {
   const resultClasses: string[] = [];
   classes.forEach(clazz => {
     if (typeof clazz === 'string') {
