@@ -29,6 +29,7 @@ import 'reflect-metadata';
 import { JSXService } from './service/jsx.service';
 import { RestService } from './service/rest.service';
 import { StoreService } from './service/store.service';
+import { EventBusService } from './service/event-bus.service';
 import { ResourceService } from './service/resource.service';
 import { ContainerService } from './service/container.service';
 import { LocalizationService } from './service/localization.service';
@@ -42,6 +43,7 @@ import { LLoader } from './loader/localization.loader';
 import { ResourceScopeConfigureActionProps } from './scope/resource.scope';
 import { LocalizationScopeConfigureActionProps } from './scope/localization.scope';
 import { StoreDevTool } from '@sardonyxwt/state-store';
+import { EventBusDevTool } from '@sardonyxwt/event-bus';
 export interface LiguiConfig {
     api?: LiguiApi;
     globalName?: string;
@@ -50,6 +52,7 @@ export interface LiguiConfig {
     localizationLoader?: LLoader;
     localizationInitState?: LocalizationScopeConfigureActionProps;
     storeDevTools?: Partial<StoreDevTool>;
+    eventBusDevTools?: Partial<EventBusDevTool>;
 }
 export interface LiguiApi {
     toast?: ToastApi;
@@ -62,6 +65,7 @@ export interface Ligui extends ContainerService {
     readonly jsx: JSXService;
     readonly rest: RestService;
     readonly store: StoreService;
+    readonly eventBus: EventBusService;
     readonly resource: ResourceService;
     readonly localization: LocalizationService;
     readonly api: LiguiApi;

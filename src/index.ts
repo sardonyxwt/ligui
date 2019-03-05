@@ -31,6 +31,7 @@ import { arrayFrom, clone, cloneArray, cloneArrays, copyArray, copyArrays, resol
 import { jsxService, JSXService } from './service/jsx.service';
 import { restService, RestService } from './service/rest.service';
 import { storeService, StoreService } from './service/store.service';
+import { eventBusService, EventBusService } from './service/event-bus.service';
 import { resourceService, ResourceService } from './service/resource.service';
 import { containerService, ContainerService, LiguiTypes } from './service/container.service';
 import { localizationService, LocalizationService } from './service/localization.service';
@@ -44,6 +45,7 @@ import { LLoader } from './loader/localization.loader';
 import { ResourceScopeConfigureActionProps } from './scope/resource.scope';
 import { LocalizationScopeConfigureActionProps } from './scope/localization.scope';
 import { StoreDevTool } from '@sardonyxwt/state-store';
+import { EventBusDevTool } from '@sardonyxwt/event-bus';
 
 export interface LiguiConfig {
   api?: LiguiApi;
@@ -53,6 +55,7 @@ export interface LiguiConfig {
   localizationLoader?: LLoader;
   localizationInitState?: LocalizationScopeConfigureActionProps;
   storeDevTools?: Partial<StoreDevTool>;
+  eventBusDevTools?: Partial<EventBusDevTool>;
 }
 
 export interface LiguiApi {
@@ -67,6 +70,7 @@ export interface Ligui extends ContainerService {
   readonly jsx: JSXService;
   readonly rest: RestService;
   readonly store: StoreService;
+  readonly eventBus: EventBusService;
   readonly resource: ResourceService;
   readonly localization: LocalizationService;
   readonly api: LiguiApi;
@@ -94,6 +98,9 @@ export const ligui: Ligui = Object.freeze(Object.assign({
   },
   get store() {
     return storeService;
+  },
+  get eventBus() {
+    return eventBusService;
   },
   get resource() {
     return resourceService;
@@ -155,6 +162,9 @@ export const ligui: Ligui = Object.freeze(Object.assign({
     }
     if (config.storeDevTools) {
       storeService.setStoreDevTool(config.storeDevTools);
+    }
+    if (config.eventBusDevTools) {
+      eventBusService.setEventBusDevTool(config.eventBusDevTools);
     }
     if (config.globalName) {
       global[config.globalName] = this;
