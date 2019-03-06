@@ -1,7 +1,7 @@
 /* tslint:disable:variable-name*/
 import * as React from 'react';
 import { uniqueId } from '@sardonyxwt/utils/generator';
-import { localizationService, Translator } from '..';
+import { LocalizationService, Translator } from '..';
 
 export interface LocalizationHOCInjectedProps {
   t?: Translator;
@@ -11,73 +11,78 @@ interface LocalizationHOCState {
   translator: Translator;
 }
 
-const subscribers: {[key: string]: Function} = {};
+export type LocalizationHocType = (keys: string[], Preloader?: React.ComponentType) =>
+  <P extends LocalizationHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(Component: C) => C
 
-localizationService.onChangeLocale(() =>
-  Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key]()));
+export function createLocalizationHocInstance(localizationService: LocalizationService): LocalizationHocType {
+  const subscribers: {[key: string]: Function} = {};
 
-export function withLocalization(keys: string[], Preloader?: React.ComponentType) {
+  localizationService.onChangeLocale(() =>
+    Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key]()));
 
-  return <P extends LocalizationHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(
-    Component: C
-  ) => {
+  return function (keys: string[], Preloader?: React.ComponentType) {
 
-    class ContextHOC extends React.Component<P, LocalizationHOCState> {
+    return <P extends LocalizationHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(
+      Component: C
+    ) => {
 
-      static displayName = Component.displayName || Component.name;
+      class ContextHOC extends React.Component<P, LocalizationHOCState> {
 
-      private listenerId = uniqueId('UseLocalizationHook');
+        static displayName = Component.displayName || Component.name;
 
-      state = {
-        translator: null
-      };
+        private listenerId = uniqueId('UseLocalizationHook');
 
-      constructor(props) {
-        super(props);
-        if (localizationService.isLocalizationsLoaded(keys)) {
-          this.state = {translator: localizationService.translate};
-        }
-      }
-
-      componentDidMount() {
-        if (this.props.t) {
-          return;
-        }
-        const setup = () => {
-          localizationService.loadLocalizations(keys).then((translator) => {
-            this.setState({translator});
-          });
+        state = {
+          translator: null
         };
-        subscribers[this.listenerId] = setup;
-        if (!this.state.translator) {
-          setup();
+
+        constructor(props) {
+          super(props);
+          if (localizationService.isLocalizationsLoaded(keys)) {
+            this.state = {translator: localizationService.translate};
+          }
+        }
+
+        componentDidMount() {
+          if (this.props.t) {
+            return;
+          }
+          const setup = () => {
+            localizationService.loadLocalizations(keys).then((translator) => {
+              this.setState({translator});
+            });
+          };
+          subscribers[this.listenerId] = setup;
+          if (!this.state.translator) {
+            setup();
+          }
+        }
+
+        componentWillUnmount() {
+          delete subscribers[this.listenerId];
+        }
+
+        render() {
+          const {t} = this.props;
+          const {translator} = this.state;
+
+          if (!(t || translator)) {
+            return Preloader ? <Preloader/> : null;
+          }
+
+          const RenderComponent = Component as any;
+
+          return (
+            <RenderComponent {...this.props} t={t || translator}/>
+          );
         }
       }
 
-      componentWillUnmount() {
-        delete subscribers[this.listenerId];
-      }
+      Object.keys(Component).forEach(key => ContextHOC[key] = Component[key]);
 
-      render() {
-        const {t} = this.props;
-        const {translator} = this.state;
+      return ContextHOC as any as C;
 
-        if (!(t || translator)) {
-          return Preloader ? <Preloader/> : null;
-        }
+    };
 
-        const RenderComponent = Component as any;
-
-        return (
-          <RenderComponent {...this.props} t={t || translator}/>
-        );
-      }
-    }
-
-    Object.keys(Component).forEach(key => ContextHOC[key] = Component[key]);
-
-    return ContextHOC as any as C;
-
-  };
-
+  }
 }

@@ -9,49 +9,53 @@ export interface JSXService {
   classes(...classes: (string | [string, boolean])[]): string;
 }
 
-const factories: {[factoryName: string]: React.Factory<{}>} = {};
+export function createJSXServiceInstance(): JSXService {
 
-const registerFactory = <T extends {}>(name: string, factory: React.Factory<T>) => {
-  if (name in factories) {
-    throw new Error(`Factory with same name is register.`);
-  }
-  factories[name] = factory;
-};
+  const factories: {[factoryName: string]: React.Factory<{}>} = {};
 
-const node = <T extends {}>(name: string, props?: T, ...children: React.ReactNode[]) => {
-  if (name in factories) {
-    return (factories[name] as React.Factory<T>)(props, children);
-  }
-  return React.createElement(name, props, children);
-};
-
-const render = <T extends {}>(container: Element, element: React.ReactElement<T>) => {
-  ReactDOM.render(element, container)
-};
-
-const renderComponent = <T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]) => {
-  ReactDOM.render(node(name, props, children), container)
-};
-
-const classes = (...classes: (string | [string, boolean])[]) => {
-  const resultClasses: string[] = [];
-  classes.forEach(clazz => {
-    if (typeof clazz === 'string') {
-      resultClasses.push(clazz);
-    } else {
-      const [className, isUsed] = clazz;
-      if (isUsed) {
-        resultClasses.push(className);
-      }
+  const registerFactory = <T extends {}>(name: string, factory: React.Factory<T>) => {
+    if (name in factories) {
+      throw new Error(`Factory with same name is register.`);
     }
-  });
-  return resultClasses.join(' ')
-};
+    factories[name] = factory;
+  };
 
-export const jsxService: JSXService = Object.freeze({
-  registerFactory,
-  node,
-  render,
-  renderComponent,
-  classes
-});
+  const node = <T extends {}>(name: string, props?: T, ...children: React.ReactNode[]) => {
+    if (name in factories) {
+      return (factories[name] as React.Factory<T>)(props, children);
+    }
+    return React.createElement(name, props, children);
+  };
+
+  const render = <T extends {}>(container: Element, element: React.ReactElement<T>) => {
+    ReactDOM.render(element, container)
+  };
+
+  const renderComponent = <T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]) => {
+    ReactDOM.render(node(name, props, children), container)
+  };
+
+  const classes = (...classes: (string | [string, boolean])[]) => {
+    const resultClasses: string[] = [];
+    classes.forEach(clazz => {
+      if (typeof clazz === 'string') {
+        resultClasses.push(clazz);
+      } else {
+        const [className, isUsed] = clazz;
+        if (isUsed) {
+          resultClasses.push(className);
+        }
+      }
+    });
+    return resultClasses.join(' ')
+  };
+
+  return Object.freeze({
+    registerFactory,
+    node,
+    render,
+    renderComponent,
+    classes
+  });
+
+}

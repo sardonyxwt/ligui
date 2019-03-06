@@ -1,7 +1,7 @@
 // tslint:disable:variable-name
 import * as React from 'react';
 import { uniqueId } from '@sardonyxwt/utils/generator';
-import { storeService, Scope } from '..';
+import { StoreService, Scope } from '..';
 
 export interface StateHOCInjectedProps<T extends {} = {}> {
   state?: T;
@@ -13,67 +13,73 @@ interface ScopeActionTree {
   }
 }
 
-const scopeActionTree: ScopeActionTree = {};
+export type StateHocType = <T>(scope: string | Scope<T>, actions: string[], retention) =>
+  <P extends {}, C extends React.ComponentType<P> = React.ComponentType<P>>(Component: C) => C
 
-export function withState<T>(scope: string | Scope<T>, actions: string[] = null, retention = 0) {
+export function createStateHocInstance(storeService: StoreService): StateHocType {
+  const scopeActionTree: ScopeActionTree = {};
 
-  return <P extends {}, C extends React.ComponentType<P> = React.ComponentType<P>>(
-    Component: C
-  ) => {
+  return function <T>(scope: string | Scope<T>, actions: string[] = null, retention = 0) {
 
-    class SubscribeHOC extends React.Component<P & StateHOCInjectedProps> {
+    return <P extends {}, C extends React.ComponentType<P> = React.ComponentType<P>>(
+      Component: C
+    ) => {
 
-      static displayName = Component.displayName || Component.name;
+      class SubscribeHOC extends React.Component<P & StateHOCInjectedProps> {
 
-      private listenerId = uniqueId('UseScopeHook');
-      private timeoutId: number;
-      private scope = typeof scope === 'string' ? storeService.getScope(scope) : scope;
+        static displayName = Component.displayName || Component.name;
 
-      constructor(props) {
-        super(props);
-        this.state = {}
-      }
+        private listenerId = uniqueId('UseScopeHook');
+        private timeoutId: number;
+        private scope = typeof scope === 'string' ? storeService.getScope(scope) : scope;
 
-      componentDidMount() {
-        const {scope, timeoutId, listenerId} = this;
-        if (!(scope.name in scopeActionTree)) {
-          const scopeSubscribers = scopeActionTree[scope.name] = {};
-          scope.subscribe(e =>
-            Object.getOwnPropertyNames(scopeSubscribers).forEach(key => scopeSubscribers[key](e.actionName)));
+        constructor(props) {
+          super(props);
+          this.state = {}
         }
-        scopeActionTree[scope.name][listenerId] = (actionName) => {
-          if (actions && !actions.find(it => it === actionName)) {
-            return;
+
+        componentDidMount() {
+          const {scope, timeoutId, listenerId} = this;
+          if (!(scope.name in scopeActionTree)) {
+            const scopeSubscribers = scopeActionTree[scope.name] = {};
+            scope.subscribe(e =>
+              Object.getOwnPropertyNames(scopeSubscribers).forEach(key => scopeSubscribers[key](e.actionName)));
           }
-          if (retention && retention > 0) {
-            clearTimeout(timeoutId);
-            this.timeoutId = window.setTimeout(() => this.setState(scope.state), retention);
-            return;
-          }
-          this.setState(scope.state);
-        };
+          scopeActionTree[scope.name][listenerId] = (actionName) => {
+            if (actions && !actions.find(it => it === actionName)) {
+              return;
+            }
+            if (retention && retention > 0) {
+              clearTimeout(timeoutId);
+              this.timeoutId = window.setTimeout(() => this.setState(scope.state), retention);
+              return;
+            }
+            this.setState(scope.state);
+          };
+        }
+
+        componentWillUnmount() {
+          delete scopeActionTree[this.scope.name][this.listenerId];
+        }
+
+        render() {
+          const {props, scope} = this;
+          const {state = {}} = props;
+
+          const RenderComponent = Component as any;
+
+          return (
+            <RenderComponent {...props} state={{...state, [scope.name]: scope.state}}/>
+          );
+        }
       }
 
-      componentWillUnmount() {
-        delete scopeActionTree[this.scope.name][this.listenerId];
-      }
+      Object.keys(Component).forEach(key => SubscribeHOC[key] = Component[key]);
 
-      render() {
-        const {props, scope} = this;
-        const {state = {}} = props;
+      return SubscribeHOC as any as C;
 
-        const RenderComponent = Component as any;
+    };
 
-        return (
-          <RenderComponent {...props} state={{...state, [scope.name]: scope.state}}/>
-        );
-      }
-    }
-
-    Object.keys(Component).forEach(key => SubscribeHOC[key] = Component[key]);
-
-    return SubscribeHOC as any as C;
-
-  };
+  }
 
 }

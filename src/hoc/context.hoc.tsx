@@ -5,31 +5,36 @@ export interface ContextHOCInjectedProps<TContext> {
   context?: TContext;
 }
 
-export function withContext<TContext>(Consumer: React.Consumer<TContext>) {
+export type ContextHocType = <TContext>(Consumer: React.Consumer<TContext>) =>
+  <P extends ContextHOCInjectedProps<TContext>, C extends React.ComponentType<P> = React.ComponentType<P>>(Component: C) => C;
 
-  return <P extends ContextHOCInjectedProps<TContext>, C extends React.ComponentType<P> = React.ComponentType<P>>(
-    Component: C
-  ) => {
+export function createContextHocInstance(): ContextHocType {
+  return function <TContext>(Consumer: React.Consumer<TContext>) {
 
-    class ContextHOC extends React.Component<P> {
+    return <P extends ContextHOCInjectedProps<TContext>, C extends React.ComponentType<P> = React.ComponentType<P>>(
+      Component: C
+    ) => {
 
-      static displayName = Component.displayName || Component.name;
+      class ContextHOC extends React.Component<P> {
 
-      render() {
-        const RenderComponent = Component as any;
+        static displayName = Component.displayName || Component.name;
 
-        return (
-          <Consumer>
-            {context => <RenderComponent {...this.props} context={this.props.context || context}/>}
-          </Consumer>
-        );
+        render() {
+          const RenderComponent = Component as any;
+
+          return (
+            <Consumer>
+              {context => <RenderComponent {...this.props} context={this.props.context || context}/>}
+            </Consumer>
+          );
+        }
       }
-    }
 
-    Object.keys(Component).forEach(key => ContextHOC[key] = Component[key]);
+      Object.keys(Component).forEach(key => ContextHOC[key] = Component[key]);
 
-    return ContextHOC as C;
+      return ContextHOC as C;
 
-  };
+    };
 
+  }
 }

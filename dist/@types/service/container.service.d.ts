@@ -1,4 +1,4 @@
-import { Container, decorate } from 'inversify';
+import { Container } from 'inversify';
 export interface Newable<T> {
     new (...args: any[]): T;
 }
@@ -30,13 +30,4 @@ export interface ContainerService {
     resolveAllTagged<T = any>(id: ContainerId, key: ContainerKey, value: any): T[];
     decorate(decorator: (ClassDecorator | ParameterDecorator | MethodDecorator), target: any, parameterIndex?: number | string): void;
 }
-export declare const containerService: Readonly<{
-    resolve<T = any>(id: ContainerId<any>): T;
-    resolveNamed<T = any>(id: ContainerId<any>, name: string | number | symbol): T;
-    resolveTagged<T = any>(id: ContainerId<any>, key: string | number | symbol, value: any): T;
-    resolveAll<T = any>(id: ContainerId<any>): T[];
-    resolveAllNamed<T = any>(id: ContainerId<any>, name: string | number | symbol): T[];
-    resolveAllTagged<T = any>(id: ContainerId<any>, key: string | number | symbol, value: any): T[];
-    decorate: typeof decorate;
-    readonly container: Container;
-}>;
+export declare function createContainerServiceInstance(): ContainerService;

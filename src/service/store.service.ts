@@ -1,6 +1,5 @@
 import * as store from '@sardonyxwt/state-store';
 import { Scope, ScopeConfig, StoreDevTool } from '@sardonyxwt/state-store';
-export * from '@sardonyxwt/state-store';
 
 export interface StoreService {
   createScope<T>(config?: ScopeConfig<T>): Scope<T>;
@@ -10,4 +9,6 @@ export interface StoreService {
   setStoreDevTool(devTool: Partial<StoreDevTool>): void;
 }
 
-export const storeService: StoreService = Object.freeze(store);
+export function createStoreServiceInstance(): StoreService {
+  return Object.freeze(store);
+}

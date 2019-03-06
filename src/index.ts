@@ -25,16 +25,28 @@ export * from './hoc/context.hoc';
 export * from './hoc/state.hoc';
 export * from './hoc/resources.hoc';
 export * from './hoc/localization.hoc';
+export * from '@sardonyxwt/state-store';
+export * from '@sardonyxwt/event-bus';
 import 'reflect-metadata';
 import { uniqueId } from '@sardonyxwt/utils/generator';
 import { arrayFrom, clone, cloneArray, cloneArrays, copyArray, copyArrays, resolveArray } from './extension/entity';
-import { jsxService, JSXService } from './service/jsx.service';
-import { restService, RestService } from './service/rest.service';
-import { storeService, StoreService } from './service/store.service';
-import { eventBusService, EventBusService } from './service/event-bus.service';
-import { resourceService, ResourceService } from './service/resource.service';
-import { containerService, ContainerService, LiguiTypes } from './service/container.service';
-import { localizationService, LocalizationService } from './service/localization.service';
+import { createJSXServiceInstance, JSXService } from './service/jsx.service';
+import { createRestServiceInstance, RestService } from './service/rest.service';
+import { createStoreServiceInstance, StoreService } from './service/store.service';
+import { createEventBusServiceInstance, EventBusService } from './service/event-bus.service';
+import { createResourceServiceInstance, ResourceService } from './service/resource.service';
+import { createContainerServiceInstance, ContainerService, LiguiTypes } from './service/container.service';
+import { createLocalizationServiceInstance, LocalizationService } from './service/localization.service';
+import { createDependencyHookInstance, createDependenciesHookInstance,
+  DependencyHookType, DependenciesHookType } from './hook/dependency.hook';
+import { createIdHookInstance, IdHookType } from './hook/id.hook';
+import { createLocalizationHookInstance, LocalizationHookType } from './hook/localization.hook';
+import { createResourceHookInstance, ResourceHookType } from './hook/resources.hook';
+import { createStateHookInstance, StateHookType } from './hook/state.hook';
+import { createContextHocInstance, ContextHocType } from './hoc/context.hoc';
+import { createStateHocInstance, StateHocType } from './hoc/state.hoc';
+import { createResourcesHocInstance, ResourcesHocType } from './hoc/resources.hoc';
+import { createLocalizationHocInstance, LocalizationHocType } from './hoc/localization.hoc';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
 import { PreloaderApi } from './api/preloader.api';
@@ -48,6 +60,7 @@ import { StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 
 export interface LiguiConfig {
+  id?: string;
   api?: LiguiApi;
   globalName?: string;
   resourceLoader?: RLoader;
@@ -66,7 +79,24 @@ export interface LiguiApi {
   notification?: NotificationApi;
 }
 
+export interface LiguiHoc {
+  context: ContextHocType;
+  localization: LocalizationHocType;
+  resources: ResourcesHocType;
+  state: StateHocType;
+}
+
+export interface LiguiHook {
+  id: IdHookType;
+  dependency: DependencyHookType;
+  dependencies: DependenciesHookType;
+  localization: LocalizationHookType;
+  resource: ResourceHookType;
+  state: StateHookType;
+}
+
 export interface Ligui extends ContainerService {
+  readonly id: string;
   readonly jsx: JSXService;
   readonly rest: RestService;
   readonly store: StoreService;
@@ -74,7 +104,8 @@ export interface Ligui extends ContainerService {
   readonly resource: ResourceService;
   readonly localization: LocalizationService;
   readonly api: LiguiApi;
-  readonly isConfigured: boolean;
+  readonly hoc: LiguiHoc;
+  readonly hook: LiguiHook;
   clone: <T>(source: T) => T;
   cloneArray: <T>(sources: T[]) => T[];
   cloneArrays: <T>(...sources: (T[])[]) => T[];
@@ -83,92 +114,135 @@ export interface Ligui extends ContainerService {
   resolveArray: <T>(source: T | T[]) => T[];
   arrayFrom: <T>(...sources: (T | T[])[]) => T[];
   uniqueId(prefix?, useSeed?): string;
-  setup(config: LiguiConfig): void;
 }
 
-let api: LiguiApi = {};
-let isConfigured = false;
+const liguiInstances: Ligui[] = [];
 
-export const ligui: Ligui = Object.freeze(Object.assign({
-  get jsx() {
-    return jsxService;
-  },
-  get rest() {
-    return restService;
-  },
-  get store() {
-    return storeService;
-  },
-  get eventBus() {
-    return eventBusService;
-  },
-  get resource() {
-    return resourceService;
-  },
-  get localization() {
-    return localizationService;
-  },
-  get api() {
-    return api;
-  },
-  get isConfigured() {
-    return isConfigured;
-  },
-  clone,
-  cloneArray,
-  cloneArrays,
-  copyArray,
-  copyArrays,
-  resolveArray,
-  arrayFrom,
-  uniqueId,
-  setup(config: LiguiConfig) {
-    if (isConfigured) {
-      throw new Error('Ligui can configured only once.')
-    }
+export function getLiguiInstance(id: string) {
+  return liguiInstances.find(it => it.id === id);
+}
 
-    isConfigured = true;
+export function getAllLiguiInstance() {
+  return [...liguiInstances];
+}
 
-    if (config.api) {
-      api = config.api;
-      const {toast, contextmenu, preloader, dialog, notification} = api;
-      if (toast) {
-        containerService.container.bind<ToastApi>(LiguiTypes.TOAST_API).toConstantValue(toast);
-      }
-      if (contextmenu) {
-        containerService.container.bind<ContextmenuApi>(LiguiTypes.CONTEXTMENU_API).toConstantValue(contextmenu);
-      }
-      if (preloader) {
-        containerService.container.bind<PreloaderApi>(LiguiTypes.PRELOADER_API).toConstantValue(preloader);
-      }
-      if (dialog) {
-        containerService.container.bind<DialogApi>(LiguiTypes.DIALOG_API).toConstantValue(dialog);
-      }
-      if (notification) {
-        containerService.container.bind<NotificationApi>(LiguiTypes.NOTIFICATION_API).toConstantValue(notification);
-      }
+export function createLiguiInstance(config: LiguiConfig): Ligui {
+  const jsxService = createJSXServiceInstance();
+  const restService = createRestServiceInstance();
+  const storeService = createStoreServiceInstance();
+  const eventBusService = createEventBusServiceInstance();
+  const resourceService = createResourceServiceInstance();
+  const localizationService = createLocalizationServiceInstance();
+  const containerService = createContainerServiceInstance();
+
+  containerService.container.bind<JSXService>(LiguiTypes.JSX_SERVICE).toConstantValue(jsxService);
+  containerService.container.bind<RestService>(LiguiTypes.REST_SERVICE).toConstantValue(restService);
+  containerService.container.bind<StoreService>(LiguiTypes.STORE_SERVICE).toConstantValue(storeService);
+  containerService.container.bind<ResourceService>(LiguiTypes.RESOURCE_SERVICE).toConstantValue(resourceService);
+  containerService.container.bind<ContainerService>(LiguiTypes.CONTAINER_SERVICE).toConstantValue(containerService);
+  containerService.container.bind<LocalizationService>(LiguiTypes.LOCALIZATION_SERVICE).toConstantValue(localizationService);
+
+  const id = config.id || uniqueId('Ligui');
+  let api: LiguiApi = {};
+  let hoc: LiguiHoc = {
+    context: createContextHocInstance(),
+    localization: createLocalizationHocInstance(localizationService),
+    resources: createResourcesHocInstance(resourceService),
+    state: createStateHocInstance(storeService)
+  };
+  let hooks: LiguiHook = {
+    id: createIdHookInstance(),
+    dependency: createDependencyHookInstance(containerService),
+    dependencies: createDependenciesHookInstance(containerService),
+    localization: createLocalizationHookInstance(localizationService),
+    resource: createResourceHookInstance(resourceService),
+    state: createStateHookInstance(),
+  };
+
+  if (config.api) {
+    api = config.api;
+    const {toast, contextmenu, preloader, dialog, notification} = api;
+    if (toast) {
+      containerService.container.bind<ToastApi>(LiguiTypes.TOAST_API).toConstantValue(toast);
     }
-    if (config.resourceLoader) {
-      resourceService.loader = config.resourceLoader;
+    if (contextmenu) {
+      containerService.container.bind<ContextmenuApi>(LiguiTypes.CONTEXTMENU_API).toConstantValue(contextmenu);
     }
-    if (config.resourceInitState) {
-      resourceService.configure(config.resourceInitState);
+    if (preloader) {
+      containerService.container.bind<PreloaderApi>(LiguiTypes.PRELOADER_API).toConstantValue(preloader);
     }
-    if (config.localizationLoader) {
-      localizationService.loader = config.localizationLoader;
+    if (dialog) {
+      containerService.container.bind<DialogApi>(LiguiTypes.DIALOG_API).toConstantValue(dialog);
     }
-    if (config.localizationInitState) {
-      localizationService.configure(config.localizationInitState);
-    }
-    if (config.storeDevTools) {
-      storeService.setStoreDevTool(config.storeDevTools);
-    }
-    if (config.eventBusDevTools) {
-      eventBusService.setEventBusDevTool(config.eventBusDevTools);
-    }
-    if (config.globalName) {
-      global[config.globalName] = this;
-      console.log(`Ligui registered in global scope with name: ${config.globalName}`);
+    if (notification) {
+      containerService.container.bind<NotificationApi>(LiguiTypes.NOTIFICATION_API).toConstantValue(notification);
     }
   }
-}, containerService));
+  if (config.resourceLoader) {
+    resourceService.loader = config.resourceLoader;
+  }
+  if (config.resourceInitState) {
+    resourceService.configure(config.resourceInitState);
+  }
+  if (config.localizationLoader) {
+    localizationService.loader = config.localizationLoader;
+  }
+  if (config.localizationInitState) {
+    localizationService.configure(config.localizationInitState);
+  }
+  if (config.storeDevTools) {
+    storeService.setStoreDevTool(config.storeDevTools);
+  }
+  if (config.eventBusDevTools) {
+    eventBusService.setEventBusDevTool(config.eventBusDevTools);
+  }
+  if (config.globalName) {
+    global[config.globalName] = this;
+    console.log(`Ligui registered in global scope with name: ${config.globalName}`);
+  }
+
+  const ligui = Object.freeze(Object.assign({
+    get id() {
+      return id;
+    },
+    get jsx() {
+      return jsxService;
+    },
+    get rest() {
+      return restService;
+    },
+    get store() {
+      return storeService;
+    },
+    get eventBus() {
+      return eventBusService;
+    },
+    get resource() {
+      return resourceService;
+    },
+    get localization() {
+      return localizationService;
+    },
+    get api() {
+      return api;
+    },
+    get hoc() {
+      return hoc;
+    },
+    get hook() {
+      return hooks;
+    },
+    clone,
+    cloneArray,
+    cloneArrays,
+    copyArray,
+    copyArrays,
+    resolveArray,
+    arrayFrom,
+    uniqueId
+  }, containerService));
+
+  liguiInstances.push(ligui);
+
+  return ligui;
+}

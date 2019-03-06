@@ -25,6 +25,8 @@ export * from './hoc/context.hoc';
 export * from './hoc/state.hoc';
 export * from './hoc/resources.hoc';
 export * from './hoc/localization.hoc';
+export * from '@sardonyxwt/state-store';
+export * from '@sardonyxwt/event-bus';
 import 'reflect-metadata';
 import { JSXService } from './service/jsx.service';
 import { RestService } from './service/rest.service';
@@ -33,6 +35,15 @@ import { EventBusService } from './service/event-bus.service';
 import { ResourceService } from './service/resource.service';
 import { ContainerService } from './service/container.service';
 import { LocalizationService } from './service/localization.service';
+import { DependencyHookType, DependenciesHookType } from './hook/dependency.hook';
+import { IdHookType } from './hook/id.hook';
+import { LocalizationHookType } from './hook/localization.hook';
+import { ResourceHookType } from './hook/resources.hook';
+import { StateHookType } from './hook/state.hook';
+import { ContextHocType } from './hoc/context.hoc';
+import { StateHocType } from './hoc/state.hoc';
+import { ResourcesHocType } from './hoc/resources.hoc';
+import { LocalizationHocType } from './hoc/localization.hoc';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
 import { PreloaderApi } from './api/preloader.api';
@@ -45,6 +56,7 @@ import { LocalizationScopeConfigureActionProps } from './scope/localization.scop
 import { StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 export interface LiguiConfig {
+    id?: string;
     api?: LiguiApi;
     globalName?: string;
     resourceLoader?: RLoader;
@@ -61,7 +73,22 @@ export interface LiguiApi {
     contextmenu?: ContextmenuApi;
     notification?: NotificationApi;
 }
+export interface LiguiHoc {
+    context: ContextHocType;
+    localization: LocalizationHocType;
+    resources: ResourcesHocType;
+    state: StateHocType;
+}
+export interface LiguiHook {
+    id: IdHookType;
+    dependency: DependencyHookType;
+    dependencies: DependenciesHookType;
+    localization: LocalizationHookType;
+    resource: ResourceHookType;
+    state: StateHookType;
+}
 export interface Ligui extends ContainerService {
+    readonly id: string;
     readonly jsx: JSXService;
     readonly rest: RestService;
     readonly store: StoreService;
@@ -69,7 +96,8 @@ export interface Ligui extends ContainerService {
     readonly resource: ResourceService;
     readonly localization: LocalizationService;
     readonly api: LiguiApi;
-    readonly isConfigured: boolean;
+    readonly hoc: LiguiHoc;
+    readonly hook: LiguiHook;
     clone: <T>(source: T) => T;
     cloneArray: <T>(sources: T[]) => T[];
     cloneArrays: <T>(...sources: (T[])[]) => T[];
@@ -78,6 +106,7 @@ export interface Ligui extends ContainerService {
     resolveArray: <T>(source: T | T[]) => T[];
     arrayFrom: <T>(...sources: (T | T[])[]) => T[];
     uniqueId(prefix?: any, useSeed?: any): string;
-    setup(config: LiguiConfig): void;
 }
-export declare const ligui: Ligui;
+export declare function getLiguiInstance(id: string): Ligui;
+export declare function getAllLiguiInstance(): Ligui[];
+export declare function createLiguiInstance(config: LiguiConfig): Ligui;
