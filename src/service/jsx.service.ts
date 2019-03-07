@@ -9,6 +9,21 @@ export interface JSXService {
   classes(...classes: (string | [string, boolean])[]): string;
 }
 
+export const classes = (...classes: (string | [string, boolean])[]) => {
+  const resultClasses: string[] = [];
+  classes.forEach(clazz => {
+    if (typeof clazz === 'string') {
+      resultClasses.push(clazz);
+    } else {
+      const [className, isUsed] = clazz;
+      if (isUsed) {
+        resultClasses.push(className);
+      }
+    }
+  });
+  return resultClasses.join(' ')
+};
+
 export function createJSXServiceInstance(): JSXService {
 
   const factories: {[factoryName: string]: React.Factory<{}>} = {};
@@ -35,20 +50,7 @@ export function createJSXServiceInstance(): JSXService {
     ReactDOM.render(node(name, props, children), container)
   };
 
-  const classes = (...classes: (string | [string, boolean])[]) => {
-    const resultClasses: string[] = [];
-    classes.forEach(clazz => {
-      if (typeof clazz === 'string') {
-        resultClasses.push(clazz);
-      } else {
-        const [className, isUsed] = clazz;
-        if (isUsed) {
-          resultClasses.push(className);
-        }
-      }
-    });
-    return resultClasses.join(' ')
-  };
+
 
   return Object.freeze({
     registerFactory,
