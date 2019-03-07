@@ -13,7 +13,7 @@ interface ScopeActionTree {
   }
 }
 
-export type StateHocType = <T>(scope: string | Scope<T>, actions: string[], retention) =>
+export type StateHocType = <T>(scope: string | Scope<T>, actions?: string[], retention?) =>
   <P extends {}, C extends React.ComponentType<P> = React.ComponentType<P>>(Component: C) => C
 
 export function createStateHocInstance(storeService: StoreService): StateHocType {
