@@ -27,6 +27,8 @@ export * from './hoc/resources.hoc';
 export * from './hoc/localization.hoc';
 export * from '@sardonyxwt/state-store';
 export * from '@sardonyxwt/event-bus';
+export * from '@sardonyxwt/utils/generator';
+export * from '@sardonyxwt/utils/json';
 import 'reflect-metadata';
 import { JSXService } from './service/jsx.service';
 import { RestService } from './service/rest.service';
@@ -105,6 +107,8 @@ export interface Ligui extends ContainerService {
     copyArrays: <T>(...sources: (T[])[]) => T[];
     resolveArray: <T>(source: T | T[]) => T[];
     arrayFrom: <T>(...sources: (T | T[])[]) => T[];
+    flatten(data: object): object;
+    unflatten(data: object): object;
     uniqueId(prefix?: any, useSeed?: any): string;
 }
 export declare function getLiguiInstance(id: string): Ligui;

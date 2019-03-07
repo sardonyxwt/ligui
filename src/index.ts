@@ -27,8 +27,11 @@ export * from './hoc/resources.hoc';
 export * from './hoc/localization.hoc';
 export * from '@sardonyxwt/state-store';
 export * from '@sardonyxwt/event-bus';
+export * from '@sardonyxwt/utils/generator';
+export * from '@sardonyxwt/utils/json';
 import 'reflect-metadata';
 import { uniqueId } from '@sardonyxwt/utils/generator';
+import { flatten, unflatten } from '@sardonyxwt/utils/json';
 import { arrayFrom, clone, cloneArray, cloneArrays, copyArray, copyArrays, resolveArray } from './extension/entity';
 import { createJSXServiceInstance, JSXService } from './service/jsx.service';
 import { createRestServiceInstance, RestService } from './service/rest.service';
@@ -113,6 +116,8 @@ export interface Ligui extends ContainerService {
   copyArrays: <T>(...sources: (T[])[]) => T[];
   resolveArray: <T>(source: T | T[]) => T[];
   arrayFrom: <T>(...sources: (T | T[])[]) => T[];
+  flatten(data: object): object;
+  unflatten(data: object): object;
   uniqueId(prefix?, useSeed?): string;
 }
 
@@ -239,6 +244,8 @@ export function createLiguiInstance(config: LiguiConfig): Ligui {
     copyArrays,
     resolveArray,
     arrayFrom,
+    flatten,
+    unflatten,
     uniqueId
   }, containerService));
 
