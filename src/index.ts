@@ -201,10 +201,6 @@ export function createLiguiInstance(config: LiguiConfig): Ligui {
   if (config.eventBusDevTools) {
     eventBusService.setEventBusDevTool(config.eventBusDevTools);
   }
-  if (config.globalName) {
-    global[config.globalName] = this;
-    console.log(`Ligui registered in global scope with name: ${config.globalName}`);
-  }
 
   const ligui = Object.freeze(Object.assign({
     get id() {
@@ -248,6 +244,11 @@ export function createLiguiInstance(config: LiguiConfig): Ligui {
     unflatten,
     uniqueId
   }, containerService));
+
+  if (config.globalName) {
+    global[config.globalName] = ligui;
+    console.log(`Ligui registered in global scope with name: ${config.globalName}`);
+  }
 
   liguiInstances.push(ligui);
 
