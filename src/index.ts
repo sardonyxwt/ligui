@@ -72,6 +72,7 @@ export interface LiguiConfig {
   localizationInitState?: LocalizationScopeConfigureActionProps;
   storeDevTools?: Partial<StoreDevTool>;
   eventBusDevTools?: Partial<EventBusDevTool>;
+  restDefaultProps?: RequestInit;
 }
 
 export interface LiguiApi {
@@ -200,6 +201,9 @@ export function createLiguiInstance(config: LiguiConfig): Ligui {
   }
   if (config.eventBusDevTools) {
     eventBusService.setEventBusDevTool(config.eventBusDevTools);
+  }
+  if (config.restDefaultProps) {
+    restService.defaultProps = config.restDefaultProps;
   }
 
   const ligui = Object.freeze(Object.assign({
