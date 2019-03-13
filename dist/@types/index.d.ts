@@ -58,7 +58,6 @@ import { LocalizationScopeConfigureActionProps } from './scope/localization.scop
 import { StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 export interface LiguiConfig {
-    id?: string;
     api?: LiguiApi;
     globalName?: string;
     resourceLoader?: RLoader;
@@ -91,7 +90,6 @@ export interface LiguiHook {
     state: StateHookType;
 }
 export interface Ligui extends ContainerService {
-    readonly id: string;
     readonly jsx: JSXService;
     readonly rest: RestService;
     readonly store: StoreService;
@@ -112,6 +110,5 @@ export interface Ligui extends ContainerService {
     unflatten(data: object): object;
     uniqueId(prefix?: any, useSeed?: any): string;
 }
-export declare function getLiguiInstance(id: string): Ligui;
-export declare function getAllLiguiInstance(): Ligui[];
-export declare function createLiguiInstance(config: LiguiConfig): Ligui;
+export declare let ligui: Ligui;
+export declare function setupLigui(config: LiguiConfig): void;

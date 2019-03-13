@@ -1,2 +1,2 @@
 export declare type IdHookType = (prefix?: string, useSeed?: boolean) => string;
-export declare const createIdHookInstance: () => IdHookType;
+export declare function IdHook(prefix?: string, useSeed?: boolean): string;

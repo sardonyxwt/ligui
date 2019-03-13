@@ -7,7 +7,7 @@ import {
   ResourceScopeAddResourceActionProps,
   ScopeEvent,
   ScopeListener,
-  ResourceService
+  resourceService
 } from '..';
 
 export interface ResourceHOCInjectedProps {
@@ -21,77 +21,75 @@ interface ResourceHOCState {
 export type ResourcesHocType = (keys: string[], Preloader?: React.ComponentType) =>
   <P extends ResourceHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(Component: C) => C;
 
-export function createResourcesHocInstance(resourceService: ResourceService): ResourcesHocType {
-  const subscribers: {[key: string]: ScopeListener<ResourceScopeState>} = {};
+const subscribers: {[key: string]: ScopeListener<ResourceScopeState>} = {};
 
-  resourceService.onSetResource(e =>
-    Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key](e)));
+resourceService.onSetResource(e =>
+  Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key](e)));
 
-  return function (keys: string[], Preloader?: React.ComponentType) {
+export function ResourcesHoc(keys: string[], Preloader?: React.ComponentType) {
 
-    return <P extends ResourceHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(
-      Component: C
-    ) => {
+  return <P extends ResourceHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(
+    Component: C
+  ) => {
 
-      class ContextHOC extends React.Component<P, ResourceHOCState> {
+    class ContextHOC extends React.Component<P, ResourceHOCState> {
 
-        static displayName = Component.displayName || Component.name;
+      static displayName = Component.displayName || Component.name;
 
-        private listenerId = uniqueId('UseResourcesHook');
+      private listenerId = uniqueId('UseResourcesHook');
 
-        state = {
-          resources: null
-        };
+      state = {
+        resources: null
+      };
 
-        constructor(props) {
-          super(props);
-          if (resourceService.isResourcesLoaded(keys)) {
-            this.state = {resources: resourceService.resources};
-          }
-        }
-
-        componentDidMount() {
-          if (this.props.r) {
-            return;
-          }
-          subscribers[this.listenerId] = (e: ScopeEvent<ResourceScopeState>) => {
-            const {key} = e.props as ResourceScopeAddResourceActionProps;
-            if (!!keys.find(it => it === key)) {
-              this.setState({resources: resourceService.resources});
-            }
-          };
-          if (!this.state.resources) {
-            resourceService.loadResources(keys).then((resources) => {
-              this.setState({resources});
-            });
-          }
-        }
-
-        componentWillUnmount() {
-          delete subscribers[this.listenerId];
-        }
-
-        render() {
-          const {r} = this.props;
-          const {resources} = this.state;
-
-          if (!(resources || r)) {
-            return Preloader ? <Preloader/> : null;
-          }
-
-          const RenderComponent = Component as any;
-
-          return (
-            <RenderComponent {...this.props} t={resources || r}/>
-          );
+      constructor(props) {
+        super(props);
+        if (resourceService.isResourcesLoaded(keys)) {
+          this.state = {resources: resourceService.resources};
         }
       }
 
-      Object.keys(Component).forEach(key => ContextHOC[key] = Component[key]);
+      componentDidMount() {
+        if (this.props.r) {
+          return;
+        }
+        subscribers[this.listenerId] = (e: ScopeEvent<ResourceScopeState>) => {
+          const {key} = e.props as ResourceScopeAddResourceActionProps;
+          if (!!keys.find(it => it === key)) {
+            this.setState({resources: resourceService.resources});
+          }
+        };
+        if (!this.state.resources) {
+          resourceService.loadResources(keys).then((resources) => {
+            this.setState({resources});
+          });
+        }
+      }
 
-      return ContextHOC as any as C;
+      componentWillUnmount() {
+        delete subscribers[this.listenerId];
+      }
 
-    };
+      render() {
+        const {r} = this.props;
+        const {resources} = this.state;
 
-  }
+        if (!(resources || r)) {
+          return Preloader ? <Preloader/> : null;
+        }
+
+        const RenderComponent = Component as any;
+
+        return (
+          <RenderComponent {...this.props} t={resources || r}/>
+        );
+      }
+    }
+
+    Object.keys(Component).forEach(key => ContextHOC[key] = Component[key]);
+
+    return ContextHOC as any as C;
+
+  };
+
 }

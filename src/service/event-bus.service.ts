@@ -7,6 +7,4 @@ export interface EventBusService {
   setEventBusDevTool(devTool: Partial<EventBusDevTool>): void;
 }
 
-export function createEventBusServiceInstance(): EventBusService {
-  return Object.freeze(eventBus);
-}
+export const eventBusService: EventBusService = Object.freeze(eventBus);

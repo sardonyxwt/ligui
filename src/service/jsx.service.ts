@@ -9,6 +9,8 @@ export interface JSXService {
   classes(...classes: (string | [string, boolean])[]): string;
 }
 
+const factories: {[factoryName: string]: React.Factory<{}>} = {};
+
 export const classes = (...classes: (string | [string, boolean])[]) => {
   const resultClasses: string[] = [];
   classes.forEach(clazz => {
@@ -24,40 +26,32 @@ export const classes = (...classes: (string | [string, boolean])[]) => {
   return resultClasses.join(' ')
 };
 
-export function createJSXServiceInstance(): JSXService {
+const registerFactory = <T extends {}>(name: string, factory: React.Factory<T>) => {
+  if (name in factories) {
+    throw new Error(`Factory with same name is register.`);
+  }
+  factories[name] = factory;
+};
 
-  const factories: {[factoryName: string]: React.Factory<{}>} = {};
+const node = <T extends {}>(name: string, props?: T, ...children: React.ReactNode[]) => {
+  if (name in factories) {
+    return (factories[name] as React.Factory<T>)(props, children);
+  }
+  return React.createElement(name, props, children);
+};
 
-  const registerFactory = <T extends {}>(name: string, factory: React.Factory<T>) => {
-    if (name in factories) {
-      throw new Error(`Factory with same name is register.`);
-    }
-    factories[name] = factory;
-  };
+const render = <T extends {}>(container: Element, element: React.ReactElement<T>) => {
+  ReactDOM.render(element, container)
+};
 
-  const node = <T extends {}>(name: string, props?: T, ...children: React.ReactNode[]) => {
-    if (name in factories) {
-      return (factories[name] as React.Factory<T>)(props, children);
-    }
-    return React.createElement(name, props, children);
-  };
+const renderComponent = <T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]) => {
+  ReactDOM.render(node(name, props, children), container)
+};
 
-  const render = <T extends {}>(container: Element, element: React.ReactElement<T>) => {
-    ReactDOM.render(element, container)
-  };
-
-  const renderComponent = <T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]) => {
-    ReactDOM.render(node(name, props, children), container)
-  };
-
-
-
-  return Object.freeze({
-    registerFactory,
-    node,
-    render,
-    renderComponent,
-    classes
-  });
-
-}
+export const jsxService: JSXService = Object.freeze({
+  registerFactory,
+  node,
+  render,
+  renderComponent,
+  classes
+});

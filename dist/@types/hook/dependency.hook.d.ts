@@ -1,5 +1,5 @@
-import { ContainerId, ContainerKey, ContainerService } from '..';
+import { ContainerId, ContainerKey } from '..';
 export declare type DependencyHookType = <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T;
 export declare type DependenciesHookType = <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T[];
-export declare const createDependencyHookInstance: (containerService: ContainerService) => DependencyHookType;
-export declare const createDependenciesHookInstance: (containerService: ContainerService) => DependenciesHookType;
+export declare function DependencyHook<T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T;
+export declare function DependenciesHook<T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T[];

@@ -9,6 +9,4 @@ export interface StoreService {
   setStoreDevTool(devTool: Partial<StoreDevTool>): void;
 }
 
-export function createStoreServiceInstance(): StoreService {
-  return Object.freeze(store);
-}
+export const storeService: StoreService = Object.freeze(store);

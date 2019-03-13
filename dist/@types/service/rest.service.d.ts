@@ -22,4 +22,4 @@ export interface RestService {
     request(endpoint: string, options?: RequestProps): Promise<Response>;
     buildUrl(endpoint: string, options?: RequestProps): string;
 }
-export declare function createRestServiceInstance(): RestService;
+export declare const restService: RestService;

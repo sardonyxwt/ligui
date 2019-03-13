@@ -7,4 +7,4 @@ export interface JSXService {
     classes(...classes: (string | [string, boolean])[]): string;
 }
 export declare const classes: (...classes: (string | [string, boolean])[]) => string;
-export declare function createJSXServiceInstance(): JSXService;
+export declare const jsxService: JSXService;

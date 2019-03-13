@@ -4,4 +4,4 @@ export interface EventBusService {
     getEventBus(scopeName: string): EventBus;
     setEventBusDevTool(devTool: Partial<EventBusDevTool>): void;
 }
-export declare function createEventBusServiceInstance(): EventBusService;
+export declare const eventBusService: EventBusService;

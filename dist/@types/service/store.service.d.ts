@@ -6,4 +6,4 @@ export interface StoreService {
     getState(): {};
     setStoreDevTool(devTool: Partial<StoreDevTool>): void;
 }
-export declare function createStoreServiceInstance(): StoreService;
+export declare const storeService: StoreService;

@@ -30,4 +30,4 @@ export interface ContainerService {
     resolveAllTagged<T = any>(id: ContainerId, key: ContainerKey, value: any): T[];
     decorate(decorator: (ClassDecorator | ParameterDecorator | MethodDecorator), target: any, parameterIndex?: number | string): void;
 }
-export declare function createContainerServiceInstance(): ContainerService;
+export declare const containerService: ContainerService;

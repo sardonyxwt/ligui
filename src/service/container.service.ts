@@ -37,34 +37,32 @@ export interface ContainerService {
   decorate(decorator: (ClassDecorator | ParameterDecorator | MethodDecorator), target: any, parameterIndex?: number | string): void;
 }
 
-export function createContainerServiceInstance(): ContainerService {
-  let container = new Container({
-    skipBaseClassChecks: true,
-  });
+let container = new Container({
+  skipBaseClassChecks: true,
+});
 
-  return Object.freeze({
-    resolve<T = any>(id: ContainerId): T {
-      return container.get<T>(id);
-    },
-    resolveNamed<T = any>(id: ContainerId, name: ContainerKey): T {
-      return container.getNamed(id, name);
-    },
-    resolveTagged<T = any>(id: ContainerId, key: ContainerKey, value: any): T {
-      return container.getTagged(id, key, value);
-    },
-    resolveAll<T = any>(id: ContainerId): T[] {
-      return container.getAll(id);
-    },
-    resolveAllNamed<T = any>(id: ContainerId, name: ContainerKey): T[] {
-      return container.getAllNamed(id, name);
-    },
-    resolveAllTagged<T = any>(id: ContainerId, key: ContainerKey, value: any): T[] {
-      return container.getAllTagged(id, key, value);
-    },
-    decorate,
-    get container() {
-      return container;
-    }
-  });
-}
+export const containerService: ContainerService = Object.freeze({
+  resolve<T = any>(id: ContainerId): T {
+    return container.get<T>(id);
+  },
+  resolveNamed<T = any>(id: ContainerId, name: ContainerKey): T {
+    return container.getNamed(id, name);
+  },
+  resolveTagged<T = any>(id: ContainerId, key: ContainerKey, value: any): T {
+    return container.getTagged(id, key, value);
+  },
+  resolveAll<T = any>(id: ContainerId): T[] {
+    return container.getAll(id);
+  },
+  resolveAllNamed<T = any>(id: ContainerId, name: ContainerKey): T[] {
+    return container.getAllNamed(id, name);
+  },
+  resolveAllTagged<T = any>(id: ContainerId, key: ContainerKey, value: any): T[] {
+    return container.getAllTagged(id, key, value);
+  },
+  decorate,
+  get container() {
+    return container;
+  }
+});
 

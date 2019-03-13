@@ -33,23 +33,23 @@ import 'reflect-metadata';
 import { uniqueId } from '@sardonyxwt/utils/generator';
 import { flatten, unflatten } from '@sardonyxwt/utils/json';
 import { arrayFrom, clone, cloneArray, cloneArrays, copyArray, copyArrays, resolveArray } from './extension/entity';
-import { createJSXServiceInstance, JSXService } from './service/jsx.service';
-import { createRestServiceInstance, RestService } from './service/rest.service';
-import { createStoreServiceInstance, StoreService } from './service/store.service';
-import { createEventBusServiceInstance, EventBusService } from './service/event-bus.service';
-import { createResourceServiceInstance, ResourceService } from './service/resource.service';
-import { createContainerServiceInstance, ContainerService, LiguiTypes } from './service/container.service';
-import { createLocalizationServiceInstance, LocalizationService } from './service/localization.service';
-import { createDependencyHookInstance, createDependenciesHookInstance,
+import { jsxService, JSXService } from './service/jsx.service';
+import { restService, RestService } from './service/rest.service';
+import { storeService, StoreService } from './service/store.service';
+import { eventBusService, EventBusService } from './service/event-bus.service';
+import { resourceService, ResourceService } from './service/resource.service';
+import { containerService, ContainerService, LiguiTypes } from './service/container.service';
+import { localizationService, LocalizationService } from './service/localization.service';
+import { DependencyHook, DependenciesHook,
   DependencyHookType, DependenciesHookType } from './hook/dependency.hook';
-import { createIdHookInstance, IdHookType } from './hook/id.hook';
-import { createLocalizationHookInstance, LocalizationHookType } from './hook/localization.hook';
-import { createResourceHookInstance, ResourceHookType } from './hook/resources.hook';
-import { createStateHookInstance, StateHookType } from './hook/state.hook';
-import { createContextHocInstance, ContextHocType } from './hoc/context.hoc';
-import { createStateHocInstance, StateHocType } from './hoc/state.hoc';
-import { createResourcesHocInstance, ResourcesHocType } from './hoc/resources.hoc';
-import { createLocalizationHocInstance, LocalizationHocType } from './hoc/localization.hoc';
+import { IdHook, IdHookType } from './hook/id.hook';
+import { LocalizationHook, LocalizationHookType } from './hook/localization.hook';
+import { ResourceHook, ResourceHookType } from './hook/resources.hook';
+import { StateHook, StateHookType } from './hook/state.hook';
+import { ContextHoc, ContextHocType } from './hoc/context.hoc';
+import { StateHoc, StateHocType } from './hoc/state.hoc';
+import { ResourcesHoc, ResourcesHocType } from './hoc/resources.hoc';
+import { LocalizationHoc, LocalizationHocType } from './hoc/localization.hoc';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
 import { PreloaderApi } from './api/preloader.api';
@@ -63,7 +63,6 @@ import { StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 
 export interface LiguiConfig {
-  id?: string;
   api?: LiguiApi;
   globalName?: string;
   resourceLoader?: RLoader;
@@ -100,7 +99,6 @@ export interface LiguiHook {
 }
 
 export interface Ligui extends ContainerService {
-  readonly id: string;
   readonly jsx: JSXService;
   readonly rest: RestService;
   readonly store: StoreService;
@@ -122,24 +120,12 @@ export interface Ligui extends ContainerService {
   uniqueId(prefix?, useSeed?): string;
 }
 
-const liguiInstances: Ligui[] = [];
+export let ligui: Ligui = null;
 
-export function getLiguiInstance(id: string) {
-  return liguiInstances.find(it => it.id === id);
-}
-
-export function getAllLiguiInstance() {
-  return [...liguiInstances];
-}
-
-export function createLiguiInstance(config: LiguiConfig): Ligui {
-  const jsxService = createJSXServiceInstance();
-  const restService = createRestServiceInstance();
-  const storeService = createStoreServiceInstance();
-  const eventBusService = createEventBusServiceInstance();
-  const resourceService = createResourceServiceInstance();
-  const localizationService = createLocalizationServiceInstance();
-  const containerService = createContainerServiceInstance();
+export function setupLigui(config: LiguiConfig): void {
+  if (ligui) {
+    throw new Error('Ligui can setup only once.');
+  }
 
   containerService.container.bind<JSXService>(LiguiTypes.JSX_SERVICE).toConstantValue(jsxService);
   containerService.container.bind<RestService>(LiguiTypes.REST_SERVICE).toConstantValue(restService);
@@ -148,21 +134,20 @@ export function createLiguiInstance(config: LiguiConfig): Ligui {
   containerService.container.bind<ContainerService>(LiguiTypes.CONTAINER_SERVICE).toConstantValue(containerService);
   containerService.container.bind<LocalizationService>(LiguiTypes.LOCALIZATION_SERVICE).toConstantValue(localizationService);
 
-  const id = config.id || uniqueId('Ligui');
   let api: LiguiApi = {};
   let hoc: LiguiHoc = {
-    context: createContextHocInstance(),
-    localization: createLocalizationHocInstance(localizationService),
-    resources: createResourcesHocInstance(resourceService),
-    state: createStateHocInstance(storeService)
+    context: ContextHoc,
+    localization: LocalizationHoc,
+    resources: ResourcesHoc,
+    state: StateHoc
   };
   let hooks: LiguiHook = {
-    id: createIdHookInstance(),
-    dependency: createDependencyHookInstance(containerService),
-    dependencies: createDependenciesHookInstance(containerService),
-    localization: createLocalizationHookInstance(localizationService),
-    resource: createResourceHookInstance(resourceService),
-    state: createStateHookInstance(),
+    id: IdHook,
+    dependency: DependencyHook,
+    dependencies: DependenciesHook,
+    localization: LocalizationHook,
+    resource: ResourceHook,
+    state: StateHook,
   };
 
   if (config.api) {
@@ -206,10 +191,7 @@ export function createLiguiInstance(config: LiguiConfig): Ligui {
     restService.defaultProps = config.restDefaultProps;
   }
 
-  const ligui = Object.freeze(Object.assign({
-    get id() {
-      return id;
-    },
+  ligui = Object.freeze(Object.assign({
     get jsx() {
       return jsxService;
     },
@@ -253,8 +235,4 @@ export function createLiguiInstance(config: LiguiConfig): Ligui {
     global[config.globalName] = ligui;
     console.log(`Ligui registered in global scope with name: ${config.globalName}`);
   }
-
-  liguiInstances.push(ligui);
-
-  return ligui;
 }
