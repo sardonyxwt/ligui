@@ -107,12 +107,13 @@ export interface Ligui extends ContainerService {
     copyArrays: <T>(...sources: (T[])[]) => T[];
     resolveArray: <T>(source: T | T[]) => T[];
     arrayFrom: <T>(...sources: (T | T[])[]) => T[];
+    generateUUID: Generator<string>;
+    generateSalt: Generator<string>;
     flatten(data: object): object;
     unflatten(data: object): object;
     stringifyValue(value: any): string;
     deepFreeze<T>(obj: T): Readonly<T>;
-    generateUUID: Generator<string>;
-    generateSalt: Generator<string>;
+    resolveFunctionCall<T = Function>(func: T, ...flags: boolean[]): T;
     createUniqueIdGenerator(prefix: string): Generator<string>;
 }
 export declare let ligui: Ligui;

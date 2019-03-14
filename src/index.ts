@@ -115,12 +115,13 @@ export interface Ligui extends ContainerService {
   copyArrays: <T>(...sources: (T[])[]) => T[];
   resolveArray: <T>(source: T | T[]) => T[];
   arrayFrom: <T>(...sources: (T | T[])[]) => T[];
+  generateUUID: Generator<string>;
+  generateSalt: Generator<string>;
   flatten(data: object): object;
   unflatten(data: object): object;
   stringifyValue(value): string;
   deepFreeze<T>(obj: T): Readonly<T>;
-  generateUUID: Generator<string>;
-  generateSalt: Generator<string>;
+  resolveFunctionCall<T = Function>(func: T, ...flags: boolean[]): T;
   createUniqueIdGenerator(prefix: string): Generator<string>;
 }
 
@@ -195,6 +196,9 @@ export function setupLigui(config: LiguiConfig): void {
     restService.defaultProps = config.restDefaultProps;
   }
 
+  const resolveFunctionCall = <T>(func: T, ...flags: boolean[]): T =>
+    !func || flags.findIndex(it => !it) >= 0 ? func : (() => null) as any;
+
   ligui = Object.freeze(Object.assign({
     get jsx() {
       return jsxService;
@@ -236,6 +240,7 @@ export function setupLigui(config: LiguiConfig): void {
     stringifyValue,
     generateUUID,
     generateSalt,
+    resolveFunctionCall,
     createUniqueIdGenerator
   }, containerService));
 
