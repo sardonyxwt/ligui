@@ -1,6 +1,6 @@
 /* tslint:disable:variable-name*/
 import * as React from 'react';
-import { uniqueId } from '@sardonyxwt/utils/generator';
+import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 import {
   Resources,
   ResourceScopeState,
@@ -22,6 +22,7 @@ export type ResourcesHocType = (keys: string[], Preloader?: React.ComponentType)
   <P extends ResourceHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(Component: C) => C;
 
 const subscribers: {[key: string]: ScopeListener<ResourceScopeState>} = {};
+const resourcesHocListenerIdGenerator = createUniqueIdGenerator('ResourcesHoc');
 
 resourceService.onSetResource(e =>
   Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key](e)));
@@ -36,7 +37,7 @@ export function ResourcesHoc(keys: string[], Preloader?: React.ComponentType) {
 
       static displayName = Component.displayName || Component.name;
 
-      private listenerId = uniqueId('UseResourcesHook');
+      private listenerId = resourcesHocListenerIdGenerator();
 
       state = {
         resources: null

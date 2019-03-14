@@ -1,6 +1,6 @@
 /* tslint:disable:variable-name*/
 import * as React from 'react';
-import { uniqueId } from '@sardonyxwt/utils/generator';
+import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 import { localizationService, Translator } from '..';
 
 export interface LocalizationHOCInjectedProps {
@@ -15,6 +15,7 @@ export type LocalizationHocType = (keys: string[], Preloader?: React.ComponentTy
   <P extends LocalizationHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(Component: C) => C
 
 const subscribers: {[key: string]: Function} = {};
+const localizationHocListenerIdGenerator = createUniqueIdGenerator('LocalizationHoc');
 
 localizationService.onChangeLocale(() =>
   Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key]()));
@@ -29,7 +30,7 @@ export function LocalizationHoc(keys: string[], Preloader?: React.ComponentType)
 
       static displayName = Component.displayName || Component.name;
 
-      private listenerId = uniqueId('UseLocalizationHook');
+      private listenerId = localizationHocListenerIdGenerator();
 
       state = {
         translator: null

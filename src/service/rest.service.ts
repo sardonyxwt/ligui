@@ -1,4 +1,4 @@
-import { uniqueId } from '@sardonyxwt/utils/generator';
+import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 
 export interface RequestProps extends RequestInit {
   queryParams?: { [key: string]: string | number };
@@ -35,6 +35,8 @@ let defaultProps: RequestInit = {
   }
 };
 
+const restMiddlewareIdGenerator = createUniqueIdGenerator('Middleware');
+
 export const restService: RestService = Object.freeze({
   get middleware() {
     return Object.keys(middleware).map(key => middleware[key]);
@@ -49,7 +51,7 @@ export const restService: RestService = Object.freeze({
     defaultProps = props;
   },
   addMiddleware(newMiddleware: RestMiddleware) {
-    const id = uniqueId('RestMiddlewareId');
+    const id = restMiddlewareIdGenerator();
     middleware[id] = newMiddleware;
     return id;
   },

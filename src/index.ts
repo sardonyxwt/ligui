@@ -28,10 +28,10 @@ export * from './hoc/localization.hoc';
 export * from '@sardonyxwt/state-store';
 export * from '@sardonyxwt/event-bus';
 export * from '@sardonyxwt/utils/generator';
-export * from '@sardonyxwt/utils/json';
+export * from '@sardonyxwt/utils/object';
 import 'reflect-metadata';
-import { uniqueId } from '@sardonyxwt/utils/generator';
-import { flatten, unflatten } from '@sardonyxwt/utils/json';
+import { createUniqueIdGenerator, generateUUID, generateSalt, Generator } from '@sardonyxwt/utils/generator';
+import { flatten, unflatten, deepFreeze, stringifyValue } from '@sardonyxwt/utils/object';
 import { arrayFrom, clone, cloneArray, cloneArrays, copyArray, copyArrays, resolveArray } from './extension/entity';
 import { jsxService, JSXService } from './service/jsx.service';
 import { restService, RestService } from './service/rest.service';
@@ -44,7 +44,7 @@ import { DependencyHook, DependenciesHook,
   DependencyHookType, DependenciesHookType } from './hook/dependency.hook';
 import { IdHook, IdHookType } from './hook/id.hook';
 import { LocalizationHook, LocalizationHookType } from './hook/localization.hook';
-import { ResourceHook, ResourceHookType } from './hook/resources.hook';
+import { ResourcesHook, ResourcesHookType } from './hook/resources.hook';
 import { StateHook, StateHookType } from './hook/state.hook';
 import { ContextHoc, ContextHocType } from './hoc/context.hoc';
 import { StateHoc, StateHocType } from './hoc/state.hoc';
@@ -94,7 +94,7 @@ export interface LiguiHook {
   dependency: DependencyHookType;
   dependencies: DependenciesHookType;
   localization: LocalizationHookType;
-  resource: ResourceHookType;
+  resources: ResourcesHookType;
   state: StateHookType;
 }
 
@@ -117,7 +117,11 @@ export interface Ligui extends ContainerService {
   arrayFrom: <T>(...sources: (T | T[])[]) => T[];
   flatten(data: object): object;
   unflatten(data: object): object;
-  uniqueId(prefix?, useSeed?): string;
+  stringifyValue(value): string;
+  deepFreeze<T>(obj: T): Readonly<T>;
+  generateUUID: Generator<string>;
+  generateSalt: Generator<string>;
+  createUniqueIdGenerator(prefix: string): Generator<string>;
 }
 
 export let ligui: Ligui = null;
@@ -146,7 +150,7 @@ export function setupLigui(config: LiguiConfig): void {
     dependency: DependencyHook,
     dependencies: DependenciesHook,
     localization: LocalizationHook,
-    resource: ResourceHook,
+    resources: ResourcesHook,
     state: StateHook,
   };
 
@@ -228,7 +232,11 @@ export function setupLigui(config: LiguiConfig): void {
     arrayFrom,
     flatten,
     unflatten,
-    uniqueId
+    deepFreeze,
+    stringifyValue,
+    generateUUID,
+    generateSalt,
+    createUniqueIdGenerator
   }, containerService));
 
   if (config.globalName) {

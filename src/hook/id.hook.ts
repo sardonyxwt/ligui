@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { uniqueId } from '@sardonyxwt/utils/generator';
+import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 
-export type IdHookType = (prefix?: string, useSeed?: boolean) => string;
+const idHookListenerIdGenerator = createUniqueIdGenerator('ResourcesHook');
 
-export function IdHook (prefix = '', useSeed = false): string {
-  return React.useMemo(() => uniqueId(prefix, useSeed), [true]);
+export type IdHookType = () => string;
+
+export function IdHook (): string {
+  return React.useMemo(() => idHookListenerIdGenerator(), [true]);
 }

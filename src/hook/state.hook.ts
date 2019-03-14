@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { uniqueId } from '@sardonyxwt/utils/generator';
+import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 import { Scope } from '..';
 
 interface ScopeActionTree {
@@ -11,12 +11,13 @@ interface ScopeActionTree {
 export type StateHookType = <T = any>(scope: Scope<T>, actions?: string[], retention?: number) => T;
 
 const scopeActionTree: ScopeActionTree = {};
+const stateHookListenerIdGenerator = createUniqueIdGenerator('StateHook');
 
 export function StateHook<T = any>(scope: Scope<T>, actions: string[] = null, retention = 0): T {
   const [state, setState] = React.useState(scope.state);
 
   React.useEffect(() => {
-    const listenerId = uniqueId('LigStateHook');
+    const listenerId = stateHookListenerIdGenerator();
     let timeoutId: number;
     if (!(scope.name in scopeActionTree)) {
       const scopeSubscribers = scopeActionTree[scope.name] = {};

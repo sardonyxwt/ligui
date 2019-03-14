@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { uniqueId } from '@sardonyxwt/utils/generator';
+import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 import { localizationService, Translator } from '..';
 
 export const defaultFallbackTranslator = (id) => id;
@@ -7,6 +7,7 @@ export const defaultFallbackTranslator = (id) => id;
 export type LocalizationHookType = (keys: string[], fallbackTranslator?: Translator) => Translator;
 
 const subscribers: {[key: string]: Function} = {};
+const localizationHookListenerIdGenerator = createUniqueIdGenerator('LocalizationHook');
 
 localizationService.onChangeLocale(() =>
   Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key]()));
@@ -21,7 +22,7 @@ export function LocalizationHook (keys: string[], fallbackTranslator: Translator
   });
 
   React.useEffect(() => {
-    const listenerId = uniqueId('LigLocalizationHook');
+    const listenerId = localizationHookListenerIdGenerator();
     subscribers[listenerId] = () => setTranslator(localizationService.translate);
     return () => delete subscribers[listenerId];
   });

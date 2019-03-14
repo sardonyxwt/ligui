@@ -1,15 +1,16 @@
 import * as React from 'react';
-import { uniqueId } from '@sardonyxwt/utils/generator';
+import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 import { resourceService, Resources, ResourceScopeState, ResourceScopeAddResourceActionProps, ScopeEvent, ScopeListener } from '..';
 
-export type ResourceHookType = (keys: string[]) => Resources;
+export type ResourcesHookType = (keys: string[]) => Resources;
 
 const subscribers: {[key: string]: ScopeListener<ResourceScopeState>} = {};
+const resourcesHookListenerIdGenerator = createUniqueIdGenerator('ResourcesHook');
 
 resourceService.onSetResource(e =>
   Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key](e)));
 
-export function ResourceHook (keys: string[]) {
+export function ResourcesHook (keys: string[]) {
   const [resources, setResources] = React.useState<Resources>(() => {
     if (resourceService.isResourcesLoaded(keys)) {
       return resourceService.resources;
@@ -19,7 +20,7 @@ export function ResourceHook (keys: string[]) {
   });
 
   React.useEffect(() => {
-    const listenerId = uniqueId('LigResourcesHook');
+    const listenerId = resourcesHookListenerIdGenerator();
     subscribers[listenerId] = (e: ScopeEvent<ResourceScopeState>) => {
       const {key} = e.props as ResourceScopeAddResourceActionProps;
       if (!!keys.find(it => it === key)) {

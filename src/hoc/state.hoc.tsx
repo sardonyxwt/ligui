@@ -1,6 +1,6 @@
 // tslint:disable:variable-name
 import * as React from 'react';
-import { uniqueId } from '@sardonyxwt/utils/generator';
+import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 import { storeService, Scope } from '..';
 
 export interface StateHOCInjectedProps<T extends {} = {}> {
@@ -17,6 +17,7 @@ export type StateHocType = <T>(scope: string | Scope<T>, actions?: string[], ret
   <P extends {}, C extends React.ComponentType<P> = React.ComponentType<P>>(Component: C) => C
 
 const scopeActionTree: ScopeActionTree = {};
+const stateHocListenerIdGenerator = createUniqueIdGenerator('StateHoc');
 
 export function StateHoc<T>(scope: string | Scope<T>, actions: string[] = null, retention = 0) {
 
@@ -28,7 +29,7 @@ export function StateHoc<T>(scope: string | Scope<T>, actions: string[] = null, 
 
       static displayName = Component.displayName || Component.name;
 
-      private listenerId = uniqueId('UseScopeHook');
+      private listenerId = stateHocListenerIdGenerator();
       private timeoutId: number;
       private scope = typeof scope === 'string' ? storeService.getScope(scope) : scope;
 
