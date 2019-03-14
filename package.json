@@ -1,6 +1,6 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "6.3.31",
+  "version": "6.3.4",
   "description": "Ligui",
   "main": "dist/ligui.min.js",
   "typings": "dist/@types/index.d.ts",
@@ -47,16 +47,15 @@
     "@sardonyxwt/state-store": "4.4.2",
     "@sardonyxwt/utils": "2.1.0",
     "inversify": "^5.0.1",
-    "react": "^16.7.0",
-    "react-dom": "^16.7.0",
+    "react": "16.8.4",
+    "react-dom": "16.8.4",
     "reflect-metadata": "^0.1.12"
   },
   "devDependencies": {
     "@types/jest": "^21.1.9",
     "@types/node": "^9.6.35",
-    "@types/react": "^16.7.7",
-    "@types/react-dom": "^16.0.10",
-    "@types/react-router": "^4.4.1",
+    "@types/react": "16.8.8",
+    "@types/react-dom": "16.8.2",
     "clean-webpack-plugin": "^0.1.19",
     "cross-env": "5.1.1",
     "jest": "22.4.4",
