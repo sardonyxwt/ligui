@@ -117,4 +117,5 @@ export interface Ligui extends ContainerService {
     createUniqueIdGenerator(prefix: string): Generator<string>;
 }
 export declare let ligui: Ligui;
+export declare const resolveFunctionCall: <T>(func: T, ...flags: boolean[]) => T;
 export declare function setupLigui(config: LiguiConfig): void;

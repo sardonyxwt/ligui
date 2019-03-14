@@ -127,6 +127,10 @@ export interface Ligui extends ContainerService {
 
 export let ligui: Ligui = null;
 
+// ToDo move to utils package
+export const resolveFunctionCall = <T>(func: T, ...flags: boolean[]): T =>
+  !func || flags.findIndex(it => !it) >= 0 ? func : (() => null) as any;
+
 export function setupLigui(config: LiguiConfig): void {
   if (ligui) {
     throw new Error('Ligui can setup only once.');
@@ -195,9 +199,6 @@ export function setupLigui(config: LiguiConfig): void {
   if (config.restDefaultProps) {
     restService.defaultProps = config.restDefaultProps;
   }
-
-  const resolveFunctionCall = <T>(func: T, ...flags: boolean[]): T =>
-    !func || flags.findIndex(it => !it) >= 0 ? func : (() => null) as any;
 
   ligui = Object.freeze(Object.assign({
     get jsx() {
