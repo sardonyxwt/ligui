@@ -121,15 +121,25 @@ export interface Ligui extends ContainerService {
   unflatten(data: object): object;
   stringifyValue(value): string;
   deepFreeze<T>(obj: T): Readonly<T>;
-  resolveFunctionCall<T = Function>(func: T, ...flags: boolean[]): T;
+  resolveFunctionCall<T extends Function>(func: T, ...flags: boolean[]): T;
+  prepareFunctionCall<T extends Function>(func: T, ...flags: boolean[]):
+    ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
   createUniqueIdGenerator(prefix: string): Generator<string>;
 }
 
 export let ligui: Ligui = null;
 
+export type Parameters<T> = T extends (... args: infer T) => any ? T : never;
+export type ReturnType<T> = T extends (... args: any[]) => infer T ? T : never;
+
 // ToDo move to utils package
-export const resolveFunctionCall = <T>(func: T, ...flags: boolean[]): T =>
-  !func || flags.findIndex(it => !it) >= 0 ? func : (() => null) as any;
+export const resolveFunctionCall = <T extends Function>(func: T, ...flags: boolean[]): T =>
+  !func || flags.findIndex(it => !it) >= 0 ? (() => null) as any : func;
+
+// ToDo move to utils package
+export const prepareFunctionCall = <T extends Function>(func: T, ...flags: boolean[]):
+  ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>) =>
+  !func || flags.findIndex(it => !it) >= 0 ? (() => () => null) as any : (...args) => () => func.call(args);
 
 export function setupLigui(config: LiguiConfig): void {
   if (ligui) {
@@ -242,6 +252,7 @@ export function setupLigui(config: LiguiConfig): void {
     generateUUID,
     generateSalt,
     resolveFunctionCall,
+    prepareFunctionCall,
     createUniqueIdGenerator
   }, containerService));
 

@@ -13,7 +13,7 @@ const factories: {[factoryName: string]: React.Factory<{}>} = {};
 
 export const classes = (...classes: (string | [string, boolean])[]) => {
   const resultClasses: string[] = [];
-  classes.forEach(clazz => {
+  classes.filter(it => !!it).forEach(clazz => {
     if (typeof clazz === 'string') {
       resultClasses.push(clazz);
     } else {

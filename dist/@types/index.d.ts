@@ -113,9 +113,13 @@ export interface Ligui extends ContainerService {
     unflatten(data: object): object;
     stringifyValue(value: any): string;
     deepFreeze<T>(obj: T): Readonly<T>;
-    resolveFunctionCall<T = Function>(func: T, ...flags: boolean[]): T;
+    resolveFunctionCall<T extends Function>(func: T, ...flags: boolean[]): T;
+    prepareFunctionCall<T extends Function>(func: T, ...flags: boolean[]): ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
     createUniqueIdGenerator(prefix: string): Generator<string>;
 }
 export declare let ligui: Ligui;
-export declare const resolveFunctionCall: <T>(func: T, ...flags: boolean[]) => T;
+export declare type Parameters<T> = T extends (...args: infer T) => any ? T : never;
+export declare type ReturnType<T> = T extends (...args: any[]) => infer T ? T : never;
+export declare const resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
+export declare const prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => (...args: Parameters<T>) => () => ReturnType<T>;
 export declare function setupLigui(config: LiguiConfig): void;
