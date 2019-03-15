@@ -139,7 +139,7 @@ export const resolveFunctionCall = <T extends Function>(func: T, ...flags: boole
 // ToDo move to utils package
 export const prepareFunctionCall = <T extends Function>(func: T, ...flags: boolean[]):
   ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>) =>
-  !func || flags.findIndex(it => !it) >= 0 ? (() => () => null) as any : (...args) => () => func.call(args);
+  !func || flags.findIndex(it => !it) >= 0 ? (() => () => null) as any : (...args) => () => func(...args);
 
 export function setupLigui(config: LiguiConfig): void {
   if (ligui) {
