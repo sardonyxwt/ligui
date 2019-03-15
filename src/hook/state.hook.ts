@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
-import { Scope } from '..';
+import { storeService, Scope } from '..';
 
 interface ScopeActionTree {
   [scopeName: string]: {
@@ -8,34 +8,35 @@ interface ScopeActionTree {
   }
 }
 
-export type StateHookType = <T = any>(scope: Scope<T>, actions?: string[], retention?: number) => T;
+export type StateHookType = <T = any>(scope: string | Scope<T>, actions?: string[], retention?: number) => T;
 
 const scopeActionTree: ScopeActionTree = {};
 const stateHookListenerIdGenerator = createUniqueIdGenerator('StateHook');
 
-export function StateHook<T = any>(scope: Scope<T>, actions: string[] = null, retention = 0): T {
-  const [state, setState] = React.useState(scope.state);
+export function StateHook<T = any>(scope: string | Scope<T>, actions: string[] = null, retention = 0): T {
+  const resolvedScope = typeof scope === 'string' ? storeService.getScope(scope) : scope;
+  const [state, setState] = React.useState(resolvedScope.state);
 
   React.useEffect(() => {
     const listenerId = stateHookListenerIdGenerator();
     let timeoutId: number;
-    if (!(scope.name in scopeActionTree)) {
-      const scopeSubscribers = scopeActionTree[scope.name] = {};
-      scope.subscribe(e =>
+    if (!(resolvedScope.name in scopeActionTree)) {
+      const scopeSubscribers = scopeActionTree[resolvedScope.name] = {};
+      resolvedScope.subscribe(e =>
         Object.getOwnPropertyNames(scopeSubscribers).forEach(key => scopeSubscribers[key](e.actionName)));
     }
-    scopeActionTree[scope.name][listenerId] = (actionName) => {
+    scopeActionTree[resolvedScope.name][listenerId] = (actionName) => {
       if (actions && !actions.find(it => it === actionName)) {
         return;
       }
       if (retention && retention > 0) {
         clearTimeout(timeoutId);
-        timeoutId = window.setTimeout(() => setState(scope.state), retention);
+        timeoutId = window.setTimeout(() => setState(resolvedScope.state), retention);
         return;
       }
-      setState(scope.state);
+      setState(resolvedScope.state);
     };
-    return () => delete scopeActionTree[scope.name][listenerId];
+    return () => delete scopeActionTree[resolvedScope.name][listenerId];
   });
 
   return state;
