@@ -40,16 +40,16 @@ import { eventBusService, EventBusService } from './service/event-bus.service';
 import { resourceService, ResourceService } from './service/resource.service';
 import { containerService, ContainerService, LiguiTypes } from './service/container.service';
 import { localizationService, LocalizationService } from './service/localization.service';
-import { DependencyHook, DependenciesHook,
+import { useDependency, useDependencies,
   DependencyHookType, DependenciesHookType } from './hook/dependency.hook';
-import { IdHook, IdHookType } from './hook/id.hook';
-import { LocalizationHook, LocalizationHookType } from './hook/localization.hook';
-import { ResourcesHook, ResourcesHookType } from './hook/resources.hook';
-import { StateHook, StateHookType } from './hook/state.hook';
-import { ContextHoc, ContextHocType } from './hoc/context.hoc';
-import { StateHoc, StateHocType } from './hoc/state.hoc';
-import { ResourcesHoc, ResourcesHocType } from './hoc/resources.hoc';
-import { LocalizationHoc, LocalizationHocType } from './hoc/localization.hoc';
+import { useId, IdHookType } from './hook/id.hook';
+import { useLocalization, LocalizationHookType } from './hook/localization.hook';
+import { useResources, ResourcesHookType } from './hook/resources.hook';
+import { useState, StateHookType } from './hook/state.hook';
+import { withContext, ContextHocType } from './hoc/context.hoc';
+import { withState, StateHocType } from './hoc/state.hoc';
+import { withResources, ResourcesHocType } from './hoc/resources.hoc';
+import { withLocalization, LocalizationHocType } from './hoc/localization.hoc';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
 import { PreloaderApi } from './api/preloader.api';
@@ -83,22 +83,22 @@ export interface LiguiApi {
 }
 
 export interface LiguiHoc {
-  context: ContextHocType;
-  localization: LocalizationHocType;
-  resources: ResourcesHocType;
-  state: StateHocType;
+  withContext: ContextHocType;
+  withLocalization: LocalizationHocType;
+  withResources: ResourcesHocType;
+  withState: StateHocType;
 }
 
 export interface LiguiHook {
-  id: IdHookType;
-  dependency: DependencyHookType;
-  dependencies: DependenciesHookType;
-  localization: LocalizationHookType;
-  resources: ResourcesHookType;
-  state: StateHookType;
+  useId: IdHookType;
+  useDependency: DependencyHookType;
+  useDependencies: DependenciesHookType;
+  useLocalization: LocalizationHookType;
+  useResources: ResourcesHookType;
+  useState: StateHookType;
 }
 
-export interface Ligui extends ContainerService {
+export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
   readonly jsx: JSXService;
   readonly rest: RestService;
   readonly store: StoreService;
@@ -141,6 +141,22 @@ export const prepareFunctionCall = <T extends Function>(func: T, ...flags: boole
   ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>) =>
   !func || flags.findIndex(it => !it) >= 0 ? (() => () => null) as any : (...args) => () => func(...args);
 
+let api: LiguiApi = {};
+let hoc: LiguiHoc = {
+  withContext,
+  withLocalization,
+  withResources,
+  withState
+};
+let hooks: LiguiHook = {
+  useId,
+  useDependency,
+  useDependencies,
+  useLocalization,
+  useResources,
+  useState,
+};
+
 export function setupLigui(config: LiguiConfig): void {
   if (ligui) {
     throw new Error('Ligui can setup only once.');
@@ -152,22 +168,6 @@ export function setupLigui(config: LiguiConfig): void {
   containerService.container.bind<ResourceService>(LiguiTypes.RESOURCE_SERVICE).toConstantValue(resourceService);
   containerService.container.bind<ContainerService>(LiguiTypes.CONTAINER_SERVICE).toConstantValue(containerService);
   containerService.container.bind<LocalizationService>(LiguiTypes.LOCALIZATION_SERVICE).toConstantValue(localizationService);
-
-  let api: LiguiApi = {};
-  let hoc: LiguiHoc = {
-    context: ContextHoc,
-    localization: LocalizationHoc,
-    resources: ResourcesHoc,
-    state: StateHoc
-  };
-  let hooks: LiguiHook = {
-    id: IdHook,
-    dependency: DependencyHook,
-    dependencies: DependenciesHook,
-    localization: LocalizationHook,
-    resources: ResourcesHook,
-    state: StateHook,
-  };
 
   if (config.api) {
     api = config.api;
@@ -254,7 +254,7 @@ export function setupLigui(config: LiguiConfig): void {
     resolveFunctionCall,
     prepareFunctionCall,
     createUniqueIdGenerator
-  }, containerService));
+  }, containerService, hoc, hooks));
 
   if (config.globalName) {
     global[config.globalName] = ligui;

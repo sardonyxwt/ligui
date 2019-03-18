@@ -19,7 +19,7 @@ export type StateHocType = <T>(scope: string | Scope<T>, actions?: string[], ret
 const scopeActionTree: ScopeActionTree = {};
 const stateHocListenerIdGenerator = createUniqueIdGenerator('StateHoc');
 
-export function StateHoc<T>(scope: string | Scope<T>, actions: string[] = null, retention = 0) {
+export function withState<T>(scope: string | Scope<T>, actions: string[] = null, retention = 0) {
 
   return <P extends {}, C extends React.ComponentType<P> = React.ComponentType<P>>(
     Component: C

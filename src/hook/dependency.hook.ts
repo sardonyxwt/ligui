@@ -7,7 +7,7 @@ const isTaggedDependency = (key?: ContainerKey, value?: any) => typeof key !== '
 export type DependencyHookType = <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T;
 export type DependenciesHookType = <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T[];
 
-export function DependencyHook <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T {
+export function useDependency <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T {
   return React.useMemo(() => {
     if (isTaggedDependency(keyOrName, value)) {
       return containerService.resolveTagged<T>(id, keyOrName, value);
@@ -19,7 +19,7 @@ export function DependencyHook <T = any>(id: ContainerId<T>, keyOrName?: Contain
   }, [id, keyOrName, value]);
 }
 
-export function DependenciesHook <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T[] {
+export function useDependencies <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T[] {
   return React.useMemo(() => {
     if (isTaggedDependency(keyOrName, value)) {
       return containerService.resolveAllTagged<T>(id, keyOrName, value);

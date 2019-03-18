@@ -20,7 +20,7 @@ const localizationHocListenerIdGenerator = createUniqueIdGenerator('Localization
 localizationService.onChangeLocale(() =>
   Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key]()));
 
-export function LocalizationHoc(keys: string[], Preloader?: React.ComponentType) {
+export function withLocalization(keys: string[], Preloader?: React.ComponentType) {
 
   return <P extends LocalizationHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(
     Component: C

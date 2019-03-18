@@ -77,20 +77,20 @@ export interface LiguiApi {
     notification?: NotificationApi;
 }
 export interface LiguiHoc {
-    context: ContextHocType;
-    localization: LocalizationHocType;
-    resources: ResourcesHocType;
-    state: StateHocType;
+    withContext: ContextHocType;
+    withLocalization: LocalizationHocType;
+    withResources: ResourcesHocType;
+    withState: StateHocType;
 }
 export interface LiguiHook {
-    id: IdHookType;
-    dependency: DependencyHookType;
-    dependencies: DependenciesHookType;
-    localization: LocalizationHookType;
-    resources: ResourcesHookType;
-    state: StateHookType;
+    useId: IdHookType;
+    useDependency: DependencyHookType;
+    useDependencies: DependenciesHookType;
+    useLocalization: LocalizationHookType;
+    useResources: ResourcesHookType;
+    useState: StateHookType;
 }
-export interface Ligui extends ContainerService {
+export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
     readonly jsx: JSXService;
     readonly rest: RestService;
     readonly store: StoreService;

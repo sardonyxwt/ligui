@@ -5,6 +5,6 @@ const idHookListenerIdGenerator = createUniqueIdGenerator('ResourcesHook');
 
 export type IdHookType = () => string;
 
-export function IdHook (): string {
+export function useId (): string {
   return React.useMemo(() => idHookListenerIdGenerator(), [true]);
 }

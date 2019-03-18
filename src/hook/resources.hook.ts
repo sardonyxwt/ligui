@@ -10,7 +10,7 @@ const resourcesHookListenerIdGenerator = createUniqueIdGenerator('ResourcesHook'
 resourceService.onSetResource(e =>
   Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key](e)));
 
-export function ResourcesHook (keys: string[]) {
+export function useResources (keys: string[]) {
   const [resources, setResources] = React.useState<Resources>(() => {
     if (resourceService.isResourcesLoaded(keys)) {
       return resourceService.resources;

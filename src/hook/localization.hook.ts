@@ -12,7 +12,7 @@ const localizationHookListenerIdGenerator = createUniqueIdGenerator('Localizatio
 localizationService.onChangeLocale(() =>
   Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key]()));
 
-export function LocalizationHook (keys: string[], fallbackTranslator: Translator = null) {
+export function useLocalization (keys: string[], fallbackTranslator: Translator = null) {
   const [translator, setTranslator] = React.useState<Translator>(() => {
     if (localizationService.isLocalizationsLoaded(keys)) {
       return localizationService.translate;

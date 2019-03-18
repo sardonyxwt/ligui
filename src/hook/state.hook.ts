@@ -13,7 +13,7 @@ export type StateHookType = <T = any>(scope: string | Scope<T>, actions?: string
 const scopeActionTree: ScopeActionTree = {};
 const stateHookListenerIdGenerator = createUniqueIdGenerator('StateHook');
 
-export function StateHook<T = any>(scope: string | Scope<T>, actions: string[] = null, retention = 0): T {
+export function useState<T = any>(scope: string | Scope<T>, actions: string[] = null, retention = 0): T {
   const resolvedScope = typeof scope === 'string' ? storeService.getScope(scope) : scope;
   const [state, setState] = React.useState(resolvedScope.state);
 

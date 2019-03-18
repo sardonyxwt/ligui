@@ -27,7 +27,7 @@ const resourcesHocListenerIdGenerator = createUniqueIdGenerator('ResourcesHoc');
 resourceService.onSetResource(e =>
   Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key](e)));
 
-export function ResourcesHoc(keys: string[], Preloader?: React.ComponentType) {
+export function withResources(keys: string[], Preloader?: React.ComponentType) {
 
   return <P extends ResourceHOCInjectedProps, C extends React.ComponentType<P> = React.ComponentType<P>>(
     Component: C

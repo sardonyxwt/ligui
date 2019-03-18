@@ -8,7 +8,7 @@ export interface ContextHOCInjectedProps<TContext> {
 export type ContextHocType = <TContext>(Consumer: React.Consumer<TContext>) =>
   <P extends ContextHOCInjectedProps<TContext>, C extends React.ComponentType<P> = React.ComponentType<P>>(Component: C) => C;
 
-export function ContextHoc<TContext>(Consumer: React.Consumer<TContext>) {
+export function withContext<TContext>(Consumer: React.Consumer<TContext>) {
 
   return <P extends ContextHOCInjectedProps<TContext>, C extends React.ComponentType<P> = React.ComponentType<P>>(
     Component: C
