@@ -21,6 +21,7 @@ export * from './hook/id.hook';
 export * from './hook/localization.hook';
 export * from './hook/resources.hook';
 export * from './hook/state.hook';
+export * from './hook/ref.hook';
 export * from './hoc/context.hoc';
 export * from './hoc/state.hoc';
 export * from './hoc/resources.hoc';
@@ -44,6 +45,7 @@ import { useDependency, useDependencies,
   DependencyHookType, DependenciesHookType } from './hook/dependency.hook';
 import { useId, IdHookType } from './hook/id.hook';
 import { useLocalization, LocalizationHookType } from './hook/localization.hook';
+import { useRef, RefHookType } from './hook/ref.hook';
 import { useResources, ResourcesHookType } from './hook/resources.hook';
 import { useState, StateHookType } from './hook/state.hook';
 import { withContext, ContextHocType } from './hoc/context.hoc';
@@ -96,6 +98,7 @@ export interface LiguiHook {
   useLocalization: LocalizationHookType;
   useResources: ResourcesHookType;
   useState: StateHookType;
+  useRef: RefHookType;
 }
 
 export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
@@ -155,6 +158,7 @@ let hooks: LiguiHook = {
   useLocalization,
   useResources,
   useState,
+  useRef
 };
 
 export function setupLigui(config: LiguiConfig): void {

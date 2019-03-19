@@ -21,6 +21,7 @@ export * from './hook/id.hook';
 export * from './hook/localization.hook';
 export * from './hook/resources.hook';
 export * from './hook/state.hook';
+export * from './hook/ref.hook';
 export * from './hoc/context.hoc';
 export * from './hoc/state.hoc';
 export * from './hoc/resources.hoc';
@@ -41,6 +42,7 @@ import { LocalizationService } from './service/localization.service';
 import { DependencyHookType, DependenciesHookType } from './hook/dependency.hook';
 import { IdHookType } from './hook/id.hook';
 import { LocalizationHookType } from './hook/localization.hook';
+import { RefHookType } from './hook/ref.hook';
 import { ResourcesHookType } from './hook/resources.hook';
 import { StateHookType } from './hook/state.hook';
 import { ContextHocType } from './hoc/context.hoc';
@@ -89,6 +91,7 @@ export interface LiguiHook {
     useLocalization: LocalizationHookType;
     useResources: ResourcesHookType;
     useState: StateHookType;
+    useRef: RefHookType;
 }
 export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
     readonly jsx: JSXService;
