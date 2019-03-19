@@ -7,7 +7,8 @@ export interface JSXService {
   render<T extends {}>(container: Element, element: React.ReactElement<T>);
   renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
   classes(...classes: (string | [string, boolean])[]): string;
-  eventTrap(evt: React.MouseEvent | React.TouchEvent | React.KeyboardEvent): void;
+  eventTrap(evt: MouseEvent | KeyboardEvent | TouchEvent
+    | React.MouseEvent | React.TouchEvent | React.KeyboardEvent, includeNative?: boolean): void;
   mergeRefs<T>(...refs: Array<React.Ref<T>>): (ref: T) => void;
 }
 
@@ -28,12 +29,14 @@ export const classes = (...classes: (string | [string, boolean])[]) => {
   return resultClasses.join(' ')
 };
 
-export const eventTrap = (evt: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => {
+export const eventTrap = (evt: MouseEvent | KeyboardEvent | TouchEvent
+  | React.MouseEvent | React.TouchEvent | React.KeyboardEvent, includeNative = true) => {
   evt.preventDefault();
   evt.stopPropagation();
-  evt.nativeEvent.preventDefault();
-  evt.nativeEvent.stopPropagation();
-  evt.nativeEvent.stopImmediatePropagation();
+  if (evt['nativeEvent'] && includeNative) {
+    evt['nativeEvent'].preventDefault();
+    evt['nativeEvent'].stopPropagation();
+  }
 };
 
 export const mergeRefs = <T>(...refs: Array<React.Ref<T>>) => (ref: T) => {
