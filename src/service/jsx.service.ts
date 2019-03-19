@@ -8,6 +8,7 @@ export interface JSXService {
   renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
   classes(...classes: (string | [string, boolean])[]): string;
   eventTrap(evt: React.MouseEvent | React.TouchEvent | React.KeyboardEvent): void;
+  mergeRefs<T>(...refs: Array<React.Ref<T>>): (ref: T) => void;
 }
 
 const factories: {[factoryName: string]: React.Factory<{}>} = {};
@@ -33,6 +34,16 @@ export const eventTrap = (evt: React.MouseEvent | React.TouchEvent | React.Keybo
   evt.nativeEvent.preventDefault();
   evt.nativeEvent.stopPropagation();
   evt.nativeEvent.stopImmediatePropagation();
+};
+
+export const mergeRefs = <T>(...refs: Array<React.Ref<T>>) => (ref: T) => {
+  refs.filter(resolvedRef => !!resolvedRef).map(resolvedRef => {
+    if (typeof resolvedRef === 'function') {
+      resolvedRef(ref);
+    } else {
+      (resolvedRef as any).current = ref;
+    }
+  });
 };
 
 const registerFactory = <T extends {}>(name: string, factory: React.Factory<T>) => {
@@ -63,5 +74,6 @@ export const jsxService: JSXService = Object.freeze({
   render,
   renderComponent,
   eventTrap,
-  classes
+  classes,
+  mergeRefs
 });
