@@ -1,6 +1,6 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "6.5.51",
+  "version": "6.6.0",
   "description": "Ligui",
   "main": "dist/ligui.min.js",
   "typings": "dist/@types/index.d.ts",
@@ -43,8 +43,8 @@
     "testRegex": "/(test|src)/.*\\.(test|spec)\\.(ts|js)$"
   },
   "dependencies": {
-    "@sardonyxwt/event-bus": "1.0.2",
-    "@sardonyxwt/state-store": "4.4.4",
+    "@sardonyxwt/event-bus": "1.1.0",
+    "@sardonyxwt/state-store": "4.5.1",
     "@sardonyxwt/utils": "2.1.1",
     "inversify": "^5.0.1",
     "react": "16.8.4",
