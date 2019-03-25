@@ -2,9 +2,9 @@ export declare type Builder<T, D = T> = {
     set: <K extends keyof D>(key: K, value: D[K]) => Builder<T, D>;
     setFrom: (data: Partial<D>) => Builder<T, D>;
     build: () => T;
-} & Partial<{
+} & {
     [K in keyof D]: (value: D[K]) => Builder<T, D>;
-}>;
+};
 export interface EntityHelper<T, D = T> {
     builder?: (initProps?: BuilderProps<D>) => Builder<T, D>;
     clone?: (source: T) => T;
