@@ -82,7 +82,7 @@ export const arrayFrom = <T>(...sources: (T | T[])[]): T[] => copyArrays(...sour
 export const entity =
   <T extends {}>(props: BuilderProps<T> = {}) => <C extends new (...args: any[]) => any>(constructor: C) => {
 
-    const builder = (initProps?) => createBuilder(constructor, Object.assign(props || {}, initProps));
+    const builder = (initProps?: BuilderProps<T>) => createBuilder(constructor, Object.assign(props || {}, initProps));
 
     constructor['$'] = {
       builder,
