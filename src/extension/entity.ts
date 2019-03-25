@@ -17,8 +17,12 @@ export interface EntityHelper<T, D = T>  {
   arrayFrom?: (...sources: (T | T[])[]) => T[];
 }
 
-function createBuilder(constructor, defaultParams = {}) {
-  const tempObj = Object.assign({}, defaultParams);
+export type BuilderProps<T = {}> = Partial<{
+  [K in keyof T]: ((entity: T) => T[K]) | T[K]
+}>
+
+function createBuilder(constructor, defaultParams: BuilderProps = {}) {
+  const tempObj = Object.create({});
 
   const builder = new Proxy({
     set: (key, value) => {
@@ -34,6 +38,17 @@ function createBuilder(constructor, defaultParams = {}) {
     build: () =>  {
       const object = new constructor();
       Object.getOwnPropertyNames(tempObj).forEach(key => object[key] = tempObj[key]);
+      Object.getOwnPropertyNames(defaultParams).forEach(key => {
+        if (object[key] !== undefined) {
+          return;
+        }
+        const defaultPropertyValue = defaultParams[key];
+        if (typeof defaultPropertyValue === 'function') {
+          object[key] = defaultPropertyValue(object);
+        } else {
+          object[key] = defaultPropertyValue;
+        }
+      });
       return object;
     }
   }, {
@@ -65,11 +80,9 @@ export const resolveArray = <T>(source: T | T[]): T[] => Array.isArray(source) ?
 export const arrayFrom = <T>(...sources: (T | T[])[]): T[] => copyArrays(...sources.map(resolveArray));
 
 export const entity =
-  <T extends {}>(props: {
-    defaultProps?: Partial<T>;
-  } = {}) => <C extends new (...args: any[]) => any>(constructor: C) => {
+  <T extends {}>(props: BuilderProps<T> = {}) => <C extends new (...args: any[]) => any>(constructor: C) => {
 
-    const builder = (initProps?) => createBuilder(constructor, props.defaultProps || initProps);
+    const builder = (initProps?) => createBuilder(constructor, Object.assign(props || {}, initProps));
 
     constructor['$'] = {
       builder,
