@@ -128,6 +128,7 @@ export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
   prepareFunctionCall<T extends Function>(func: T, ...flags: boolean[]):
     ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
   createUniqueIdGenerator(prefix: string): Generator<string>;
+  charFromHexCode(hexCode: string): string;
 }
 
 export let ligui: Ligui = null;
@@ -143,6 +144,9 @@ export const resolveFunctionCall = <T extends Function>(func: T, ...flags: boole
 export const prepareFunctionCall = <T extends Function>(func: T, ...flags: boolean[]):
   ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>) =>
   !func || flags.findIndex(it => !it) >= 0 ? (() => () => null) as any : (...args) => () => func(...args);
+
+// ToDo move to utils package
+export const charFromHexCode = hexCode => String.fromCharCode(parseInt(hexCode, 16));
 
 let api: LiguiApi = {};
 let hoc: LiguiHoc = {
@@ -257,7 +261,8 @@ export function setupLigui(config: LiguiConfig): void {
     generateSalt,
     resolveFunctionCall,
     prepareFunctionCall,
-    createUniqueIdGenerator
+    createUniqueIdGenerator,
+    charFromHexCode
   }, containerService, hoc, hooks));
 
   if (config.globalName) {

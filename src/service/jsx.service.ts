@@ -1,6 +1,20 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
+export interface CommonProps {
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export interface ChildProps<T = React.ReactNode> {
+  children?: T;
+}
+
+export interface ChildrenProps<T = React.ReactNode> {
+  children?: T | T[];
+}
+
+
 export interface JSXService {
   registerFactory<T extends {}>(name: string, factory: React.Factory<T>): void;
   node<T extends {}>(name: string, props?: T, ...children: React.ReactNode[]): React.ReactElement<T>;
