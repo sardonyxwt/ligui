@@ -17,3 +17,18 @@ export abstract class DoubleSidedConverter<IN, OUT> extends Converter<IN, OUT> {
   }
 
 }
+
+export abstract class StraightConverter<IN, INTERMEDIATE, OUT = IN> {
+
+  abstract convertTo(source: IN): INTERMEDIATE;
+  abstract convertFrom(source: INTERMEDIATE): OUT;
+
+  convertToArray(sources: IN[]): INTERMEDIATE[] {
+    return sources.map(this.convertTo);
+  }
+
+  convertFromArray(sources: INTERMEDIATE[]): OUT[] {
+    return sources.map(this.convertFrom);
+  }
+
+}
