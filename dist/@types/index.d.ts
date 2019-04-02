@@ -21,6 +21,7 @@ export * from './hook/id.hook';
 export * from './hook/localization.hook';
 export * from './hook/resources.hook';
 export * from './hook/state.hook';
+export * from './hook/pocket.hook';
 export * from './hook/ref.hook';
 export * from './hoc/context.hoc';
 export * from './hoc/state.hoc';
@@ -45,6 +46,7 @@ import { LocalizationHookType } from './hook/localization.hook';
 import { RefHookType } from './hook/ref.hook';
 import { ResourcesHookType } from './hook/resources.hook';
 import { StateHookType } from './hook/state.hook';
+import { PocketHookType } from './hook/pocket.hook';
 import { ContextHocType } from './hoc/context.hoc';
 import { StateHocType } from './hoc/state.hoc';
 import { ResourcesHocType } from './hoc/resources.hoc';
@@ -92,7 +94,14 @@ export interface LiguiHook {
     useResources: ResourcesHookType;
     useState: StateHookType;
     useRef: RefHookType;
+    usePocket: PocketHookType;
 }
+export declare type Parameters<T> = T extends (...args: infer T) => any ? T : never;
+export declare type ReturnType<T> = T extends (...args: any[]) => infer T ? T : never;
+export declare const resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
+export declare const prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => (...args: Parameters<T>) => () => ReturnType<T>;
+export declare type DeferredCall = <T extends (...args: any[]) => void>(f: T, waitTime: number) => T;
+export declare const deferred: DeferredCall;
 export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
     readonly jsx: JSXService;
     readonly rest: RestService;
@@ -112,6 +121,7 @@ export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
     arrayFrom: <T>(...sources: (T | T[])[]) => T[];
     generateUUID: Generator<string>;
     generateSalt: Generator<string>;
+    deferred: DeferredCall;
     flatten(data: object): object;
     unflatten(data: object): object;
     stringifyValue(value: any): string;
@@ -122,9 +132,5 @@ export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
     charFromHexCode(hexCode: string): string;
 }
 export declare let ligui: Ligui;
-export declare type Parameters<T> = T extends (...args: infer T) => any ? T : never;
-export declare type ReturnType<T> = T extends (...args: any[]) => infer T ? T : never;
-export declare const resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
-export declare const prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => (...args: Parameters<T>) => () => ReturnType<T>;
 export declare const charFromHexCode: (hexCode: any) => string;
 export declare function setupLigui(config: LiguiConfig): void;

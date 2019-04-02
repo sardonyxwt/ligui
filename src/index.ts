@@ -21,6 +21,7 @@ export * from './hook/id.hook';
 export * from './hook/localization.hook';
 export * from './hook/resources.hook';
 export * from './hook/state.hook';
+export * from './hook/pocket.hook';
 export * from './hook/ref.hook';
 export * from './hoc/context.hoc';
 export * from './hoc/state.hoc';
@@ -48,6 +49,7 @@ import { useLocalization, LocalizationHookType } from './hook/localization.hook'
 import { useRef, RefHookType } from './hook/ref.hook';
 import { useResources, ResourcesHookType } from './hook/resources.hook';
 import { useState, StateHookType } from './hook/state.hook';
+import { usePocket, PocketHookType } from './hook/pocket.hook';
 import { withContext, ContextHocType } from './hoc/context.hoc';
 import { withState, StateHocType } from './hoc/state.hoc';
 import { withResources, ResourcesHocType } from './hoc/resources.hoc';
@@ -99,7 +101,30 @@ export interface LiguiHook {
   useResources: ResourcesHookType;
   useState: StateHookType;
   useRef: RefHookType;
+  usePocket: PocketHookType;
 }
+
+export type Parameters<T> = T extends (... args: infer T) => any ? T : never;
+export type ReturnType<T> = T extends (... args: any[]) => infer T ? T : never;
+
+// ToDo move to utils package
+export const resolveFunctionCall = <T extends Function>(func: T, ...flags: boolean[]): T =>
+  !func || flags.findIndex(it => !it) >= 0 ? (() => null) as any : func;
+
+// ToDo move to utils package
+export const prepareFunctionCall = <T extends Function>(func: T, ...flags: boolean[]):
+  ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>) =>
+  !func || flags.findIndex(it => !it) >= 0 ? (() => () => null) as any : (...args) => () => func(...args);
+
+// ToDo move to utils package
+export type DeferredCall = <T extends (...args) => void>(f: T, waitTime: number) => T;
+export const deferred: DeferredCall = <T extends (...args) => void>(f: T, waitTime: number) => {
+  let timeoutId = null;
+  return ((...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => f(...args), waitTime);
+  }) as T;
+};
 
 export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
   readonly jsx: JSXService;
@@ -120,6 +145,7 @@ export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
   arrayFrom: <T>(...sources: (T | T[])[]) => T[];
   generateUUID: Generator<string>;
   generateSalt: Generator<string>;
+  deferred: DeferredCall;
   flatten(data: object): object;
   unflatten(data: object): object;
   stringifyValue(value): string;
@@ -132,18 +158,6 @@ export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
 }
 
 export let ligui: Ligui = null;
-
-export type Parameters<T> = T extends (... args: infer T) => any ? T : never;
-export type ReturnType<T> = T extends (... args: any[]) => infer T ? T : never;
-
-// ToDo move to utils package
-export const resolveFunctionCall = <T extends Function>(func: T, ...flags: boolean[]): T =>
-  !func || flags.findIndex(it => !it) >= 0 ? (() => null) as any : func;
-
-// ToDo move to utils package
-export const prepareFunctionCall = <T extends Function>(func: T, ...flags: boolean[]):
-  ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>) =>
-  !func || flags.findIndex(it => !it) >= 0 ? (() => () => null) as any : (...args) => () => func(...args);
 
 // ToDo move to utils package
 export const charFromHexCode = hexCode => String.fromCharCode(parseInt(hexCode, 16));
@@ -162,7 +176,8 @@ let hooks: LiguiHook = {
   useLocalization,
   useResources,
   useState,
-  useRef
+  useRef,
+  usePocket
 };
 
 export function setupLigui(config: LiguiConfig): void {
@@ -259,6 +274,7 @@ export function setupLigui(config: LiguiConfig): void {
     stringifyValue,
     generateUUID,
     generateSalt,
+    deferred,
     resolveFunctionCall,
     prepareFunctionCall,
     createUniqueIdGenerator,
