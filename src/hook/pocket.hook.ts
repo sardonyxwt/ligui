@@ -5,13 +5,16 @@ export type PocketHookType = <T extends {}>(initialValue: T) => T;
 
 const pocketIdGenerator = createUniqueIdGenerator('PocketId');
 
-const pockets: {[id: string]: object} = {};
+const pockets: { [id: string]: object } = {};
 
 export function usePocket<T extends {}>(initialValue: T): T {
   const pocketId = React.useMemo(() => pocketIdGenerator(), []);
 
-  React.useEffect(() => {
+  if (!(pocketId in pockets)) {
     pockets[pocketId] = initialValue;
+  }
+
+  React.useEffect(() => {
     return () => delete pockets[pocketId];
   }, []);
 
