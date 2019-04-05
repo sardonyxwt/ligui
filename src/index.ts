@@ -6,6 +6,7 @@ export * from './api/preloader.api';
 export * from './api/toast.api';
 export * from './extension/converter';
 export * from './extension/entity';
+export * from './extension/data';
 export * from './scope/localization.scope';
 export * from './scope/resource.scope';
 export * from './loader/localization.loader';
@@ -160,7 +161,7 @@ export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
 export let ligui: Ligui = null;
 
 // ToDo move to utils package
-export const charFromHexCode = hexCode => String.fromCharCode(parseInt(hexCode, 16));
+export const charFromHexCode = (hexCode: string) => String.fromCharCode(parseInt(hexCode, 16));
 
 let api: LiguiApi = {};
 let hoc: LiguiHoc = {
