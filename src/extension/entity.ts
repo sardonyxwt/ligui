@@ -1,27 +1,34 @@
-export type Builder<T, D = T> = {
-  set: <K extends keyof D>(key: K, value: D[K]) => Builder<T, D>;
-  setFrom: (data: Partial<D>) => Builder<T, D>;
+// ToDo refactoring
+
+export type Builder<T> = {
+  set: <K extends keyof T>(key: K, value: T[K]) => Builder<T>;
+  setFrom: (data: Partial<T>) => Builder<T>;
   build: () => T;
 } & {
-  [K in keyof D]: (value: D[K]) => Builder<T, D>;
-}
-
-export interface EntityHelper<T, D = T>  {
-  builder?: (initProps?: BuilderProps<D>) => Builder<T, D>;
-  clone?: (source: T) => T;
-  cloneArray?: (sources: T[]) => T[];
-  cloneArrays?: (...sources: (T[])[]) => T[];
-  copyArray?: (sources: T[]) => T[];
-  copyArrays?: (...sources: (T[])[]) => T[];
-  resolveArray?: (source: T | T[]) => T[];
-  arrayFrom?: (...sources: (T | T[])[]) => T[];
+  [K in keyof T]: (value: T[K]) => Builder<T>;
 }
 
 export type BuilderProps<T = {}> = Partial<{
   [K in keyof T]: ((entity: T) => T[K]) | T[K]
 }>
 
-function createBuilder(constructor, defaultParams: BuilderProps = {}) {
+export type BuilderFactory = <T>(clazz: new (...args) => T, initProps?: BuilderProps<T>) => () => Builder<T>
+
+export interface Decorator {
+  (target: Function): void;
+  (target: Object, propertyKey: string | symbol): void;
+}
+
+export type Mapping = string | ((source) => any) | [string | ((source) => any), MappingResolver<any>];
+export type MappingDecorator = (mapping?: Mapping, defaultValue?) => Decorator;
+export type MappingDecoratorFactory = (sourceId?: string) => MappingDecorator;
+export interface MappingResolver<T> {
+  from: (source: any) => T;
+  fromArray: (source: any) => T[];
+}
+export type MappingResolverFactory = <T>(clazz: new (...args) => T, sourceId?: string) => MappingResolver<T>;
+
+function createBuilder<T>(clazz: new (...args) => T, defaultParams: BuilderProps<T> = {}): Builder<T> {
   const tempObj = Object.create({});
 
   const builder = new Proxy({
@@ -36,7 +43,7 @@ function createBuilder(constructor, defaultParams: BuilderProps = {}) {
       return builder;
     },
     build: () =>  {
-      const object = new constructor();
+      const object = new (clazz as any)();
       Object.getOwnPropertyNames(tempObj).forEach(key => object[key] = tempObj[key]);
       Object.getOwnPropertyNames(defaultParams).forEach(key => {
         if (object[key] !== undefined) {
@@ -59,7 +66,7 @@ function createBuilder(constructor, defaultParams: BuilderProps = {}) {
     }
   });
 
-  return builder;
+  return builder as Builder<T>;
 }
 
 export const clone = <T>(source: T): T => Object.assign( Object.create( Object.getPrototypeOf(source)), source);
@@ -79,23 +86,89 @@ export const copyArrays = <T>(...sourceArrays: (T[])[]): T[] => {
 export const resolveArray = <T>(source: T | T[]): T[] => Array.isArray(source) ? source : [source];
 export const arrayFrom = <T>(...sources: (T | T[])[]): T[] => copyArrays(...sources.map(resolveArray));
 
-export const entity =
-  <T extends {}>(props: BuilderProps<T> = {}) => <C extends new (...args: any[]) => any>(constructor: C) => {
+export const resolveValue = (object, path: string) => {
+  const pathParts = path.split(/[.\[\]]/).filter(it => it !== '');
+  let result = object;
+  for (let i = 0; i < pathParts.length; i++) {
+    if (!result || typeof result !== 'object') {
+      result = null;
+      break;
+    }
+    result = result[pathParts[i]];
+  }
+  return result;
+};
 
-    const builder = (initProps?: BuilderProps<T>) => createBuilder(constructor, Object.assign(props || {}, initProps));
+export const builderFactory: BuilderFactory = <T> (clazz: new (...args) => T, initProps?: BuilderProps<T>) =>
+  () => createBuilder<T>(clazz, initProps);
 
-    constructor['$'] = {
-      builder,
-      clone,
-      cloneArray,
-      cloneArrays,
-      copyArray,
-      copyArrays,
-      resolveArray,
-      arrayFrom
-    } as EntityHelper<C, T>;
+export const MAPPING_METADATA_KEY = 'metadata:mapping';
+export const MAPPING_DEFAULT_SOURCE_ID = 'default';
 
-    return constructor as C & {
-      $: EntityHelper<C, T>
+const metaKey = (sourceId?: string) => `${MAPPING_METADATA_KEY}:${sourceId || MAPPING_DEFAULT_SOURCE_ID}`;
+
+export const mappingDecoratorFactory: MappingDecoratorFactory = (sourceId?) => {
+  return (mapping?: Mapping, defaultValue = null) => {
+    return Reflect.metadata(metaKey(sourceId), [mapping, defaultValue]);
+  }
+};
+
+export const mapping = mappingDecoratorFactory();
+
+export const mappingResolverFactory: MappingResolverFactory =
+  <T>(clazz: new (...args) => T, sourceId?: string): MappingResolver<T> => {
+  const from = (source: any) => {
+    if (typeof source !== 'object' || Array.isArray(source)) {
+      return null;
+    }
+    const builder = createBuilder(clazz);
+    const resolveMapping = (propertyName, mapping: Mapping, defaultValue) => {
+      if (typeof mapping === 'string') {
+        return resolveValue(source, mapping) || defaultValue;
+      } else if (typeof mapping === 'function') {
+        return mapping(source) || defaultValue;
+      } else {
+        return source[propertyName] || defaultValue;
+      }
     };
+    Object.getOwnPropertyNames(clazz).map(propertyName => {
+      const hasMetadata = Reflect.hasMetadata(metaKey(sourceId), clazz.prototype, propertyName);
+      if (hasMetadata) {
+        const [mapping, defaultValue]: [Mapping, any]
+          = Reflect.getMetadata(metaKey(sourceId), clazz.prototype, propertyName);
+        if (Array.isArray(mapping)) {
+          const value = resolveMapping(propertyName, mapping[0], defaultValue);
+          if (Array.isArray(value)) {
+            builder[propertyName](mapping[1].fromArray(value));
+          } else {
+            builder[propertyName](mapping[1].from(value));
+          }
+        } else {
+          builder[propertyName](resolveMapping(propertyName, mapping, defaultValue));
+        }
+      }
+    });
+    return builder.build() as T;
   };
+  const fromArray = (source: any[]) => {
+    if (typeof source !== 'object' || !Array.isArray(source)) {
+      return null;
+    }
+    return source.map(from);
+  };
+  return {from, fromArray};
+};
+
+export const MAPPING: {
+  date: MappingResolver<Date>;
+  split: (separator: string | RegExp, limit?: number) => MappingResolver<string>;
+} = {
+  date: {
+    from: source => source ? new Date(source) : null,
+    fromArray: source => source ? source.map(MAPPING.date.from) : null
+  },
+  split: (separator: string | RegExp, limit?: number) => ({
+    from: source => source ? source.split(separator, limit) : null,
+    fromArray: source => source ? source.map(MAPPING.split(separator, limit).from) : null
+  })
+};

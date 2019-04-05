@@ -141,7 +141,7 @@ localizationScope.registerMacro('translate', (state, path: string) => {
   const {currentLocale, localizations} = state;
 
   let result = localizations[currentLocale];
-  const pathParts = path.split('.');
+  const pathParts = path.split(/[.\[\]]/).filter(it => it !== '');
 
   for (let i = 0; i < pathParts.length; i++) {
     result = result[pathParts[i]];
