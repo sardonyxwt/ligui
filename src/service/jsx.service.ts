@@ -6,7 +6,7 @@ export interface CommonProps {
   style?: React.CSSProperties;
 }
 
-export interface ChildrenProps<T = React.ReactNode> {
+export interface ChildrenProps<T = React.ReactNode[]> {
   children?: T extends any[] ? T | T[] : T;
 }
 
