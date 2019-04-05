@@ -13,14 +13,8 @@ export type BuilderProps<T = {}> = Partial<{
 }>
 
 export type BuilderFactory = <T>(clazz: new (...args) => T, initProps?: BuilderProps<T>) => () => Builder<T>
-
-export interface Decorator {
-  (target: Function): void;
-  (target: Object, propertyKey: string | symbol): void;
-}
-
 export type Mapping = string | ((source) => any) | [string | ((source) => any), MappingResolver<any>];
-export type MappingDecorator = (mapping?: Mapping, defaultValue?) => Decorator;
+export type MappingDecorator = (mapping?: Mapping, defaultValue?) => PropertyDecorator;
 export type MappingDecoratorFactory = (sourceId?: string) => MappingDecorator;
 export interface MappingResolver<T> {
   from: (source: any) => T;
@@ -109,7 +103,14 @@ const metaKey = (sourceId?: string) => `${MAPPING_METADATA_KEY}:${sourceId || MA
 
 export const mappingDecoratorFactory: MappingDecoratorFactory = (sourceId?) => {
   return (mapping?: Mapping, defaultValue = null) => {
-    return Reflect.metadata(metaKey(sourceId), [mapping, defaultValue]);
+    return (target: Object, propertyKey: string | symbol) => {
+      const metadataKey = metaKey(sourceId);
+      const isPropertyMetadataExist = Reflect.hasMetadata(metadataKey, target);
+      let properties = isPropertyMetadataExist ? Reflect.getMetadata(metadataKey, target) : [];
+      properties.push(propertyKey);
+      Reflect.defineMetadata(metadataKey, properties, target);
+      Reflect.defineMetadata(metadataKey, [mapping, defaultValue], target, propertyKey);
+    }
   }
 };
 
@@ -122,7 +123,6 @@ export const mappingResolverFactory: MappingResolverFactory =
       return null;
     }
 
-    const builder = createBuilder(clazz);
 
     const resolveMapping = (propertyName, mapping: Mapping, defaultValue) => {
       if (typeof mapping === 'string') {
@@ -133,7 +133,16 @@ export const mappingResolverFactory: MappingResolverFactory =
       return source[propertyName] || defaultValue;
     };
 
-    Object.getOwnPropertyNames(clazz.prototype).map(propertyName => {
+    const metadataKey = metaKey(sourceId);
+    const isPropertyMetadataExist = Reflect.hasMetadata(metadataKey, clazz.prototype);
+
+    if (!isPropertyMetadataExist) {
+      throw new Error('Property metadata not exist')
+    }
+
+    const builder = createBuilder(clazz);
+
+    Reflect.getMetadata(metadataKey, clazz.prototype).map(propertyName => {
       const hasMetadata = Reflect.hasMetadata(metaKey(sourceId), clazz.prototype, propertyName);
       if (hasMetadata) {
         const [mapping, defaultValue]: [Mapping, any]

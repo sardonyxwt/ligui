@@ -9,12 +9,8 @@ export declare type BuilderProps<T = {}> = Partial<{
     [K in keyof T]: ((entity: T) => T[K]) | T[K];
 }>;
 export declare type BuilderFactory = <T>(clazz: new (...args: any[]) => T, initProps?: BuilderProps<T>) => () => Builder<T>;
-export interface Decorator {
-    (target: Function): void;
-    (target: Object, propertyKey: string | symbol): void;
-}
 export declare type Mapping = string | ((source: any) => any) | [string | ((source: any) => any), MappingResolver<any>];
-export declare type MappingDecorator = (mapping?: Mapping, defaultValue?: any) => Decorator;
+export declare type MappingDecorator = (mapping?: Mapping, defaultValue?: any) => PropertyDecorator;
 export declare type MappingDecoratorFactory = (sourceId?: string) => MappingDecorator;
 export interface MappingResolver<T> {
     from: (source: any) => T;
