@@ -121,17 +121,19 @@ export const mappingResolverFactory: MappingResolverFactory =
     if (typeof source !== 'object' || Array.isArray(source)) {
       return null;
     }
+
     const builder = createBuilder(clazz);
+
     const resolveMapping = (propertyName, mapping: Mapping, defaultValue) => {
       if (typeof mapping === 'string') {
         return resolveValue(source, mapping) || defaultValue;
       } else if (typeof mapping === 'function') {
         return mapping(source) || defaultValue;
-      } else {
-        return source[propertyName] || defaultValue;
       }
+      return source[propertyName] || defaultValue;
     };
-    Object.getOwnPropertyNames(clazz).map(propertyName => {
+
+    Object.getOwnPropertyNames(clazz.prototype).map(propertyName => {
       const hasMetadata = Reflect.hasMetadata(metaKey(sourceId), clazz.prototype, propertyName);
       if (hasMetadata) {
         const [mapping, defaultValue]: [Mapping, any]
@@ -148,6 +150,7 @@ export const mappingResolverFactory: MappingResolverFactory =
         }
       }
     });
+
     return builder.build() as T;
   };
   const fromArray = (source: any[]) => {
