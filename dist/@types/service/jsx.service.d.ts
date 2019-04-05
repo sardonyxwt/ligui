@@ -3,11 +3,8 @@ export interface CommonProps {
     className?: string;
     style?: React.CSSProperties;
 }
-export interface ChildProps<T = React.ReactNode> {
-    children?: T;
-}
 export interface ChildrenProps<T = React.ReactNode> {
-    children?: T | T[];
+    children?: T extends any[] ? T | T[] : T;
 }
 export interface JSXService {
     registerFactory<T extends {}>(name: string, factory: React.Factory<T>): void;
