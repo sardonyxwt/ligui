@@ -123,7 +123,6 @@ export const mappingResolverFactory: MappingResolverFactory =
       return null;
     }
 
-
     const resolveMapping = (propertyName, mapping: Mapping, defaultValue) => {
       if (typeof mapping === 'string') {
         return resolveValue(source, mapping) || defaultValue;
@@ -143,20 +142,17 @@ export const mappingResolverFactory: MappingResolverFactory =
     const builder = createBuilder(clazz);
 
     Reflect.getMetadata(metadataKey, clazz.prototype).map(propertyName => {
-      const hasMetadata = Reflect.hasMetadata(metaKey(sourceId), clazz.prototype, propertyName);
-      if (hasMetadata) {
-        const [mapping, defaultValue]: [Mapping, any]
-          = Reflect.getMetadata(metaKey(sourceId), clazz.prototype, propertyName);
-        if (Array.isArray(mapping)) {
-          const value = resolveMapping(propertyName, mapping[0], defaultValue);
-          if (Array.isArray(value)) {
-            builder[propertyName](mapping[1].fromArray(value));
-          } else {
-            builder[propertyName](mapping[1].from(value));
-          }
+      const [mapping, defaultValue]: [Mapping, any]
+        = Reflect.getMetadata(metadataKey, clazz.prototype, propertyName);
+      if (Array.isArray(mapping)) {
+        const value = resolveMapping(propertyName, mapping[0], defaultValue);
+        if (Array.isArray(value)) {
+          builder[propertyName](mapping[1].fromArray(value));
         } else {
-          builder[propertyName](resolveMapping(propertyName, mapping, defaultValue));
+          builder[propertyName](mapping[1].from(value));
         }
+      } else {
+        builder[propertyName](resolveMapping(propertyName, mapping, defaultValue));
       }
     });
 
