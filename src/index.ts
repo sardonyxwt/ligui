@@ -36,6 +36,7 @@ import 'reflect-metadata';
 import { createUniqueIdGenerator, generateUUID, generateSalt, Generator } from '@sardonyxwt/utils/generator';
 import { flatten, unflatten, deepFreeze, stringifyValue } from '@sardonyxwt/utils/object';
 import { arrayFrom, clone, cloneArray, cloneArrays, copyArray, copyArrays, resolveArray } from './extension/entity';
+import { Parameters, ReturnType } from './extension/data';
 import { jsxService, JSXService } from './service/jsx.service';
 import { restService, RestService } from './service/rest.service';
 import { storeService, StoreService } from './service/store.service';
@@ -104,9 +105,6 @@ export interface LiguiHook {
   useRef: RefHookType;
   usePocket: PocketHookType;
 }
-
-export type Parameters<T> = T extends (... args: infer T) => any ? T : never;
-export type ReturnType<T> = T extends (... args: any[]) => infer T ? T : never;
 
 // ToDo move to utils package
 export const resolveFunctionCall = <T extends Function>(func: T, ...flags: boolean[]): T =>

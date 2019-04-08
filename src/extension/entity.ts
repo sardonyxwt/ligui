@@ -1,4 +1,4 @@
-// ToDo refactoring
+import { ConstructorParameters, ConstructorReturnType } from './data';
 
 export type Builder<T> = {
   set: <K extends keyof T>(key: K, value: T[K]) => Builder<T>;
@@ -8,11 +8,8 @@ export type Builder<T> = {
   [K in keyof T]: (value: T[K]) => Builder<T>;
 }
 
-export type BuilderProps<T = {}> = Partial<{
-  [K in keyof T]: ((entity: T) => T[K]) | T[K]
-}>
-
-export type BuilderFactory = <T>(clazz: new (...args) => T, initProps?: BuilderProps<T>) => () => Builder<T>
+export type BuilderFactory = <T extends new (...args) => any>(clazz: T) =>
+  (...constructorArgs: ConstructorParameters<typeof clazz>) => Builder<ConstructorReturnType<typeof clazz>>
 export type Mapping = string | ((source) => any) | [string | ((source) => any), MappingResolver<any>];
 export type MappingDecorator = (mapping?: Mapping, defaultValue?) => PropertyDecorator;
 export type MappingDecoratorFactory = (sourceId?: string) => MappingDecorator;
@@ -20,9 +17,13 @@ export interface MappingResolver<T> {
   from: (source: any) => T;
   fromArray: (source: any) => T[];
 }
-export type MappingResolverFactory = <T>(clazz: new (...args) => T, sourceId?: string) => MappingResolver<T>;
+export type MappingResolverFactory = <T extends new (...args) => any>(
+  clazz: T, ...constructorArgs: ConstructorParameters<typeof clazz>
+) => (sourceId?: string) => MappingResolver<ConstructorReturnType<typeof clazz>>;
 
-function createBuilder<T>(clazz: new (...args) => T, defaultParams: BuilderProps<T> = {}): Builder<T> {
+function createBuilder<T extends new (...args) => any>(
+  clazz: T, ...constructorArgs: ConstructorParameters<typeof clazz>
+): Builder<ConstructorReturnType<typeof clazz>> {
   const tempObj = Object.create({});
 
   const builder = new Proxy({
@@ -37,19 +38,8 @@ function createBuilder<T>(clazz: new (...args) => T, defaultParams: BuilderProps
       return builder;
     },
     build: () =>  {
-      const object = new (clazz as any)();
+      const object = new (clazz as any)(...constructorArgs);
       Object.getOwnPropertyNames(tempObj).forEach(key => object[key] = tempObj[key]);
-      Object.getOwnPropertyNames(defaultParams).forEach(key => {
-        if (object[key] !== undefined) {
-          return;
-        }
-        const defaultPropertyValue = defaultParams[key];
-        if (typeof defaultPropertyValue === 'function') {
-          object[key] = defaultPropertyValue(object);
-        } else {
-          object[key] = defaultPropertyValue;
-        }
-      });
       return object;
     }
   }, {
@@ -60,7 +50,7 @@ function createBuilder<T>(clazz: new (...args) => T, defaultParams: BuilderProps
     }
   });
 
-  return builder as Builder<T>;
+  return builder as Builder<ConstructorReturnType<typeof clazz>>;
 }
 
 export const clone = <T>(source: T): T => Object.assign( Object.create( Object.getPrototypeOf(source)), source);
@@ -93,8 +83,8 @@ export const resolveValue = (object, path: string) => {
   return result;
 };
 
-export const builderFactory: BuilderFactory = <T> (clazz: new (...args) => T, initProps?: BuilderProps<T>) =>
-  () => createBuilder<T>(clazz, initProps);
+export const builderFactory: BuilderFactory = <T extends new (...args) => any> (clazz: T) =>
+  (...constructorArgs: ConstructorParameters<typeof clazz>) => createBuilder<T>(clazz, ...constructorArgs);
 
 export const MAPPING_METADATA_KEY = 'metadata:mapping';
 export const MAPPING_DEFAULT_SOURCE_ID = 'default';
@@ -116,55 +106,58 @@ export const mappingDecoratorFactory: MappingDecoratorFactory = (sourceId?) => {
 
 export const mapping = mappingDecoratorFactory();
 
-export const mappingResolverFactory: MappingResolverFactory =
-  <T>(clazz: new (...args) => T, sourceId?: string): MappingResolver<T> => {
-  const from = (source: any) => {
-    if (typeof source !== 'object' || Array.isArray(source)) {
-      return null;
-    }
-
-    const resolveMapping = (propertyName, mapping: Mapping, defaultValue) => {
-      if (typeof mapping === 'string') {
-        return resolveValue(source, mapping) || defaultValue;
-      } else if (typeof mapping === 'function') {
-        return mapping(source) || defaultValue;
+export const mappingResolverFactory: MappingResolverFactory = <T extends new (...args) => any>(
+  clazz: T, ...constructorArgs: ConstructorParameters<typeof clazz>
+) => {
+  return (sourceId?: string): MappingResolver<ConstructorReturnType<typeof clazz>> => {
+    const from = (source: any) => {
+      if (typeof source !== 'object' || Array.isArray(source)) {
+        return null;
       }
-      return source[propertyName] || defaultValue;
-    };
 
-    const metadataKey = metaKey(sourceId);
-    const isPropertyMetadataExist = Reflect.hasMetadata(metadataKey, clazz.prototype);
-
-    if (!isPropertyMetadataExist) {
-      throw new Error('Property metadata not exist')
-    }
-
-    const builder = createBuilder(clazz);
-
-    Reflect.getMetadata(metadataKey, clazz.prototype).map(propertyName => {
-      const [mapping, defaultValue]: [Mapping, any]
-        = Reflect.getMetadata(metadataKey, clazz.prototype, propertyName);
-      if (Array.isArray(mapping)) {
-        const value = resolveMapping(propertyName, mapping[0], defaultValue);
-        if (Array.isArray(value)) {
-          builder[propertyName](mapping[1].fromArray(value));
-        } else {
-          builder[propertyName](mapping[1].from(value));
+      const resolveMapping = (propertyName, mapping: Mapping, defaultValue) => {
+        if (typeof mapping === 'string') {
+          return resolveValue(source, mapping) || defaultValue;
+        } else if (typeof mapping === 'function') {
+          return mapping(source) || defaultValue;
         }
-      } else {
-        builder[propertyName](resolveMapping(propertyName, mapping, defaultValue));
-      }
-    });
+        return source[propertyName] || defaultValue;
+      };
 
-    return builder.build() as T;
-  };
-  const fromArray = (source: any[]) => {
-    if (typeof source !== 'object' || !Array.isArray(source)) {
-      return null;
-    }
-    return source.map(from);
-  };
-  return {from, fromArray};
+      const metadataKey = metaKey(sourceId);
+      const isPropertyMetadataExist = Reflect.hasMetadata(metadataKey, clazz.prototype);
+
+      if (!isPropertyMetadataExist) {
+        throw new Error('Property metadata not exist')
+      }
+
+      const builder = createBuilder(clazz, ...constructorArgs);
+
+      Reflect.getMetadata(metadataKey, clazz.prototype).map(propertyName => {
+        const [mapping, defaultValue]: [Mapping, any]
+          = Reflect.getMetadata(metadataKey, clazz.prototype, propertyName);
+        if (Array.isArray(mapping)) {
+          const value = resolveMapping(propertyName, mapping[0], defaultValue);
+          if (Array.isArray(value)) {
+            builder[propertyName](mapping[1].fromArray(value));
+          } else {
+            builder[propertyName](mapping[1].from(value));
+          }
+        } else {
+          builder[propertyName](resolveMapping(propertyName, mapping, defaultValue));
+        }
+      });
+
+      return builder.build() as ConstructorReturnType<typeof clazz>;
+    };
+    const fromArray = (source: any[]) => {
+      if (typeof source !== 'object' || !Array.isArray(source)) {
+        return null;
+      }
+      return source.map(from);
+    };
+    return {from, fromArray};
+  }
 };
 
 export const MAPPING: {

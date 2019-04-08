@@ -34,6 +34,7 @@ export * from '@sardonyxwt/utils/generator';
 export * from '@sardonyxwt/utils/object';
 import 'reflect-metadata';
 import { Generator } from '@sardonyxwt/utils/generator';
+import { Parameters, ReturnType } from './extension/data';
 import { JSXService } from './service/jsx.service';
 import { RestService } from './service/rest.service';
 import { StoreService } from './service/store.service';
@@ -97,8 +98,6 @@ export interface LiguiHook {
     useRef: RefHookType;
     usePocket: PocketHookType;
 }
-export declare type Parameters<T> = T extends (...args: infer T) => any ? T : never;
-export declare type ReturnType<T> = T extends (...args: any[]) => infer T ? T : never;
 export declare const resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
 export declare const prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => (...args: Parameters<T>) => () => ReturnType<T>;
 export declare type DeferredCall = <T extends (...args: any[]) => void>(f: T, waitTime: number) => T;
