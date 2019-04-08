@@ -9,7 +9,7 @@ export type Builder<T> = {
 }
 
 export type BuilderFactory = <T extends new (...args) => any>(clazz: T) =>
-  (...constructorArgs: ConstructorParameters<typeof clazz>) => Builder<ConstructorReturnType<typeof clazz>>
+  (...constructorArgs: ConstructorParameters<typeof clazz>) => Builder<ConstructorReturnType<T>>
 export type Mapping = string | ((source) => any) | [string | ((source) => any), MappingResolver<any>];
 export type MappingDecorator = (mapping?: Mapping, defaultValue?) => PropertyDecorator;
 export type MappingDecoratorFactory = (sourceId?: string) => MappingDecorator;
@@ -19,11 +19,11 @@ export interface MappingResolver<T> {
 }
 export type MappingResolverFactory = <T extends new (...args) => any>(
   clazz: T, ...constructorArgs: ConstructorParameters<typeof clazz>
-) => (sourceId?: string) => MappingResolver<ConstructorReturnType<typeof clazz>>;
+) => (sourceId?: string) => MappingResolver<ConstructorReturnType<T>>;
 
 function createBuilder<T extends new (...args) => any>(
   clazz: T, ...constructorArgs: ConstructorParameters<typeof clazz>
-): Builder<ConstructorReturnType<typeof clazz>> {
+): Builder<ConstructorReturnType<T>> {
   const tempObj = Object.create({});
 
   const builder = new Proxy({
@@ -50,7 +50,7 @@ function createBuilder<T extends new (...args) => any>(
     }
   });
 
-  return builder as Builder<ConstructorReturnType<typeof clazz>>;
+  return builder as Builder<ConstructorReturnType<T>>;
 }
 
 export const clone = <T>(source: T): T => Object.assign( Object.create( Object.getPrototypeOf(source)), source);
@@ -109,7 +109,7 @@ export const mapping = mappingDecoratorFactory();
 export const mappingResolverFactory: MappingResolverFactory = <T extends new (...args) => any>(
   clazz: T, ...constructorArgs: ConstructorParameters<typeof clazz>
 ) => {
-  return (sourceId?: string): MappingResolver<ConstructorReturnType<typeof clazz>> => {
+  return (sourceId?: string): MappingResolver<ConstructorReturnType<T>> => {
     const from = (source: any) => {
       if (typeof source !== 'object' || Array.isArray(source)) {
         return null;
@@ -148,7 +148,7 @@ export const mappingResolverFactory: MappingResolverFactory = <T extends new (..
         }
       });
 
-      return builder.build() as ConstructorReturnType<typeof clazz>;
+      return builder.build() as ConstructorReturnType<T>;
     };
     const fromArray = (source: any[]) => {
       if (typeof source !== 'object' || !Array.isArray(source)) {
