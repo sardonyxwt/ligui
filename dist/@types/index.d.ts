@@ -133,4 +133,4 @@ export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
 }
 export declare let ligui: Ligui;
 export declare const charFromHexCode: (hexCode: string) => string;
-export declare function setupLigui(config: LiguiConfig): void;
+export declare function setupLigui(config: LiguiConfig): Ligui;
