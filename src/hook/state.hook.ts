@@ -31,7 +31,7 @@ export function useState<T = any>(scope: string | Scope<T>, actions: string[] = 
       }
       if (retention && retention > 0) {
         clearTimeout(timeoutId);
-        timeoutId = window.setTimeout(() => setState(resolvedScope.state), retention);
+        timeoutId = global.setTimeout(() => setState(resolvedScope.state), retention) as any as number;;
         return;
       }
       setState(resolvedScope.state);
