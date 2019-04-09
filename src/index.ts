@@ -1,3 +1,8 @@
+// This code need to use ligui in node environment
+if (typeof global['window'] === 'undefined') {
+  global['window'] = {}
+}
+
 export * from 'inversify';
 export * from './api/contextmenu.api';
 export * from './api/dialog.api';
