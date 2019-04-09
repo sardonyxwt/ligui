@@ -1,8 +1,3 @@
-// This code need to use ligui in node environment
-if (typeof global['window'] === 'undefined') {
-  global['window'] = {}
-}
-
 export * from 'inversify';
 export * from './api/contextmenu.api';
 export * from './api/dialog.api';
@@ -184,7 +179,7 @@ let hooks: LiguiHook = {
   usePocket
 };
 
-export function setupLigui(config: LiguiConfig): void {
+export function setupLigui(config: LiguiConfig): Ligui {
   if (ligui) {
     throw new Error('Ligui can setup only once.');
   }
@@ -289,4 +284,6 @@ export function setupLigui(config: LiguiConfig): void {
     global[config.globalName] = ligui;
     console.log(`Ligui registered in global scope with name: ${config.globalName}`);
   }
+
+  return ligui;
 }
