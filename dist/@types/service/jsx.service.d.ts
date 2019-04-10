@@ -10,7 +10,9 @@ export interface JSXService {
     registerFactory<T extends {}>(name: string, factory: React.Factory<T>): void;
     node<T extends {}>(name: string, props?: T, ...children: React.ReactNode[]): React.ReactElement<T>;
     render<T extends {}>(container: Element, element: React.ReactElement<T>): any;
+    hydrate<T extends {}>(container: Element, element: React.ReactElement<T>): any;
     renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
+    hydrateComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
     classes(...classes: (string | [string, boolean])[]): string;
     eventTrap(evt: MouseEvent | KeyboardEvent | TouchEvent | React.MouseEvent | React.TouchEvent | React.KeyboardEvent, includeNative?: boolean): void;
     mergeRefs<T>(...refs: Array<React.Ref<T>>): (ref: T) => void;

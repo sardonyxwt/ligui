@@ -14,7 +14,9 @@ export interface JSXService {
   registerFactory<T extends {}>(name: string, factory: React.Factory<T>): void;
   node<T extends {}>(name: string, props?: T, ...children: React.ReactNode[]): React.ReactElement<T>;
   render<T extends {}>(container: Element, element: React.ReactElement<T>);
+  hydrate<T extends {}>(container: Element, element: React.ReactElement<T>);
   renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
+  hydrateComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
   classes(...classes: (string | [string, boolean])[]): string;
   eventTrap(evt: MouseEvent | KeyboardEvent | TouchEvent
     | React.MouseEvent | React.TouchEvent | React.KeyboardEvent, includeNative?: boolean): void;
@@ -73,18 +75,29 @@ const node = <T extends {}>(name: string, props?: T, ...children: React.ReactNod
 };
 
 const render = <T extends {}>(container: Element, element: React.ReactElement<T>) => {
-  ReactDOM.render(element, container)
+  ReactDOM.render(element, container);
+};
+
+const hydrate = <T extends {}>(container: Element, element: React.ReactElement<T>) => {
+  ReactDOM.hydrate(element, container);
 };
 
 const renderComponent = <T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]) => {
   ReactDOM.render(node(name, props, children), container)
 };
 
+const hydrateComponent = <T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]) => {
+  ReactDOM.hydrate(node(name, props, children), container);
+};
+
+
 export const jsxService: JSXService = Object.freeze({
   registerFactory,
   node,
   render,
+  hydrate,
   renderComponent,
+  hydrateComponent,
   eventTrap,
   classes,
   mergeRefs
