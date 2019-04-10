@@ -140,8 +140,10 @@ export const mappingResolverFactory: MappingResolverFactory = <T extends new (..
           const value = resolveMapping(propertyName, mapping[0], defaultValue);
           if (Array.isArray(value)) {
             builder[propertyName](mapping[1].fromArray(value));
-          } else {
+          } else if (value) {
             builder[propertyName](mapping[1].from(value));
+          } else {
+            builder[propertyName](defaultValue);
           }
         } else {
           builder[propertyName](resolveMapping(propertyName, mapping, defaultValue));
