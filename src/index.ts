@@ -183,7 +183,7 @@ let hooks: LiguiHook = {
   usePocket
 };
 
-export function setupLigui(config: LiguiConfig, postInstall: (ligui: Ligui) => void): void {
+export function setupLigui(config: LiguiConfig, postInstall?: (ligui: Ligui) => void): void {
   if (ligui) {
     throw new Error('Ligui can setup only once.');
   }
