@@ -64,6 +64,9 @@ import { ResourceScopeConfigureActionProps } from './scope/resource.scope';
 import { LocalizationScopeConfigureActionProps } from './scope/localization.scope';
 import { StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
+declare global {
+    const onLiguiInit: (ligui: Ligui) => void;
+}
 export interface LiguiConfig {
     api?: LiguiApi;
     globalName?: string;

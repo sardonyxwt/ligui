@@ -68,6 +68,10 @@ import { LocalizationScopeConfigureActionProps } from './scope/localization.scop
 import { StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 
+declare global {
+  const onLiguiInit: (ligui: Ligui) => void;
+}
+
 export interface LiguiConfig {
   api?: LiguiApi;
   globalName?: string;
@@ -283,6 +287,8 @@ export function setupLigui(config: LiguiConfig): Ligui {
   if (config.globalName) {
     global[config.globalName] = ligui;
   }
+
+  resolveFunctionCall(onLiguiInit)(ligui);
 
   return ligui;
 }
