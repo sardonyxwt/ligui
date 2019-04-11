@@ -110,8 +110,6 @@ export interface LiguiHook {
   usePocket: PocketHookType;
 }
 
-onLiguiInit = onLiguiInit || (() => null);
-
 // ToDo move to utils package
 export const resolveFunctionCall = <T extends Function>(func: T, ...flags: boolean[]): T =>
   !func || flags.findIndex(it => !it) >= 0 ? (() => null) as any : func;
@@ -185,7 +183,7 @@ let hooks: LiguiHook = {
   usePocket
 };
 
-export function setupLigui(config: LiguiConfig): Ligui {
+export function setupLigui(config: LiguiConfig, postInstall: (ligui: Ligui) => void): void {
   if (ligui) {
     throw new Error('Ligui can setup only once.');
   }
@@ -290,7 +288,6 @@ export function setupLigui(config: LiguiConfig): Ligui {
     global[config.globalName] = ligui;
   }
 
-  resolveFunctionCall(onLiguiInit)(ligui);
-
-  return ligui;
+  resolveFunctionCall(postInstall)(ligui);
+  resolveFunctionCall(global['onLiguiInit'])(ligui);
 }
