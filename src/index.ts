@@ -282,7 +282,6 @@ export function setupLigui(config: LiguiConfig): Ligui {
 
   if (config.globalName) {
     global[config.globalName] = ligui;
-    console.log(`Ligui registered in global scope with name: ${config.globalName}`);
   }
 
   return ligui;
