@@ -69,7 +69,7 @@ import { StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 
 declare global {
-  const onLiguiInit: (ligui: Ligui) => void;
+  let onLiguiInit: (ligui: Ligui) => void;
 }
 
 export interface LiguiConfig {
@@ -109,6 +109,8 @@ export interface LiguiHook {
   useRef: RefHookType;
   usePocket: PocketHookType;
 }
+
+onLiguiInit = onLiguiInit || (() => null);
 
 // ToDo move to utils package
 export const resolveFunctionCall = <T extends Function>(func: T, ...flags: boolean[]): T =>
