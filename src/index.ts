@@ -129,6 +129,15 @@ export const deferred: DeferredCall = <T extends (...args) => void>(f: T, waitTi
   }) as T;
 };
 
+interface PreloadLinkProps {
+  path: string;
+  type: string;
+  mime?: string;
+}
+// ToDo move to utils package
+const linkHeader = (links: PreloadLinkProps | PreloadLinkProps[]) => resolveArray(links).map(it =>
+  `<${it.path}>;rel="preload";as="${it.type}";${it.mime ? `type="${it.mime}";` : ''}`).join(',');
+
 export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
   readonly jsx: JSXService;
   readonly rest: RestService;
