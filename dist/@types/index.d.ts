@@ -105,6 +105,12 @@ export declare const resolveFunctionCall: <T extends Function>(func: T, ...flags
 export declare const prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => (...args: Parameters<T>) => () => ReturnType<T>;
 export declare type DeferredCall = <T extends (...args: any[]) => void>(f: T, waitTime: number) => T;
 export declare const deferred: DeferredCall;
+export interface PreloadLinkProps {
+    path: string;
+    type: string;
+    mime?: string;
+}
+export declare const linkHeader: (links: PreloadLinkProps | PreloadLinkProps[]) => string;
 export interface Ligui extends ContainerService, LiguiHoc, LiguiHook {
     readonly jsx: JSXService;
     readonly rest: RestService;
