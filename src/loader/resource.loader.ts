@@ -1,4 +1,4 @@
-import { Resources, ResourceScope } from '@src/scope/resource.scope';
+import { Resources, ResourceScope } from '../scope/resource.scope';
 
 export type PartResourceLoader = (key: string) => any | Promise<any>;
 export type ResourceLoader = (keys: string[]) => Promise<Resources>;

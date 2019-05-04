@@ -1,6 +1,6 @@
 import { ScopeListener } from '@sardonyxwt/state-store';
-import { Resources, ResourceScope, ResourceScopeAddons, ResourceScopeAddResourceActionProps, ResourceScopeState } from '@src/scope/resource.scope';
-import { ResourceLoader } from '@src/loader/resource.loader';
+import { Resources, ResourceScope, ResourceScopeAddons, ResourceScopeAddResourceActionProps, ResourceScopeState } from '../scope/resource.scope';
+import { ResourceLoader } from '../loader/resource.loader';
 export interface ResourceService extends ResourceScopeAddons {
     loadResources(keys: string[]): Promise<Resources>;
 }

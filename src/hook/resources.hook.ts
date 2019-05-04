@@ -1,15 +1,15 @@
 import * as React from 'react';
-import { Context } from '@src/context';
-import { Resources, ResourceScopeAddResourceActionProps, ResourceScopeState } from '@src/scope/resource.scope';
-import { useDependency } from '@src/hook/dependency.hook';
-import { ResourceService } from '@src/service/resource.service';
-import { LiguiTypes } from '@src/types';
+import { Context } from '../context';
+import { Resources, ResourceScopeAddResourceActionProps, ResourceScopeState } from '../scope/resource.scope';
+import { useDependency } from './dependency.hook';
+import { ResourceService } from '../service/resource.service';
+import { LIGUI_TYPES } from '../types';
 import { ScopeEvent } from '@sardonyxwt/state-store';
 
 export type ResourcesHookType = (context: Context, keys: string[]) => Resources;
 
 export function useResources(context: Context, keys: string[]) {
-  const resourceService = useDependency<ResourceService>(context, LiguiTypes.RESOURCE_SERVICE);
+  const resourceService = useDependency<ResourceService>(context, LIGUI_TYPES.RESOURCE_SERVICE);
 
   const [resources, setResources] = React.useState<Resources>(() => {
     if (resourceService.isResourcesLoaded(keys)) {

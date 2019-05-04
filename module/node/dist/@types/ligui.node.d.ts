@@ -70,4 +70,4 @@ export interface Ligui {
     resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
     prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
-export declare function createLigui(config: LiguiConfig, postInstall?: (ligui: Ligui) => void): Ligui;
+export declare function createNewLiguiInstance(config: LiguiConfig, postInstall?: (ligui: Ligui) => void): Ligui;

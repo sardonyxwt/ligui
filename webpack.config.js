@@ -18,10 +18,7 @@ const createCommonConfig = (type) => ({
   profile: true,
   devtool: 'source-map',
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx','.json'],
-    alias: {
-      '@src': path.resolve(__dirname, './src')
-    }
+    extensions: ['.js', '.jsx', '.ts', '.tsx','.json']
   },
   module: {
     rules: [{

@@ -6,9 +6,9 @@ import {
   ResourceScopeAddons,
   ResourceScopeAddResourceActionProps,
   ResourceScopeState
-} from '@src/scope/resource.scope';
-import { LiguiTypes } from '@src/types';
-import { ResourceLoader } from '@src/loader/resource.loader';
+} from '../scope/resource.scope';
+import { LIGUI_TYPES } from '../types';
+import { ResourceLoader } from '../loader/resource.loader';
 
 export interface ResourceService extends ResourceScopeAddons {
   loadResources(keys: string[]): Promise<Resources>;
@@ -17,8 +17,8 @@ export interface ResourceService extends ResourceScopeAddons {
 @injectable()
 export class ResourceServiceImpl implements ResourceService {
 
-  constructor(@inject(LiguiTypes.RESOURCE_LOADER) private loader: ResourceLoader,
-              @inject(LiguiTypes.RESOURCE_SCOPE) private scope: ResourceScope) {}
+  constructor(@inject(LIGUI_TYPES.RESOURCE_LOADER) private loader: ResourceLoader,
+              @inject(LIGUI_TYPES.RESOURCE_SCOPE) private scope: ResourceScope) {}
 
   get resources () {
     return this.scope.resources;

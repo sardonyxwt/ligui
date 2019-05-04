@@ -17,7 +17,7 @@ import { LocalizationScopeOptions, createLocalizationScope } from './scope/local
 import { StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 import { interfaces } from 'inversify';
-import { LiguiTypes } from '@src/types';
+import { LIGUI_TYPES } from './types';
 
 export * from 'inversify';
 export * from './types';
@@ -84,7 +84,7 @@ export interface Ligui {
     ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
 
-export function createLigui(config: LiguiConfig, postInstall?: (ligui: Ligui) => void): Ligui {
+export function createNewLiguiInstance(config: LiguiConfig, postInstall?: (ligui: Ligui) => void): Ligui {
   const context = createContext(config.name, config.containerOptions);
 
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
@@ -93,28 +93,28 @@ export function createLigui(config: LiguiConfig, postInstall?: (ligui: Ligui) =>
   const resourceLoader = createResourceLoader(resourceScope, config.resourcePartLoader);
   const localizationLoader = createLocalizationLoader(localizationScope, config.localizationPartLoader);
 
-  context.container.bind(LiguiTypes.RESOURCE_LOADER).toConstantValue(resourceLoader);
-  context.container.bind(LiguiTypes.LOCALIZATION_LOADER).toConstantValue(localizationLoader);
+  context.container.bind(LIGUI_TYPES.RESOURCE_LOADER).toConstantValue(resourceLoader);
+  context.container.bind(LIGUI_TYPES.LOCALIZATION_LOADER).toConstantValue(localizationLoader);
 
-  context.container.bind(LiguiTypes.RESOURCE_SCOPE).toConstantValue(resourceScope);
-  context.container.bind(LiguiTypes.LOCALIZATION_SCOPE).toConstantValue(localizationScope);
+  context.container.bind(LIGUI_TYPES.RESOURCE_SCOPE).toConstantValue(resourceScope);
+  context.container.bind(LIGUI_TYPES.LOCALIZATION_SCOPE).toConstantValue(localizationScope);
 
-  context.container.bind<RestService>(LiguiTypes.REST_SERVICE)
+  context.container.bind<RestService>(LIGUI_TYPES.REST_SERVICE)
     .to(RestServiceImpl).inSingletonScope();
-  context.container.bind<StoreService>(LiguiTypes.STORE_SERVICE)
+  context.container.bind<StoreService>(LIGUI_TYPES.STORE_SERVICE)
     .to(StoreServiceImpl).inSingletonScope();
-  context.container.bind<ResourceService>(LiguiTypes.RESOURCE_SERVICE)
+  context.container.bind<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE)
     .to(ResourceServiceImpl).inSingletonScope();
-  context.container.bind<EventBusService>(LiguiTypes.EVENT_BUS_SERVICE)
+  context.container.bind<EventBusService>(LIGUI_TYPES.EVENT_BUS_SERVICE)
     .to(EventBusServiceImpl).inSingletonScope();
-  context.container.bind<LocalizationService>(LiguiTypes.LOCALIZATION_SERVICE)
+  context.container.bind<LocalizationService>(LIGUI_TYPES.LOCALIZATION_SERVICE)
     .to(LocalizationServiceImpl).inSingletonScope();
 
-  const restService = context.container.get<RestService>(LiguiTypes.REST_SERVICE);
-  const storeService = context.container.get<StoreService>(LiguiTypes.STORE_SERVICE);
-  const resourceService = context.container.get<ResourceService>(LiguiTypes.RESOURCE_SERVICE);
-  const eventBusService = context.container.get<EventBusService>(LiguiTypes.EVENT_BUS_SERVICE);
-  const localizationService = context.container.get<LocalizationService>(LiguiTypes.LOCALIZATION_SERVICE);
+  const restService = context.container.get<RestService>(LIGUI_TYPES.REST_SERVICE);
+  const storeService = context.container.get<StoreService>(LIGUI_TYPES.STORE_SERVICE);
+  const resourceService = context.container.get<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE);
+  const eventBusService = context.container.get<EventBusService>(LIGUI_TYPES.EVENT_BUS_SERVICE);
+  const localizationService = context.container.get<LocalizationService>(LIGUI_TYPES.LOCALIZATION_SERVICE);
 
   if (config.storeDevTools) {
     storeService.setStoreDevTool(config.storeDevTools);

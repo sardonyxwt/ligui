@@ -5,9 +5,9 @@ import {
   LocalizationScopeAddLocalizationActionProps,
   LocalizationScopeAddons, LocalizationScopeState,
   Translator
-} from '@src/scope/localization.scope';
-import { LiguiTypes } from '@src/types';
-import { LocalizationLoader } from '@src/loader/localization.loader';
+} from '../scope/localization.scope';
+import { LIGUI_TYPES } from '../types';
+import { LocalizationLoader } from '../loader/localization.loader';
 
 export interface LocalizationService extends LocalizationScopeAddons {
   loadLocalizations(keys: string[]): Promise<Translator>;
@@ -16,8 +16,8 @@ export interface LocalizationService extends LocalizationScopeAddons {
 @injectable()
 export class LocalizationServiceImpl implements LocalizationService {
 
-  constructor(@inject(LiguiTypes.LOCALIZATION_LOADER) private loader: LocalizationLoader,
-              @inject(LiguiTypes.LOCALIZATION_SCOPE) private scope: LocalizationScope) {}
+  constructor(@inject(LIGUI_TYPES.LOCALIZATION_LOADER) private loader: LocalizationLoader,
+              @inject(LIGUI_TYPES.LOCALIZATION_SCOPE) private scope: LocalizationScope) {}
 
   get currentLocale () {
     return this.scope.currentLocale

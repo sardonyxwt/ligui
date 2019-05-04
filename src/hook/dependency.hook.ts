@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { interfaces } from 'inversify';
-import { Context } from '@src/context';
+import { Context } from '../context';
 
 export type ContainerKey = string | number | symbol;
 export type ContainerId<T = any> = string | symbol | interfaces.Newable<T> | interfaces.Abstract<T>;

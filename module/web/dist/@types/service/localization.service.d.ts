@@ -1,6 +1,6 @@
 import { ScopeListener } from '@sardonyxwt/state-store';
-import { LocalizationScope, LocalizationScopeAddLocalizationActionProps, LocalizationScopeAddons, LocalizationScopeState, Translator } from '@src/scope/localization.scope';
-import { LocalizationLoader } from '@src/loader/localization.loader';
+import { LocalizationScope, LocalizationScopeAddLocalizationActionProps, LocalizationScopeAddons, LocalizationScopeState, Translator } from '../scope/localization.scope';
+import { LocalizationLoader } from '../loader/localization.loader';
 export interface LocalizationService extends LocalizationScopeAddons {
     loadLocalizations(keys: string[]): Promise<Translator>;
 }

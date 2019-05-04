@@ -1,4 +1,4 @@
-import { Localization, LocalizationScope, Translator } from '@src/scope/localization.scope';
+import { Localization, LocalizationScope, Translator } from '../scope/localization.scope';
 
 export type PartLocalizationLoader = (locale: string, id: string) => Localization | Promise<Localization>;
 export type LocalizationLoader = (keys: string[]) => Promise<Translator>;
