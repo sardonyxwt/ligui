@@ -70,7 +70,7 @@ export interface LiguiApi {
 export interface LiguiConfig {
     name: string;
     api?: LiguiApi;
-    containerOptions?: interfaces.ContainerOptions;
+    containerOptions: interfaces.ContainerOptions;
     resourcePartLoader: PartResourceLoader;
     resourceScopeOptions: ResourceScopeOptions;
     localizationPartLoader: PartLocalizationLoader;

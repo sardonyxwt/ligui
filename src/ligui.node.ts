@@ -18,6 +18,7 @@ import { StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 import { interfaces } from 'inversify';
 import { LIGUI_TYPES } from './types';
+import {LiguiApi} from './ligui.web';
 
 export * from 'inversify';
 export * from './types';
@@ -41,7 +42,7 @@ export * from '@sardonyxwt/utils/object';
 
 export interface LiguiConfig {
   name: string;
-  containerOptions?: interfaces.ContainerOptions
+  containerOptions: interfaces.ContainerOptions
   resourcePartLoader: PartResourceLoader;
   resourceScopeOptions: ResourceScopeOptions;
   localizationPartLoader: PartLocalizationLoader;

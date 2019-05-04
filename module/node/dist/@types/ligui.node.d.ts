@@ -36,7 +36,7 @@ export * from '@sardonyxwt/utils/generator';
 export * from '@sardonyxwt/utils/object';
 export interface LiguiConfig {
     name: string;
-    containerOptions?: interfaces.ContainerOptions;
+    containerOptions: interfaces.ContainerOptions;
     resourcePartLoader: PartResourceLoader;
     resourceScopeOptions: ResourceScopeOptions;
     localizationPartLoader: PartLocalizationLoader;
