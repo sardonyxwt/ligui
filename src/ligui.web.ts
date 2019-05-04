@@ -24,8 +24,8 @@ import { DialogApi } from './api/dialog.api';
 import { PreloaderApi } from './api/preloader.api';
 import { ContextmenuApi } from './api/contextmenu.api';
 import { NotificationApi } from './api/notification.api';
-import { PartResourceLoader, createResourceLoader } from './loader/resource.loader';
-import { PartLocalizationLoader, createLocalizationLoader } from './loader/localization.loader';
+import { ResourcePartLoader, createResourceLoader } from './loader/resource.loader';
+import { LocalizationPartLoader, createLocalizationLoader } from './loader/localization.loader';
 import { ResourceScopeOptions, createResourceScope } from './scope/resource.scope';
 import { LocalizationScopeOptions, createLocalizationScope } from './scope/localization.scope';
 import { StoreDevTool } from '@sardonyxwt/state-store';
@@ -78,9 +78,9 @@ export interface LiguiConfig {
   name: string;
   api?: LiguiApi;
   containerOptions: interfaces.ContainerOptions
-  resourcePartLoader: PartResourceLoader;
+  resourcePartLoader: ResourcePartLoader;
   resourceScopeOptions: ResourceScopeOptions;
-  localizationPartLoader: PartLocalizationLoader;
+  localizationPartLoader: LocalizationPartLoader;
   localizationScopeOptions: LocalizationScopeOptions;
   storeDevTools?: Partial<StoreDevTool>;
   eventBusDevTools?: Partial<EventBusDevTool>;

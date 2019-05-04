@@ -1,11 +1,11 @@
 import { Resources, ResourceScope } from '../scope/resource.scope';
 
-export type PartResourceLoader = (key: string) => any | Promise<any>;
+export type ResourcePartLoader = (key: string) => any | Promise<any>;
 export type ResourceLoader = (keys: string[]) => Promise<Resources>;
 
 export function createResourceLoader(
   resourceScope: ResourceScope,
-  loader: PartResourceLoader
+  loader: ResourcePartLoader
 ): ResourceLoader {
   const resourcePromises: {[key: string]: Promise<void>} = {};
 

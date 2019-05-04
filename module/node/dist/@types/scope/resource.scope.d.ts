@@ -20,7 +20,7 @@ export interface ResourceScopeAddons {
 }
 export interface ResourceScope extends Scope<ResourceScopeState>, ResourceScopeAddons {
 }
-export interface ResourceScopeOptions extends ResourceScopeState {
+export interface ResourceScopeOptions {
     initState: ResourceScopeState;
 }
 export declare function createResourceScope(store: Store, { initState }: ResourceScopeOptions): ResourceScope;

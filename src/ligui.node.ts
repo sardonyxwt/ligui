@@ -10,8 +10,8 @@ import { StoreServiceImpl, StoreService } from './service/store.service';
 import { EventBusServiceImpl, EventBusService } from './service/event-bus.service';
 import { ResourceServiceImpl, ResourceService } from './service/resource.service';
 import { LocalizationServiceImpl, LocalizationService } from './service/localization.service';
-import { PartResourceLoader, createResourceLoader } from './loader/resource.loader';
-import { PartLocalizationLoader, createLocalizationLoader } from './loader/localization.loader';
+import { ResourcePartLoader, createResourceLoader } from './loader/resource.loader';
+import { LocalizationPartLoader, createLocalizationLoader } from './loader/localization.loader';
 import { ResourceScopeOptions, createResourceScope } from './scope/resource.scope';
 import { LocalizationScopeOptions, createLocalizationScope } from './scope/localization.scope';
 import { StoreDevTool } from '@sardonyxwt/state-store';
@@ -42,9 +42,9 @@ export * from '@sardonyxwt/utils/object';
 export interface LiguiConfig {
   name: string;
   containerOptions: interfaces.ContainerOptions
-  resourcePartLoader: PartResourceLoader;
+  resourcePartLoader: ResourcePartLoader;
   resourceScopeOptions: ResourceScopeOptions;
-  localizationPartLoader: PartLocalizationLoader;
+  localizationPartLoader: LocalizationPartLoader;
   localizationScopeOptions: LocalizationScopeOptions;
   storeDevTools?: Partial<StoreDevTool>;
   eventBusDevTools?: Partial<EventBusDevTool>;

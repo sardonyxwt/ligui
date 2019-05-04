@@ -1,11 +1,11 @@
 import { Localization, LocalizationScope, Translator } from '../scope/localization.scope';
 
-export type PartLocalizationLoader = (locale: string, id: string) => Localization | Promise<Localization>;
+export type LocalizationPartLoader = (locale: string, id: string) => Localization | Promise<Localization>;
 export type LocalizationLoader = (keys: string[]) => Promise<Translator>;
 
 export function createLocalizationLoader(
   localizationScope: LocalizationScope,
-  loader: PartLocalizationLoader
+  loader: LocalizationPartLoader
 ): LocalizationLoader {
   const localizationPromises: {[key: string]: Promise<void>} = {};
 
