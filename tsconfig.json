@@ -5,7 +5,6 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "jsx": "react",
-    "jsxFactory": "React.createElement",
     "alwaysStrict": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -21,6 +20,9 @@
     ],
     "sourceMap": true,
     "declaration": true,
-    "declarationDir": "./dist/@types"
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": ["./src/*"]
+    }
   }
 }

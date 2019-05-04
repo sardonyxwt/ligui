@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declarationDir": "./module/web/dist/@types"
+  },
+  "exclude": [
+    "src/ligui.node.ts"
+  ]
+}

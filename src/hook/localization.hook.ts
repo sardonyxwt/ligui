@@ -1,18 +1,18 @@
 import * as React from 'react';
-import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
-import { localizationService, Translator } from '..';
+import { Context } from '@src/context';
+import { useDependency } from '@src/hook/dependency.hook';
+import { Translator } from '@src/scope/localization.scope';
+import { LocalizationService } from '@src/service/localization.service';
+import { LiguiTypes } from '@src/types';
 
 export const defaultFallbackTranslator = (id) => id;
 
-export type LocalizationHookType = (keys: string[], fallbackTranslator?: Translator) => Translator;
+export type LocalizationHookType = (context: Context, keys: string[], fallbackTranslator?: Translator) => Translator;
 
-const subscribers: {[key: string]: Function} = {};
-const localizationHookListenerIdGenerator = createUniqueIdGenerator('LocalizationHook');
+export function useLocalization (context: Context, keys: string[],
+                                 fallbackTranslator: Translator = defaultFallbackTranslator) {
+  const localizationService = useDependency<LocalizationService>(context, LiguiTypes.LOCALIZATION_SERVICE);
 
-localizationService.onChangeLocale(() =>
-  Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key]()));
-
-export function useLocalization (keys: string[], fallbackTranslator: Translator = null) {
   const [translator, setTranslator] = React.useState<Translator>(() => {
     if (localizationService.isLocalizationsLoaded(keys)) {
       return localizationService.translate;
@@ -21,11 +21,8 @@ export function useLocalization (keys: string[], fallbackTranslator: Translator 
     return fallbackTranslator;
   });
 
-  React.useEffect(() => {
-    const listenerId = localizationHookListenerIdGenerator();
-    subscribers[listenerId] = () => setTranslator(localizationService.translate);
-    return () => delete subscribers[listenerId];
-  });
+  React.useEffect(() => localizationService.onChangeLocale(
+    () => setTranslator(localizationService.translate)));
 
   return translator;
 }

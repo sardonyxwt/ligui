@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
-import { resourceService, Resources, ResourceScopeState, ResourceScopeAddResourceActionProps, ScopeEvent, ScopeListener } from '..';
+import { Context } from '@src/context';
+import { Resources, ResourceScopeAddResourceActionProps, ResourceScopeState } from '@src/scope/resource.scope';
+import { useDependency } from '@src/hook/dependency.hook';
+import { ResourceService } from '@src/service/resource.service';
+import { LiguiTypes } from '@src/types';
+import { ScopeEvent } from '@sardonyxwt/state-store';
 
-export type ResourcesHookType = (keys: string[]) => Resources;
+export type ResourcesHookType = (context: Context, keys: string[]) => Resources;
 
-const subscribers: {[key: string]: ScopeListener<ResourceScopeState>} = {};
-const resourcesHookListenerIdGenerator = createUniqueIdGenerator('ResourcesHook');
+export function useResources(context: Context, keys: string[]) {
+  const resourceService = useDependency<ResourceService>(context, LiguiTypes.RESOURCE_SERVICE);
 
-resourceService.onSetResource(e =>
-  Object.getOwnPropertyNames(subscribers).forEach(key => subscribers[key](e)));
-
-export function useResources (keys: string[]) {
   const [resources, setResources] = React.useState<Resources>(() => {
     if (resourceService.isResourcesLoaded(keys)) {
       return resourceService.resources;
@@ -19,16 +19,14 @@ export function useResources (keys: string[]) {
     return null;
   });
 
-  React.useEffect(() => {
-    const listenerId = resourcesHookListenerIdGenerator();
-    subscribers[listenerId] = (e: ScopeEvent<ResourceScopeState>) => {
+  React.useEffect(() => resourceService.onSetResource(
+    (e: ScopeEvent<ResourceScopeState>) => {
       const {key} = e.props as ResourceScopeAddResourceActionProps;
       if (!!keys.find(it => it === key)) {
         setResources(resourceService.resources);
       }
-    };
-    return () => delete subscribers[listenerId];
-  });
+    })
+  );
 
   return resources;
 }

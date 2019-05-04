@@ -1,9 +1,7 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "6.9.14",
+  "version": "7.0.1",
   "description": "Ligui",
-  "main": "dist/web.ligui.min.js",
-  "typings": "dist/@types/index.d.ts",
   "keywords": [
     "sclib",
     "ligui",
@@ -18,7 +16,7 @@
     "LICENSE",
     "README.md",
     "CHANGELOG.md",
-    "dist"
+    "module"
   ],
   "repository": {
     "type": "git",
@@ -27,7 +25,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "webpack --mode production",
-    "test": "cross-env-shell webpack && jest",
+    "test": "cross-env-shell webpack -p && jest",
     "lint": "tslint -p . -c tslint.json --fix -t verbose",
     "deploy": "cross-env-shell npm run build && npm publish --access public"
   },
@@ -43,8 +41,8 @@
     "testRegex": "/(test|src)/.*\\.(test|spec)\\.(ts|js)$"
   },
   "dependencies": {
-    "@sardonyxwt/event-bus": "1.1.0",
-    "@sardonyxwt/state-store": "4.5.1",
+    "@sardonyxwt/event-bus": "1.2.0",
+    "@sardonyxwt/state-store": "5.0.2",
     "@sardonyxwt/utils": "2.1.1",
     "inversify": "^5.0.1",
     "react": "^16.8.6",
@@ -52,9 +50,9 @@
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.11",
-    "@types/node": "^11.13.4",
-    "@types/react": "^16.8.13",
+    "@types/jest": "^24.0.12",
+    "@types/node": "^12.0.0",
+    "@types/react": "^16.8.16",
     "@types/react-dom": "^16.8.4",
     "clean-webpack-plugin": "^2.0.1",
     "cross-env": "^5.2.0",
@@ -62,12 +60,12 @@
     "parallel-webpack": "^2.3.0",
     "stats-webpack-plugin": "^0.7.0",
     "ts-jest": "^24.0.2",
-    "ts-loader": "^5.3.3",
-    "tslint": "^5.15.0",
-    "typescript": "^3.4.3",
-    "webpack": "^4.29.6",
+    "ts-loader": "^5.4.5",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5",
+    "webpack": "^4.30.0",
     "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-cli": "^3.3.0",
+    "webpack-cli": "^3.3.1",
     "webpack-visualizer-plugin": "^0.1.11"
   }
 }

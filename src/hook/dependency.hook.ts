@@ -1,33 +1,36 @@
 import * as React from 'react';
-import { ContainerId, ContainerKey, containerService } from '..';
+import { interfaces } from 'inversify';
+import { Context } from '@src/context';
+
+export type ContainerKey = string | number | symbol;
+export type ContainerId<T = any> = string | symbol | interfaces.Newable<T> | interfaces.Abstract<T>;
 
 const isNamedDependency = (name?: ContainerKey) => typeof name !== 'undefined';
 const isTaggedDependency = (key?: ContainerKey, value?: any) => typeof key !== 'undefined' && typeof value !== 'undefined';
 
-export type DependencyHookType = <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T;
-export type DependenciesHookType = <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T[];
+export type DependencyHookType = <T = any>(context: Context, id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T;
+export type DependenciesHookType = <T = any>(context: Context, id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T[];
 
-export function useDependency <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T {
+export function useDependency <T = any>(context: Context, id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T {
   return React.useMemo(() => {
     if (isTaggedDependency(keyOrName, value)) {
-      return containerService.resolveTagged<T>(id, keyOrName, value);
+      return context.container.getTagged<T>(id, keyOrName, value);
     }
     if (isNamedDependency(keyOrName)) {
-      return containerService.resolveNamed<T>(id, keyOrName);
+      return context.container.getNamed<T>(id, keyOrName);
     }
-    return containerService.resolve<T>(id);
+    return context.container.get<T>(id);
   }, [id, keyOrName, value]);
 }
 
-export function useDependencies <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T[] {
+export function useDependencies <T = any>(context: Context, id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T[] {
   return React.useMemo(() => {
     if (isTaggedDependency(keyOrName, value)) {
-      return containerService.resolveAllTagged<T>(id, keyOrName, value);
+      return context.container.getAllTagged<T>(id, keyOrName, value);
     }
     if (isNamedDependency(keyOrName)) {
-      return containerService.resolveAllNamed<T>(id, keyOrName);
+      return context.container.getAllNamed<T>(id, keyOrName);
     }
-    return containerService.resolveAll<T>(id);
+    return context.container.getAll<T>(id);
   }, [id, keyOrName, value]);
 }
-

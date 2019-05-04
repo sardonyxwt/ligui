@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { injectable } from 'inversify';
 
 export interface CommonProps {
   className?: string;
@@ -22,8 +23,6 @@ export interface JSXService {
     | React.MouseEvent | React.TouchEvent | React.KeyboardEvent, includeNative?: boolean): void;
   mergeRefs<T>(...refs: Array<React.Ref<T>>): (ref: T) => void;
 }
-
-const factories: {[factoryName: string]: React.Factory<{}>} = {};
 
 export const classes = (...classes: (string | [string, boolean])[]) => {
   const resultClasses: string[] = [];
@@ -60,45 +59,43 @@ export const mergeRefs = <T>(...refs: Array<React.Ref<T>>) => (ref: T) => {
   });
 };
 
-const registerFactory = <T extends {}>(name: string, factory: React.Factory<T>) => {
-  if (name in factories) {
-    throw new Error(`Factory with same name is register.`);
+@injectable()
+export class JSXServiceImpl implements JSXService {
+
+  private _factories: {[factoryName: string]: React.Factory<{}>} = {};
+
+  classes = classes;
+  eventTrap = eventTrap;
+  mergeRefs = mergeRefs;
+
+  hydrate<T extends {}>(container: Element, element: React.ReactElement<T>) {
+    ReactDOM.hydrate(element, container);
   }
-  factories[name] = factory;
-};
 
-const node = <T extends {}>(name: string, props?: T, ...children: React.ReactNode[]) => {
-  if (name in factories) {
-    return (factories[name] as React.Factory<T>)(props, children);
+  hydrateComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void {
+    ReactDOM.hydrate(this.node(name, props, children), container);
   }
-  return React.createElement(name, props, children);
-};
 
-const render = <T extends {}>(container: Element, element: React.ReactElement<T>) => {
-  ReactDOM.render(element, container);
-};
+  node<T extends {}>(name: string, props?: T, ...children: React.ReactNode[]): React.ReactElement<T> {
+    if (name in this._factories) {
+      return (this._factories[name] as React.Factory<T>)(props, children);
+    }
+    return React.createElement(name, props, children);
+  }
 
-const hydrate = <T extends {}>(container: Element, element: React.ReactElement<T>) => {
-  ReactDOM.hydrate(element, container);
-};
+  registerFactory<T extends {}>(name: string, factory: React.Factory<T>): void {
+    if (name in this._factories) {
+      throw new Error(`Factory with same name is register.`);
+    }
+    this._factories[name] = factory;
+  }
 
-const renderComponent = <T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]) => {
-  ReactDOM.render(node(name, props, children), container)
-};
+  render<T extends {}>(container: Element, element: React.ReactElement<T>) {
+    ReactDOM.render(element, container);
+  }
 
-const hydrateComponent = <T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]) => {
-  ReactDOM.hydrate(node(name, props, children), container);
-};
+  renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void {
+    ReactDOM.render(this.node(name, props, children), container)
+  }
 
-
-export const jsxService: JSXService = Object.freeze({
-  registerFactory,
-  node,
-  render,
-  hydrate,
-  renderComponent,
-  hydrateComponent,
-  eventTrap,
-  classes,
-  mergeRefs
-});
+}

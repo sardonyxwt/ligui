@@ -1,17 +1,15 @@
-import { localizationScope, Localization, Translator } from '..';
+import { Localization, LocalizationScope, Translator } from '@src/scope/localization.scope';
 
-export type LLoader = (locale: string, id: string) => Localization | Promise<Localization>;
+export type PartLocalizationLoader = (locale: string, id: string) => Localization | Promise<Localization>;
+export type LocalizationLoader = (keys: string[]) => Promise<Translator>;
 
-export interface LocalizationLoader {
-  loader: LLoader;
-  loadLocalizations(keys: string[]): Promise<Translator>
-}
+export function createLocalizationLoader(
+  localizationScope: LocalizationScope,
+  loader: PartLocalizationLoader
+): LocalizationLoader {
+  const localizationPromises: {[key: string]: Promise<void>} = {};
 
-let loader: LLoader;
-const localizationPromises: {[key: string]: Promise<void>} = {};
-
-export const localizationLoader: LocalizationLoader = Object.assign({
-  loadLocalizations(keys: string[]): Promise<Translator> {
+  return (keys: string[]) => {
     const {currentLocale, defaultLocale, localizations, addLocalization} = localizationScope;
 
     let createLocalizationPromise = (key: string) => {
@@ -32,11 +30,5 @@ export const localizationLoader: LocalizationLoader = Object.assign({
 
     return Promise.all(keys.map(key => createLocalizationPromise(key)))
       .then(() => localizationScope.translate);
-  },
-  set loader(newLoader: LLoader) {
-    loader = newLoader;
-  },
-  get loader() {
-    return loader;
   }
-});
+}

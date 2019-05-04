@@ -1,40 +1,66 @@
-import { localizationScope, LocalizationScopeAddons, localizationLoader, LocalizationLoader, LLoader } from '..';
+import { inject, injectable } from 'inversify';
+import { ScopeListener } from '@sardonyxwt/state-store';
+import {
+  LocalizationScope,
+  LocalizationScopeAddLocalizationActionProps,
+  LocalizationScopeAddons, LocalizationScopeState,
+  Translator
+} from '@src/scope/localization.scope';
+import { LiguiTypes } from '@src/types';
+import { LocalizationLoader } from '@src/loader/localization.loader';
 
-export interface LocalizationService extends LocalizationScopeAddons, LocalizationLoader {}
+export interface LocalizationService extends LocalizationScopeAddons {
+  loadLocalizations(keys: string[]): Promise<Translator>;
+}
 
-export const localizationService: LocalizationService = Object.freeze({
-  addLocalization: localizationScope.addLocalization.bind(localizationScope),
-  changeLocale: localizationScope.changeLocale.bind(localizationScope),
-  configure: localizationScope.configure.bind(localizationScope),
-  translate: localizationScope.translate.bind(localizationScope),
-  isLocalizationsLoaded: localizationScope.isLocalizationsLoaded.bind(localizationScope),
-  onAddLocalization: localizationScope.onAddLocalization.bind(localizationScope),
-  onChangeLocale: localizationScope.onChangeLocale.bind(localizationScope),
-  onConfigure: localizationScope.onConfigure.bind(localizationScope),
-  unsubscribe: localizationScope.unsubscribe.bind(localizationScope),
-  loadLocalizations: localizationLoader.loadLocalizations.bind(localizationLoader),
-  get currentLocale() {
-    return localizationScope.currentLocale;
-  },
-  get currentLocalization() {
-    return localizationScope.currentLocalization;
-  },
-  get defaultLocale() {
-    return localizationScope.defaultLocale;
-  },
-  get isConfigured() {
-    return localizationScope.isConfigured;
-  },
-  get locales() {
-    return localizationScope.locales;
-  },
-  get localizations() {
-    return localizationScope.localizations;
-  },
-  get loader() {
-    return localizationLoader.loader;
-  },
-  set loader(loader: LLoader) {
-    localizationLoader.loader = loader;
+@injectable()
+export class LocalizationServiceImpl implements LocalizationService {
+
+  constructor(@inject(LiguiTypes.LOCALIZATION_LOADER) private loader: LocalizationLoader,
+              @inject(LiguiTypes.LOCALIZATION_SCOPE) private scope: LocalizationScope) {}
+
+  get currentLocale () {
+    return this.scope.currentLocale
   }
-});
+  get currentLocalization () {
+    return this.scope.currentLocalization
+  }
+  get defaultLocale () {
+    return this.scope.defaultLocale
+  }
+  get locales () {
+    return this.scope.locales
+  }
+  get localizations () {
+    return this.scope.localizations
+  }
+
+  addLocalization(props: LocalizationScopeAddLocalizationActionProps) {
+    this.scope.addLocalization(props);
+  }
+
+  changeLocale(locale: string) {
+    this.scope.changeLocale(locale);
+  }
+
+  isLocalizationsLoaded(keys: string[]) {
+    return this.scope.isLocalizationsLoaded(keys);
+  }
+
+  onAddLocalization(listener: ScopeListener<LocalizationScopeState>) {
+    return this.scope.onAddLocalization(listener);
+  }
+
+  onChangeLocale(listener: ScopeListener<LocalizationScopeState>) {
+    return this.scope.onChangeLocale(listener);
+  }
+
+  translate(path: string) {
+    return this.scope.translate(path);
+  }
+
+  loadLocalizations(keys: string[]) {
+    return this.loader(keys);
+  }
+
+}

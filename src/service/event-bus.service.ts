@@ -1,5 +1,8 @@
-import * as eventBus from '@sardonyxwt/event-bus';
-import { EventBus, EventBusConfig, EventBusDevTool } from '@sardonyxwt/event-bus';
+import { injectable } from 'inversify';
+import {
+  createEventBus, getEventBus, setEventBusDevTool,
+  EventBus, EventBusConfig, EventBusDevTool
+} from '@sardonyxwt/event-bus';
 
 export interface EventBusService {
   createEventBus(config?: EventBusConfig): EventBus;
@@ -7,4 +10,9 @@ export interface EventBusService {
   setEventBusDevTool(devTool: Partial<EventBusDevTool>): void;
 }
 
-export const eventBusService: EventBusService = Object.freeze(eventBus);
+@injectable()
+export class EventBusServiceImpl implements EventBusService {
+  createEventBus = createEventBus;
+  getEventBus = getEventBus;
+  setEventBusDevTool = setEventBusDevTool;
+}

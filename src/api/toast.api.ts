@@ -4,5 +4,6 @@ export interface ToastApi<ToastProps = {}> {
   success(message: string, duration?: number, onClose?: () => void): string;
   warning(message: string, duration?: number, onClose?: () => void): string;
   show(props: ToastProps): string;
-  hide(key: string, callback?: () => void);
+  hide(key: string): void;
+  hideLast(): void;
 }

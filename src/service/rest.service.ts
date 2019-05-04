@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 
 export interface RequestProps extends RequestInit {
@@ -11,8 +12,6 @@ export interface RestMiddleware {
 }
 
 export interface RestService {
-  defaultProps: RequestInit;
-  readonly middleware: RestMiddleware[];
   addMiddleware(middleware: RestMiddleware): string;
   removeMiddleware(id: string): boolean;
   post(endpoint: string, options?: RequestProps): Promise<Response>;
@@ -23,84 +22,34 @@ export interface RestService {
   buildUrl(endpoint: string, options?: RequestProps): string;
 }
 
-const middleware: {[id: string]: RestMiddleware} = {};
-
-let defaultProps: RequestInit = {
-  credentials: 'same-origin',
-  headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
-    'pragma': 'no-cache',
-    'cache-control': 'no-cache'
-  }
-};
-
 const restMiddlewareIdGenerator = createUniqueIdGenerator('Middleware');
 
-export const restService: RestService = Object.freeze({
-  get middleware() {
-    return Object.keys(middleware).map(key => middleware[key]);
-  },
-  get defaultProps() {
-    return defaultProps;
-  },
-  set defaultProps(props: RequestInit) {
-    if (typeof props !== 'object') {
-      throw new Error('Props must not null');
+@injectable()
+export class RestServiceImpl implements RestService {
+
+  private _defaultProps: RequestInit = {
+    credentials: 'same-origin',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'pragma': 'no-cache',
+      'cache-control': 'no-cache'
     }
-    defaultProps = props;
-  },
-  addMiddleware(newMiddleware: RestMiddleware) {
+  };
+
+  private _middleware: {[id: string]: RestMiddleware} = {};
+
+  addMiddleware(middleware: RestMiddleware): string {
     const id = restMiddlewareIdGenerator();
-    middleware[id] = newMiddleware;
+    this._middleware[id] = middleware;
     return id;
-  },
-  removeMiddleware(id: string) {
-    return delete middleware[id];
-  },
-  post(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign({}, defaultProps, options, {
-      method: 'POST'
-    }));
-  },
-  put(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign({}, defaultProps, options, {
-      method: 'PUT'
-    }));
-  },
-  get(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign({}, defaultProps, options, {
-      method: 'GET'
-    }));
-  },
-  del(endpoint: string, options: RequestProps = {}) {
-    return this.request(endpoint, Object.assign({}, defaultProps, options, {
-      method: 'DELETE'
-    }));
-  },
-  request(endpoint: string, options: RequestProps = {}): Promise<Response> {
-    let requestProps = options;
+  }
 
-    const url = this.buildUrl(endpoint, requestProps);
+  removeMiddleware(id: string): boolean {
+    return delete this._middleware[id];
+  }
 
-    this.middleware
-      .filter(it => !!it.onRequest)
-      .forEach(it => requestProps = it.onRequest(url, requestProps));
-
-    return fetch(url, requestProps).then(response => {
-
-      this.middleware
-        .filter(it => !!it.onResponse)
-        .forEach(it => requestProps = it.onResponse(url, requestProps, response));
-
-      if (response.status >= 200 && response.status < 300) {
-        return Promise.resolve(response)
-      }
-
-      return Promise.reject(response);
-    });
-  },
-  buildUrl(endpoint: string, options: RequestProps = {}) {
+  buildUrl(endpoint: string, options?: RequestProps): string {
     let url = endpoint;
     const { queryParams, pathParams } = options;
     if (pathParams) { // todo update logic and add exception
@@ -117,4 +66,52 @@ export const restService: RestService = Object.freeze({
     }
     return url;
   }
-});
+
+  request(endpoint: string, options?: RequestProps): Promise<Response> {
+    let requestProps = options;
+
+    const url = this.buildUrl(endpoint, requestProps);
+
+    Object.getOwnPropertyNames(this._middleware).map(key => this._middleware[key])
+      .filter(it => !!it.onRequest)
+      .forEach(it => requestProps = it.onRequest(url, requestProps));
+
+    return fetch(url, requestProps).then(response => {
+
+      Object.getOwnPropertyNames(this._middleware).map(key => this._middleware[key])
+        .filter(it => !!it.onResponse)
+        .forEach(it => requestProps = it.onResponse(url, requestProps, response));
+
+      if (response.status >= 200 && response.status < 300) {
+        return Promise.resolve(response)
+      }
+
+      return Promise.reject(response);
+    });
+  }
+
+  get(endpoint: string, options?: RequestProps): Promise<Response> {
+    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
+      method: 'GET'
+    }));
+  }
+
+  post(endpoint: string, options?: RequestProps): Promise<Response> {
+    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
+      method: 'POST'
+    }));
+  }
+
+  put(endpoint: string, options?: RequestProps): Promise<Response> {
+    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
+      method: 'PUT'
+    }));
+  }
+
+  del(endpoint: string, options?: RequestProps): Promise<Response> {
+    return this.request(endpoint, Object.assign({}, this._defaultProps, options, {
+      method: 'DELETE'
+    }));
+  }
+
+}

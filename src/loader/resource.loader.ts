@@ -1,17 +1,15 @@
-import { resourceScope, Resources } from '..';
+import { Resources, ResourceScope } from '@src/scope/resource.scope';
 
-export type RLoader = (key: string) => any | Promise<any>;
+export type PartResourceLoader = (key: string) => any | Promise<any>;
+export type ResourceLoader = (keys: string[]) => Promise<Resources>;
 
-export interface ResourceLoader {
-  loader: RLoader;
-  loadResources(keys: string[]): Promise<Resources>;
-}
+export function createResourceLoader(
+  resourceScope: ResourceScope,
+  loader: PartResourceLoader
+): ResourceLoader {
+  const resourcePromises: {[key: string]: Promise<void>} = {};
 
-let loader: RLoader;
-const resourcePromises: {[key: string]: Promise<void>} = {};
-
-export const resourceLoader: ResourceLoader = Object.assign({
-  loadResources(keys: string[]): Promise<Resources> {
+  return (keys: string[]) => {
     const {resources, setResource} = resourceScope;
 
     let createResourcePromise = (key: string) => {
@@ -30,11 +28,5 @@ export const resourceLoader: ResourceLoader = Object.assign({
 
     return Promise.all(keys.map(key => createResourcePromise(key)))
       .then(() => resourceScope.resources);
-  },
-  set loader(newLoader: RLoader) {
-    loader = newLoader;
-  },
-  get loader() {
-    return loader;
   }
-});
+}
