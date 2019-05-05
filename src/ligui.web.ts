@@ -239,7 +239,7 @@ export function createNewLiguiInstance(config: WebLiguiConfig, postInstall?: (li
   }
 
   resolveFunctionCall(postInstall)(ligui);
-  resolveFunctionCall(global[`on${name}Init`])(ligui);
+  resolveFunctionCall(global[`on${config.name}Init`])(ligui);
 
   return ligui;
 }

@@ -174,6 +174,7 @@ export function createNewLiguiInstance(config: NodeLiguiConfig, postInstall?: (l
   }
 
   resolveFunctionCall(postInstall)(ligui);
+  resolveFunctionCall(global[`on${config.name}Init`])(ligui);
 
   return ligui;
 }
