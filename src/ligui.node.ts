@@ -39,7 +39,7 @@ export * from '@sardonyxwt/event-bus';
 export * from '@sardonyxwt/utils/generator';
 export * from '@sardonyxwt/utils/object';
 
-export interface LiguiConfig {
+export interface NodeLiguiConfig {
   name: string;
   containerOptions: interfaces.ContainerOptions
   resourcePartLoader: ResourcePartLoader;
@@ -50,7 +50,7 @@ export interface LiguiConfig {
   eventBusDevTools?: Partial<EventBusDevTool>;
 }
 
-export interface Ligui {
+export interface NodeLigui {
   readonly rest: RestService;
   readonly store: StoreService;
   readonly eventBus: EventBusService;
@@ -84,7 +84,7 @@ export interface Ligui {
     ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
 
-export function createNewLiguiInstance(config: LiguiConfig, postInstall?: (ligui: Ligui) => void): Ligui {
+export function createNewLiguiInstance(config: NodeLiguiConfig, postInstall?: (ligui: NodeLigui) => void): NodeLigui {
   const context = createContext(config.name, config.containerOptions);
 
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);

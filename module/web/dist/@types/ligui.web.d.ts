@@ -67,7 +67,7 @@ export interface LiguiApi {
     contextmenu?: ContextmenuApi;
     notification?: NotificationApi;
 }
-export interface LiguiConfig {
+export interface WebLiguiConfig {
     name: string;
     api?: LiguiApi;
     containerOptions: interfaces.ContainerOptions;
@@ -78,7 +78,7 @@ export interface LiguiConfig {
     storeDevTools?: Partial<StoreDevTool>;
     eventBusDevTools?: Partial<EventBusDevTool>;
 }
-export interface Ligui {
+export interface WebLigui {
     readonly jsx: JSXService;
     readonly rest: RestService;
     readonly store: StoreService;
@@ -114,4 +114,4 @@ export interface Ligui {
     resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
     prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
-export declare function createNewLiguiInstance(config: LiguiConfig, postInstall?: (ligui: Ligui) => void): Ligui;
+export declare function createNewLiguiInstance(config: WebLiguiConfig, postInstall?: (ligui: WebLigui) => void): WebLigui;

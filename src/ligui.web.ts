@@ -74,7 +74,7 @@ export interface LiguiApi {
   notification?: NotificationApi;
 }
 
-export interface LiguiConfig {
+export interface WebLiguiConfig {
   name: string;
   api?: LiguiApi;
   containerOptions: interfaces.ContainerOptions
@@ -86,7 +86,7 @@ export interface LiguiConfig {
   eventBusDevTools?: Partial<EventBusDevTool>;
 }
 
-export interface Ligui {
+export interface WebLigui {
   readonly jsx: JSXService;
   readonly rest: RestService;
   readonly store: StoreService;
@@ -131,7 +131,7 @@ export interface Ligui {
     ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
 
-export function createNewLiguiInstance(config: LiguiConfig, postInstall?: (ligui: Ligui) => void): Ligui {
+export function createNewLiguiInstance(config: WebLiguiConfig, postInstall?: (ligui: WebLigui) => void): WebLigui {
   const context = createContext(config.name, config.containerOptions);
 
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
@@ -239,6 +239,7 @@ export function createNewLiguiInstance(config: LiguiConfig, postInstall?: (ligui
   }
 
   resolveFunctionCall(postInstall)(ligui);
+  resolveFunctionCall(global[`on${name}Init`])(ligui);
 
   return ligui;
 }
