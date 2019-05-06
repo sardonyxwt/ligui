@@ -8,9 +8,6 @@ export type ContainerId<T = any> = string | symbol | interfaces.Newable<T> | int
 const isNamedDependency = (name?: ContainerKey) => typeof name !== 'undefined';
 const isTaggedDependency = (key?: ContainerKey, value?: any) => typeof key !== 'undefined' && typeof value !== 'undefined';
 
-export type DependencyHookType = <T = any>(context: Context, id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T;
-export type DependenciesHookType = <T = any>(context: Context, id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T[];
-
 export function useDependency <T = any>(context: Context, id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T {
   return React.useMemo(() => {
     if (isTaggedDependency(keyOrName, value)) {

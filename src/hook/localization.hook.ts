@@ -7,8 +7,6 @@ import { LIGUI_TYPES } from '../types';
 
 export const defaultFallbackTranslator = (id) => id;
 
-export type LocalizationHookType = (context: Context, keys: string[], fallbackTranslator?: Translator) => Translator;
-
 export function useLocalization (context: Context, keys: string[],
                                  fallbackTranslator: Translator = defaultFallbackTranslator) {
   const localizationService = useDependency<LocalizationService>(context, LIGUI_TYPES.LOCALIZATION_SERVICE);

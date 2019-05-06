@@ -11,14 +11,13 @@ import { StoreServiceImpl, StoreService } from './service/store.service';
 import { EventBusServiceImpl, EventBusService } from './service/event-bus.service';
 import { ResourceServiceImpl, ResourceService } from './service/resource.service';
 import { LocalizationServiceImpl, LocalizationService } from './service/localization.service';
-import { useDependency, useDependencies,
-  DependencyHookType, DependenciesHookType } from './hook/dependency.hook';
-import { useId, IdHookType } from './hook/id.hook';
-import { useLocalization, LocalizationHookType } from './hook/localization.hook';
-import { useRef, RefHookType } from './hook/ref.hook';
-import { useResources, ResourcesHookType } from './hook/resources.hook';
-import { useState, StateHookType } from './hook/state.hook';
-import { usePocket, PocketHookType } from './hook/pocket.hook';
+import { useDependency, useDependencies, ContainerId, ContainerKey } from './hook/dependency.hook';
+import { useId } from './hook/id.hook';
+import { useLocalization } from './hook/localization.hook';
+import { useRef } from './hook/ref.hook';
+import { useResources } from './hook/resources.hook';
+import { useState } from './hook/state.hook';
+import { usePocket } from './hook/pocket.hook';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
 import { PreloaderApi } from './api/preloader.api';
@@ -26,12 +25,13 @@ import { ContextmenuApi } from './api/contextmenu.api';
 import { NotificationApi } from './api/notification.api';
 import { ResourcePartLoader, createResourceLoader } from './loader/resource.loader';
 import { LocalizationPartLoader, createLocalizationLoader } from './loader/localization.loader';
-import { ResourceScopeOptions, createResourceScope } from './scope/resource.scope';
-import { LocalizationScopeOptions, createLocalizationScope } from './scope/localization.scope';
-import { StoreDevTool } from '@sardonyxwt/state-store';
+import { ResourceScopeOptions, createResourceScope, Resources } from './scope/resource.scope';
+import { LocalizationScopeOptions, Translator, createLocalizationScope } from './scope/localization.scope';
+import { Scope, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 import { interfaces } from 'inversify';
 import { LIGUI_TYPES } from './types';
+import * as React from 'react';
 
 export * from 'inversify';
 export * from './types';
@@ -54,10 +54,7 @@ export * from './service/localization.service';
 export * from './service/resource.service';
 export * from './service/rest.service';
 export * from './service/store.service';
-export * from './hook/dependency.hook';
 export * from './hook/id.hook';
-export * from './hook/localization.hook';
-export * from './hook/resources.hook';
 export * from './hook/state.hook';
 export * from './hook/pocket.hook';
 export * from './hook/ref.hook';
@@ -96,14 +93,14 @@ export interface WebLigui {
   readonly api: LiguiApi;
   readonly context: Context;
 
-  useId: IdHookType;
-  useDependency: DependencyHookType;
-  useDependencies: DependenciesHookType;
-  useLocalization: LocalizationHookType;
-  useResources: ResourcesHookType;
-  useState: StateHookType;
-  useRef: RefHookType;
-  usePocket: PocketHookType;
+  useId: () => string;
+  useRef: <T>(initialValue?: T | null) => [React.RefObject<T>, T];
+  useState: <T = any>(scope: string | Scope<T>, actions?: string[], retention?: number) => T;
+  usePocket: <T extends {}>(initialValue: T) => T;
+  useDependency: <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T;
+  useDependencies: <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T[];
+  useLocalization: (keys: string[], fallbackTranslator?: Translator) => Translator;
+  useResources: (keys: string[]) => Resources;
 
   clone: <T>(source: T) => T;
   cloneArray: <T>(sources: T[]) => T[];
@@ -201,10 +198,18 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     },
 
     useId,
-    useDependency,
-    useDependencies,
-    useLocalization,
-    useResources,
+    useDependency: <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => {
+      return useDependency(context, id, keyOrName, value);
+    },
+    useDependencies: <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => {
+      return useDependencies(context, id, keyOrName, value);
+    },
+    useLocalization: (keys: string[], fallbackTranslator?: Translator) => {
+      return useLocalization(context, keys, fallbackTranslator);
+    },
+    useResources: (keys: string[]) => {
+      return useResources(context, keys);
+    },
     useState,
     useRef,
     usePocket,

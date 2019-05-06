@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-export type RefHookType = <T>(initialValue?: T | null) => [React.RefObject<T>, T];
-
 export function useRef<T>(initialValue?: T | null): [React.RefObject<T>, T] {
   const [el, setEl] = React.useState(initialValue);
 

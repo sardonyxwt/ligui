@@ -8,8 +8,6 @@ interface ScopeActionTree {
   }
 }
 
-export type StateHookType = <T = any>(scope: string | Scope<T>, actions?: string[], retention?: number) => T;
-
 const scopeActionTree: ScopeActionTree = {};
 const stateHookListenerIdGenerator = createUniqueIdGenerator('StateHook');
 

@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 
-export type PocketHookType = <T extends {}>(initialValue: T) => T;
-
 const pocketIdGenerator = createUniqueIdGenerator('PocketId');
 
 const pockets: { [id: string]: object } = {};

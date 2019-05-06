@@ -6,8 +6,6 @@ import { ResourceService } from '../service/resource.service';
 import { LIGUI_TYPES } from '../types';
 import { ScopeEvent } from '@sardonyxwt/state-store';
 
-export type ResourcesHookType = (context: Context, keys: string[]) => Resources;
-
 export function useResources(context: Context, keys: string[]) {
   const resourceService = useDependency<ResourceService>(context, LIGUI_TYPES.RESOURCE_SERVICE);
 
