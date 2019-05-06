@@ -114,4 +114,4 @@ export interface WebLigui {
     resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
     prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
-export declare function createNewLiguiInstance(config: WebLiguiConfig, postInstall?: (ligui: WebLigui) => void): WebLigui;
+export declare function createNewLiguiInstance(config: WebLiguiConfig): WebLigui;

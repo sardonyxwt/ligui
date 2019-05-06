@@ -84,7 +84,7 @@ export interface NodeLigui {
     ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
 
-export function createNewLiguiInstance(config: NodeLiguiConfig, postInstall?: (ligui: NodeLigui) => void): NodeLigui {
+export function createNewLiguiInstance(config: NodeLiguiConfig): NodeLigui {
   const context = createContext(config.name, config.containerOptions);
 
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
@@ -172,9 +172,6 @@ export function createNewLiguiInstance(config: NodeLiguiConfig, postInstall?: (l
   if (config.name) {
     global[config.name] = ligui;
   }
-
-  resolveFunctionCall(postInstall)(ligui);
-  resolveFunctionCall(global[`on${config.name}Init`])(ligui);
 
   return ligui;
 }

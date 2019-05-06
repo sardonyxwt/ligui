@@ -70,4 +70,4 @@ export interface NodeLigui {
     resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
     prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
-export declare function createNewLiguiInstance(config: NodeLiguiConfig, postInstall?: (ligui: NodeLigui) => void): NodeLigui;
+export declare function createNewLiguiInstance(config: NodeLiguiConfig): NodeLigui;

@@ -131,7 +131,7 @@ export interface WebLigui {
     ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
 
-export function createNewLiguiInstance(config: WebLiguiConfig, postInstall?: (ligui: WebLigui) => void): WebLigui {
+export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
   const context = createContext(config.name, config.containerOptions);
 
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
@@ -237,9 +237,6 @@ export function createNewLiguiInstance(config: WebLiguiConfig, postInstall?: (li
   if (config.name) {
     global[config.name] = ligui;
   }
-
-  resolveFunctionCall(postInstall)(ligui);
-  resolveFunctionCall(global[`on${config.name}Init`])(ligui);
 
   return ligui;
 }
