@@ -10,7 +10,7 @@ export type Builder<T> = {
 
 export type BuilderFactory = <T extends new (...args) => any>(clazz: T) =>
   (...constructorArgs: ConstructorParameters<typeof clazz>) => Builder<ConstructorReturnType<T>>
-export type Mapping = string | ((source) => any) | [string | ((source) => any), MappingResolver<any>];
+export type Mapping = string | ((source) => any) | MappingResolver<any> | [string | ((source) => any), MappingResolver<any>];
 export type MappingDecorator = (mapping?: Mapping, defaultValue?) => PropertyDecorator;
 export type MappingDecoratorFactory = (sourceId?: string) => MappingDecorator;
 export interface MappingResolver<T> {
@@ -120,6 +120,14 @@ export const mappingResolverFactory: MappingResolverFactory = <T extends new (..
           return resolveValue(source, mapping) || defaultValue;
         } else if (typeof mapping === 'function') {
           return mapping(source) || defaultValue;
+        } else if (typeof mapping === 'object') {
+          const value = resolveValue(source, propertyName) || defaultValue;
+          if (typeof value === 'undefined') {
+            return value;
+          }
+          return Array.isArray(value)
+            ? (mapping as MappingResolver<T>).fromArray(value)
+            : (mapping as MappingResolver<T>).from(value);
         }
         return source[propertyName] || defaultValue;
       };
@@ -136,18 +144,8 @@ export const mappingResolverFactory: MappingResolverFactory = <T extends new (..
       Reflect.getMetadata(metadataKey, clazz.prototype).map(propertyName => {
         const [mapping, defaultValue]: [Mapping, any]
           = Reflect.getMetadata(metadataKey, clazz.prototype, propertyName);
-        if (Array.isArray(mapping)) {
-          const value = resolveMapping(propertyName, mapping[0], defaultValue);
-          if (Array.isArray(value)) {
-            builder[propertyName](mapping[1].fromArray(value));
-          } else if (value) {
-            builder[propertyName](mapping[1].from(value));
-          } else {
-            builder[propertyName](defaultValue);
-          }
-        } else {
-          builder[propertyName](resolveMapping(propertyName, mapping, defaultValue));
-        }
+
+        builder[propertyName](resolveMapping(propertyName, mapping, defaultValue));
       });
 
       return builder.build() as ConstructorReturnType<T>;
