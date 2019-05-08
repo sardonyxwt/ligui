@@ -9,12 +9,14 @@ import {
 } from '../scope/resource.scope';
 import { LIGUI_TYPES } from '../types';
 import { ResourceLoader } from '../loader/resource.loader';
+import autobind from 'autobind-decorator';
 
 export interface ResourceService extends ResourceScopeAddons {
   loadResources(keys: string[]): Promise<Resources>;
 }
 
 @injectable()
+@autobind
 export class ResourceServiceImpl implements ResourceService {
 
   constructor(@inject(LIGUI_TYPES.RESOURCE_LOADER) private loader: ResourceLoader,

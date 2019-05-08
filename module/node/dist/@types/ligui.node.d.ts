@@ -12,9 +12,9 @@ import { ResourcePartLoader } from './loader/resource.loader';
 import { LocalizationPartLoader } from './loader/localization.loader';
 import { ResourceScopeOptions } from './scope/resource.scope';
 import { LocalizationScopeOptions } from './scope/localization.scope';
-import { StoreDevTool } from '@sardonyxwt/state-store';
+import { Store, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
-import { interfaces } from 'inversify';
+import { Container, interfaces } from 'inversify';
 export * from 'inversify';
 export * from './types';
 export * from './context';
@@ -44,13 +44,13 @@ export interface NodeLiguiConfig {
     storeDevTools?: Partial<StoreDevTool>;
     eventBusDevTools?: Partial<EventBusDevTool>;
 }
-export interface NodeLigui {
+export interface NodeLigui extends StoreService, EventBusService {
     readonly rest: RestService;
-    readonly store: StoreService;
-    readonly eventBus: EventBusService;
     readonly resource: ResourceService;
     readonly localization: LocalizationService;
     readonly context: Context;
+    readonly store: Store;
+    readonly container: Container;
     clone: <T>(source: T) => T;
     cloneArray: <T>(sources: T[]) => T[];
     cloneArrays: <T>(...sources: (T[])[]) => T[];

@@ -27,9 +27,9 @@ import { ResourcePartLoader, createResourceLoader } from './loader/resource.load
 import { LocalizationPartLoader, createLocalizationLoader } from './loader/localization.loader';
 import { ResourceScopeOptions, createResourceScope, Resources } from './scope/resource.scope';
 import { LocalizationScopeOptions, Translator, createLocalizationScope } from './scope/localization.scope';
-import { Scope, StoreDevTool } from '@sardonyxwt/state-store';
+import { Scope, Store, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
-import { interfaces } from 'inversify';
+import { Container, interfaces } from 'inversify';
 import { LIGUI_TYPES } from './types';
 import * as React from 'react';
 
@@ -83,15 +83,15 @@ export interface WebLiguiConfig {
   eventBusDevTools?: Partial<EventBusDevTool>;
 }
 
-export interface WebLigui {
+export interface WebLigui extends StoreService, EventBusService {
   readonly jsx: JSXService;
   readonly rest: RestService;
-  readonly store: StoreService;
-  readonly eventBus: EventBusService;
   readonly resource: ResourceService;
   readonly localization: LocalizationService;
   readonly api: LiguiApi;
   readonly context: Context;
+  readonly store: Store;
+  readonly container: Container;
 
   useId: () => string;
   useRef: <T>(initialValue?: T | null) => [React.RefObject<T>, T];
@@ -171,18 +171,12 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     eventBusService.setEventBusDevTool(config.eventBusDevTools);
   }
 
-  const ligui = {
+  const ligui: WebLigui = {
     get jsx() {
       return jsxService;
     },
     get rest() {
       return restService;
-    },
-    get store() {
-      return storeService;
-    },
-    get eventBus() {
-      return eventBusService;
     },
     get resource() {
       return resourceService;
@@ -196,6 +190,21 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     get context() {
       return context;
     },
+    get store() {
+      return context.store;
+    },
+    get container() {
+      return context.container;
+    },
+
+    createStore: storeService.createStore,
+    getState: storeService.getState,
+    getStore: storeService.getStore,
+    setStoreDevTool: storeService.setStoreDevTool,
+
+    createEventBus: eventBusService.createEventBus,
+    getEventBus: eventBusService.getEventBus,
+    setEventBusDevTool: eventBusService.setEventBusDevTool,
 
     useId,
     useDependency: <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => {

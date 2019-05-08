@@ -1,6 +1,6 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "7.2.1",
+  "version": "7.3.0",
   "description": "Ligui",
   "keywords": [
     "sclib",
@@ -44,6 +44,7 @@
     "@sardonyxwt/event-bus": "1.2.0",
     "@sardonyxwt/state-store": "5.0.2",
     "@sardonyxwt/utils": "2.1.1",
+    "autobind-decorator": "^2.4.0",
     "inversify": "^5.0.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",

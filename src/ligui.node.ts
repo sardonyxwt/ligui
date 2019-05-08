@@ -14,9 +14,9 @@ import { ResourcePartLoader, createResourceLoader } from './loader/resource.load
 import { LocalizationPartLoader, createLocalizationLoader } from './loader/localization.loader';
 import { ResourceScopeOptions, createResourceScope } from './scope/resource.scope';
 import { LocalizationScopeOptions, createLocalizationScope } from './scope/localization.scope';
-import { StoreDevTool } from '@sardonyxwt/state-store';
+import { Store, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
-import { interfaces } from 'inversify';
+import { Container, interfaces } from 'inversify';
 import { LIGUI_TYPES } from './types';
 
 export * from 'inversify';
@@ -50,13 +50,13 @@ export interface NodeLiguiConfig {
   eventBusDevTools?: Partial<EventBusDevTool>;
 }
 
-export interface NodeLigui {
+export interface NodeLigui extends StoreService, EventBusService {
   readonly rest: RestService;
-  readonly store: StoreService;
-  readonly eventBus: EventBusService;
   readonly resource: ResourceService;
   readonly localization: LocalizationService;
   readonly context: Context;
+  readonly store: Store;
+  readonly container: Container;
 
   clone: <T>(source: T) => T;
   cloneArray: <T>(sources: T[]) => T[];
@@ -124,15 +124,9 @@ export function createNewLiguiInstance(config: NodeLiguiConfig): NodeLigui {
     eventBusService.setEventBusDevTool(config.eventBusDevTools);
   }
 
-  const ligui = {
+  const ligui: NodeLigui = {
     get rest() {
       return restService;
-    },
-    get store() {
-      return storeService;
-    },
-    get eventBus() {
-      return eventBusService;
     },
     get resource() {
       return resourceService;
@@ -143,6 +137,21 @@ export function createNewLiguiInstance(config: NodeLiguiConfig): NodeLigui {
     get context() {
       return context;
     },
+    get store() {
+      return context.store;
+    },
+    get container() {
+      return context.container;
+    },
+
+    createStore: storeService.createStore,
+    getState: storeService.getState,
+    getStore: storeService.getStore,
+    setStoreDevTool: storeService.setStoreDevTool,
+
+    createEventBus: eventBusService.createEventBus,
+    getEventBus: eventBusService.getEventBus,
+    setEventBusDevTool: eventBusService.setEventBusDevTool,
 
     clone,
     cloneArray,

@@ -3,6 +3,7 @@ import {
   createStore, getStore, getState, setStoreDevTool,
   Store, StoreConfig, StoreDevTool
 } from '@sardonyxwt/state-store';
+import autobind from 'autobind-decorator';
 
 export interface StoreService {
   createStore(config: StoreConfig): Store;
@@ -12,6 +13,7 @@ export interface StoreService {
 }
 
 @injectable()
+@autobind
 export class StoreServiceImpl implements StoreService {
   createStore = createStore;
   getState = getState;

@@ -8,12 +8,14 @@ import {
 } from '../scope/localization.scope';
 import { LIGUI_TYPES } from '../types';
 import { LocalizationLoader } from '../loader/localization.loader';
+import autobind from 'autobind-decorator';
 
 export interface LocalizationService extends LocalizationScopeAddons {
   loadLocalizations(keys: string[]): Promise<Translator>;
 }
 
 @injectable()
+@autobind
 export class LocalizationServiceImpl implements LocalizationService {
 
   constructor(@inject(LIGUI_TYPES.LOCALIZATION_LOADER) private loader: LocalizationLoader,
