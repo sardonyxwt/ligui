@@ -19,9 +19,9 @@ import { ResourcePartLoader } from './loader/resource.loader';
 import { LocalizationPartLoader } from './loader/localization.loader';
 import { ResourceScopeOptions, Resources } from './scope/resource.scope';
 import { LocalizationScopeOptions, Translator } from './scope/localization.scope';
-import { Scope, StoreDevTool } from '@sardonyxwt/state-store';
+import { Scope, Store, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
-import { interfaces } from 'inversify';
+import { Container, interfaces } from 'inversify';
 import * as React from 'react';
 export * from 'inversify';
 export * from './types';
@@ -70,15 +70,15 @@ export interface WebLiguiConfig {
     storeDevTools?: Partial<StoreDevTool>;
     eventBusDevTools?: Partial<EventBusDevTool>;
 }
-export interface WebLigui {
+export interface WebLigui extends StoreService, EventBusService {
     readonly jsx: JSXService;
     readonly rest: RestService;
-    readonly store: StoreService;
-    readonly eventBus: EventBusService;
     readonly resource: ResourceService;
     readonly localization: LocalizationService;
     readonly api: LiguiApi;
     readonly context: Context;
+    readonly store: Store;
+    readonly container: Container;
     useId: () => string;
     useRef: <T>(initialValue?: T | null) => [React.RefObject<T>, T];
     useState: <T = any>(scope: string | Scope<T>, actions?: string[], retention?: number) => T;

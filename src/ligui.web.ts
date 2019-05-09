@@ -207,18 +207,10 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     setEventBusDevTool: eventBusService.setEventBusDevTool,
 
     useId,
-    useDependency: <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => {
-      return useDependency(context, id, keyOrName, value);
-    },
-    useDependencies: <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => {
-      return useDependencies(context, id, keyOrName, value);
-    },
-    useLocalization: (keys: string[], fallbackTranslator?: Translator) => {
-      return useLocalization(context, keys, fallbackTranslator);
-    },
-    useResources: (keys: string[]) => {
-      return useResources(context, keys);
-    },
+    useDependency: useDependency.bind(useDependency, context),
+    useDependencies: useDependencies.bind(useDependencies, context),
+    useLocalization: useLocalization.bind(useLocalization, context),
+    useResources: useResources.bind(useResources, context),
     useState,
     useRef,
     usePocket,
