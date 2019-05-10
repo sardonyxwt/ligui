@@ -1,33 +1,31 @@
 import * as React from 'react';
-import { interfaces } from 'inversify';
-import { Context } from '../context';
+import { Container, interfaces } from 'inversify';
 
 export type ContainerKey = string | number | symbol;
-export type ContainerId<T = any> = string | symbol | interfaces.Newable<T> | interfaces.Abstract<T>;
 
 const isNamedDependency = (name?: ContainerKey) => typeof name !== 'undefined';
 const isTaggedDependency = (key?: ContainerKey, value?: any) => typeof key !== 'undefined' && typeof value !== 'undefined';
 
-export function useDependency <T = any>(context: Context, id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T {
-  return React.useMemo(() => {
-    if (isTaggedDependency(keyOrName, value)) {
-      return context.container.getTagged<T>(id, keyOrName, value);
-    }
-    if (isNamedDependency(keyOrName)) {
-      return context.container.getNamed<T>(id, keyOrName);
-    }
-    return context.container.get<T>(id);
-  }, [id, keyOrName, value]);
-}
+export const createDependencyHook = (container: Container) =>
+  <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any): T =>
+    React.useMemo(() => {
+      if (isTaggedDependency(keyOrName, value)) {
+        return container.getTagged<T>(id, keyOrName, value);
+      }
+      if (isNamedDependency(keyOrName)) {
+        return container.getNamed<T>(id, keyOrName);
+      }
+      return container.get<T>(id);
+    }, [id, keyOrName, value]);
 
-export function useDependencies <T = any>(context: Context, id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T[] {
-  return React.useMemo(() => {
-    if (isTaggedDependency(keyOrName, value)) {
-      return context.container.getAllTagged<T>(id, keyOrName, value);
-    }
-    if (isNamedDependency(keyOrName)) {
-      return context.container.getAllNamed<T>(id, keyOrName);
-    }
-    return context.container.getAll<T>(id);
-  }, [id, keyOrName, value]);
-}
+export const createDependenciesHook = (container: Container) =>
+  <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any): T[] =>
+    React.useMemo(() => {
+      if (isTaggedDependency(keyOrName, value)) {
+        return container.getAllTagged<T>(id, keyOrName, value);
+      }
+      if (isNamedDependency(keyOrName)) {
+        return container.getAllNamed<T>(id, keyOrName);
+      }
+      return container.getAll<T>(id);
+    }, [id, keyOrName, value]);

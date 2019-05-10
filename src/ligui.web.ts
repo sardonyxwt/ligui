@@ -11,13 +11,13 @@ import { StoreServiceImpl, StoreService } from './service/store.service';
 import { EventBusServiceImpl, EventBusService } from './service/event-bus.service';
 import { ResourceServiceImpl, ResourceService } from './service/resource.service';
 import { LocalizationServiceImpl, LocalizationService } from './service/localization.service';
-import { useDependency, useDependencies, ContainerId, ContainerKey } from './hook/dependency.hook';
 import { useId } from './hook/id.hook';
-import { useLocalization } from './hook/localization.hook';
 import { useRef } from './hook/ref.hook';
-import { useResources } from './hook/resources.hook';
 import { useState } from './hook/state.hook';
 import { usePocket } from './hook/pocket.hook';
+import { createDependencyHook, createDependenciesHook, ContainerKey } from './hook/dependency.hook';
+import { createLocalizationHook } from './hook/localization.hook';
+import { createResourceHook } from './hook/resources.hook';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
 import { PreloaderApi } from './api/preloader.api';
@@ -58,6 +58,9 @@ export * from './hook/id.hook';
 export * from './hook/state.hook';
 export * from './hook/pocket.hook';
 export * from './hook/ref.hook';
+export * from './hook/dependency.hook';
+export * from './hook/localization.hook';
+export * from './hook/resources.hook';
 export * from '@sardonyxwt/state-store';
 export * from '@sardonyxwt/event-bus';
 export * from '@sardonyxwt/utils/generator';
@@ -97,8 +100,8 @@ export interface WebLigui extends StoreService, EventBusService {
   useRef: <T>(initialValue?: T | null) => [React.RefObject<T>, T];
   useState: <T = any>(scope: string | Scope<T>, actions?: string[], retention?: number) => T;
   usePocket: <T extends {}>(initialValue: T) => T;
-  useDependency: <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T;
-  useDependencies: <T = any>(id: ContainerId<T>, keyOrName?: ContainerKey, value?: any) => T[];
+  useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
+  useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
   useLocalization: (keys: string[], fallbackTranslator?: Translator) => Translator;
   useResources: (keys: string[]) => Resources;
 
@@ -207,10 +210,10 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     setEventBusDevTool: eventBusService.setEventBusDevTool,
 
     useId,
-    useDependency: useDependency.bind(useDependency, context),
-    useDependencies: useDependencies.bind(useDependencies, context),
-    useLocalization: useLocalization.bind(useLocalization, context),
-    useResources: useResources.bind(useResources, context),
+    useDependency: createDependencyHook(context.container),
+    useDependencies: createDependenciesHook(context.container),
+    useLocalization: createLocalizationHook(localizationService),
+    useResources: createResourceHook(resourceService),
     useState,
     useRef,
     usePocket,
