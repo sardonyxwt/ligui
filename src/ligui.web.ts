@@ -241,8 +241,8 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
   };
 
   global[config.name] = ligui;
-  resolveFunctionCall(global[`on${config.name}PostSetup`](ligui));
-  resolveFunctionCall(global[`on${config.name}Init`](ligui));
+  resolveFunctionCall(global[`on${config.name}PostSetup`])(ligui);
+  resolveFunctionCall(global[`on${config.name}Init`])(ligui);
 
   return ligui;
 }
