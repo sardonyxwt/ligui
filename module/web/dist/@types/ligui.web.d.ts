@@ -19,7 +19,7 @@ import { ResourcePartLoader } from './loader/resource.loader';
 import { LocalizationPartLoader } from './loader/localization.loader';
 import { ResourceScopeOptions, Resources } from './scope/resource.scope';
 import { LocalizationScopeOptions, Translator } from './scope/localization.scope';
-import { Scope, Store, StoreDevTool } from '@sardonyxwt/state-store';
+import { Store, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 import { Container, interfaces } from 'inversify';
 import * as React from 'react';
@@ -84,7 +84,7 @@ export interface WebLigui extends StoreService, EventBusService {
     readonly container: Container;
     useId: () => string;
     useRef: <T>(initialValue?: T | null) => [React.RefObject<T>, T];
-    useState: <T = any>(scope: string | Scope<T>, actions?: string[], retention?: number) => T;
+    useState: <T = any>(scopeName: string, actions?: string[], retention?: number) => T;
     usePocket: <T extends {}>(initialValue: T) => T;
     useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
     useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];

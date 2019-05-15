@@ -13,8 +13,8 @@ import { ResourceServiceImpl, ResourceService } from './service/resource.service
 import { LocalizationServiceImpl, LocalizationService } from './service/localization.service';
 import { useId } from './hook/id.hook';
 import { useRef } from './hook/ref.hook';
-import { useState } from './hook/state.hook';
 import { usePocket } from './hook/pocket.hook';
+import { createStateHook } from './hook/state.hook';
 import { createDependencyHook, createDependenciesHook, ContainerKey } from './hook/dependency.hook';
 import { createLocalizationHook } from './hook/localization.hook';
 import { createResourceHook } from './hook/resources.hook';
@@ -27,7 +27,7 @@ import { ResourcePartLoader, createResourceLoader } from './loader/resource.load
 import { LocalizationPartLoader, createLocalizationLoader } from './loader/localization.loader';
 import { ResourceScopeOptions, createResourceScope, Resources } from './scope/resource.scope';
 import { LocalizationScopeOptions, Translator, createLocalizationScope } from './scope/localization.scope';
-import { Scope, Store, StoreDevTool } from '@sardonyxwt/state-store';
+import { Store, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 import { Container, interfaces } from 'inversify';
 import { LIGUI_TYPES } from './types';
@@ -98,7 +98,7 @@ export interface WebLigui extends StoreService, EventBusService {
 
   useId: () => string;
   useRef: <T>(initialValue?: T | null) => [React.RefObject<T>, T];
-  useState: <T = any>(scope: string | Scope<T>, actions?: string[], retention?: number) => T;
+  useState: <T = any>(scopeName: string, actions?: string[], retention?: number) => T;
   usePocket: <T extends {}>(initialValue: T) => T;
   useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
   useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
@@ -214,9 +214,7 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     useDependencies: createDependenciesHook(context.container),
     useLocalization: createLocalizationHook(localizationService),
     useResources: createResourceHook(resourceService),
-    useState: <T = any>(scope: string | Scope<T>, actions?: string[], retention?: number): T => {
-      return useState(typeof scope === 'string' ? context.store.getScope(scope) : scope, actions, retention)
-    },
+    useState: createStateHook(context.store),
     useRef,
     usePocket,
 
