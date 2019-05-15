@@ -1,6 +1,4 @@
-import { interfaces } from 'inversify';
-import { Context } from '../context';
+import { Container, interfaces } from 'inversify';
 export declare type ContainerKey = string | number | symbol;
-export declare type ContainerId<T = any> = string | symbol | interfaces.Newable<T> | interfaces.Abstract<T>;
-export declare function useDependency<T = any>(context: Context, id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T;
-export declare function useDependencies<T = any>(context: Context, id: ContainerId<T>, keyOrName?: ContainerKey, value?: any): T[];
+export declare const createDependencyHook: (container: Container) => <T = any>(id: string | symbol | interfaces.Newable<T> | interfaces.Abstract<T>, keyOrName?: string | number | symbol, value?: any) => T;
+export declare const createDependenciesHook: (container: Container) => <T = any>(id: string | symbol | interfaces.Newable<T> | interfaces.Abstract<T>, keyOrName?: string | number | symbol, value?: any) => T[];

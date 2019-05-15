@@ -1,3 +1,3 @@
-import { Context } from '../context';
 import { Resources } from '../scope/resource.scope';
-export declare function useResources(context: Context, keys: string[]): Resources;
+import { ResourceService } from '../service/resource.service';
+export declare const createResourceHook: (resourceService: ResourceService) => (keys: string[]) => Resources;

@@ -1,16 +1,16 @@
 import { ConstructorParameters, ConstructorReturnType } from './data';
 
 export type Builder<T> = {
-  set: <K extends keyof T>(key: K, value: T[K]) => Builder<T>;
+  set: <K extends keyof T>(key: K, value: T[K] | (() => T[K])) => Builder<T>;
   setFrom: (data: Partial<T>) => Builder<T>;
   build: () => T;
 } & {
-  [K in keyof T]: (value: T[K]) => Builder<T>;
+  [K in keyof T]: (value: T[K] | (() => T[K])) => Builder<T>;
 }
 
 export type BuilderFactory = <T extends new (...args) => any>(clazz: T) =>
   (...constructorArgs: ConstructorParameters<typeof clazz>) => Builder<ConstructorReturnType<T>>
-export type Mapping = string | ((source) => any) | MappingResolver<any> | [string | ((source) => any), MappingResolver<any>];
+export type Mapping = string | ((source, target) => any) | MappingResolver<any> | [string | ((source) => any), MappingResolver<any>];
 export type MappingDecorator = (mapping?: Mapping, defaultValue?) => PropertyDecorator;
 export type MappingDecoratorFactory = (sourceId?: string) => MappingDecorator;
 export interface MappingResolver<T> {
@@ -28,7 +28,7 @@ function createBuilder<T extends new (...args) => any>(
 
   const builder = new Proxy({
     set: (key, value) => {
-      tempObj[key] = value;
+      tempObj[key] = typeof value === 'function' ? value() : value;
       return builder;
     },
     setFrom: (data) => {
@@ -115,11 +115,13 @@ export const mappingResolverFactory: MappingResolverFactory = <T extends new (..
         return null;
       }
 
+      const object = new (clazz as any)(...constructorArgs);
+
       const resolveMapping = (propertyName, mapping: Mapping, defaultValue) => {
         if (typeof mapping === 'string') {
           return resolveValue(source, mapping) || defaultValue;
         } else if (typeof mapping === 'function') {
-          return mapping(source) || defaultValue;
+          return mapping(source, object) || defaultValue;
         } else if (typeof mapping === 'object') {
           const value = resolveValue(source, propertyName) || defaultValue;
           if (typeof value === 'undefined') {
@@ -139,16 +141,14 @@ export const mappingResolverFactory: MappingResolverFactory = <T extends new (..
         throw new Error('Property metadata not exist')
       }
 
-      const builder = createBuilder(clazz, ...constructorArgs);
-
       Reflect.getMetadata(metadataKey, clazz.prototype).map(propertyName => {
         const [mapping, defaultValue]: [Mapping, any]
           = Reflect.getMetadata(metadataKey, clazz.prototype, propertyName);
 
-        builder[propertyName](resolveMapping(propertyName, mapping, defaultValue));
+        object[propertyName](resolveMapping(propertyName, mapping, defaultValue));
       });
 
-      return builder.build() as ConstructorReturnType<T>;
+      return object as ConstructorReturnType<T>;
     };
     const fromArray = (source: any[]) => {
       if (typeof source !== 'object' || !Array.isArray(source)) {
@@ -162,14 +162,14 @@ export const mappingResolverFactory: MappingResolverFactory = <T extends new (..
 
 export const MAPPING: {
   date: MappingResolver<Date>;
-  split: (separator: string | RegExp, limit?: number) => MappingResolver<string>;
+  split: (separator: string | RegExp, limit?: number) => MappingResolver<string[]>;
 } = {
   date: {
-    from: source => source ? new Date(source) : null,
-    fromArray: source => source ? source.map(MAPPING.date.from) : null
+    from: (source: string | number) => source ? new Date(source) : null,
+    fromArray: (source: (string | number)[]) => source ? source.map(MAPPING.date.from) : null
   },
   split: (separator: string | RegExp, limit?: number) => ({
-    from: source => source ? source.split(separator, limit) : null,
-    fromArray: source => source ? source.map(MAPPING.split(separator, limit).from) : null
+    from: (source: string) => source ? source.split(separator, limit) : null,
+    fromArray: (source: string[]) => source ? source.map(MAPPING.split(separator, limit).from) : null
   })
 };
