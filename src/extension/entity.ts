@@ -126,7 +126,7 @@ export const mappingResolverFactory: MappingResolverFactory = <T extends new (..
           return mapping(source, object) || defaultValue;
         }
         if (typeof mapping === 'object' && Array.isArray(mapping)) {
-          const value = resolveValue(source, resolveMapping(propertyName, mapping[0], defaultValue));
+          const value = resolveMapping(propertyName, mapping[0], defaultValue);
           if (typeof value === 'undefined') {
             return value;
           }
