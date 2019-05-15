@@ -214,7 +214,9 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     useDependencies: createDependenciesHook(context.container),
     useLocalization: createLocalizationHook(localizationService),
     useResources: createResourceHook(resourceService),
-    useState,
+    useState: <T = any>(scope: string | Scope<T>, actions?: string[], retention?: number): T => {
+      return useState(typeof scope === 'string' ? context.store.getScope(scope) : scope, actions, retention)
+    },
     useRef,
     usePocket,
 
