@@ -76,7 +76,7 @@ export const resolveValue = (object, path: string) => {
   let result = object;
   for (let i = 0; i < pathParts.length; i++) {
     if (!result || typeof result !== 'object') {
-      result = null;
+      result = undefined;
       break;
     }
     result = result[pathParts[i]];
