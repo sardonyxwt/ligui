@@ -10,7 +10,8 @@ export type Builder<T> = {
 
 export type BuilderFactory = <T extends new (...args) => any>(clazz: T) =>
   (...constructorArgs: ConstructorParameters<typeof clazz>) => Builder<ConstructorReturnType<T>>
-export type Mapping = string | ((source, target) => any) | MappingResolver<any> | [string | ((source) => any), MappingResolver<any>];
+export type Mapping = string | ((source, target) => any) | MappingResolver<any> |
+  [string | ((source, target) => any), MappingResolver<any>];
 export type MappingDecorator = (mapping?: Mapping, defaultValue?) => PropertyDecorator;
 export type MappingDecoratorFactory = (sourceId?: string) => MappingDecorator;
 export interface MappingResolver<T> {
@@ -99,7 +100,7 @@ export const mappingDecoratorFactory: MappingDecoratorFactory = (sourceId?) => {
       let properties = isPropertyMetadataExist ? Reflect.getMetadata(metadataKey, target) : [];
       properties.push(propertyKey);
       Reflect.defineMetadata(metadataKey, properties, target);
-      Reflect.defineMetadata(metadataKey, [mapping, defaultValue], target, propertyKey);
+      Reflect.defineMetadata(metadataKey, [mapping || propertyKey, defaultValue], target, propertyKey);
     }
   }
 };
@@ -120,9 +121,20 @@ export const mappingResolverFactory: MappingResolverFactory = <T extends new (..
       const resolveMapping = (propertyName, mapping: Mapping, defaultValue) => {
         if (typeof mapping === 'string') {
           return resolveValue(source, mapping) || defaultValue;
-        } else if (typeof mapping === 'function') {
+        }
+        if (typeof mapping === 'function') {
           return mapping(source, object) || defaultValue;
-        } else if (typeof mapping === 'object') {
+        }
+        if (typeof mapping === 'object' && Array.isArray(mapping)) {
+          const value = resolveValue(source, resolveMapping(propertyName, mapping[0], defaultValue));
+          if (typeof value === 'undefined') {
+            return value;
+          }
+          return Array.isArray(value)
+            ? (mapping[1] as MappingResolver<T>).fromArray(value)
+            : (mapping[1] as MappingResolver<T>).from(value);
+        }
+        if (typeof mapping === 'object' && !!mapping) {
           const value = resolveValue(source, propertyName) || defaultValue;
           if (typeof value === 'undefined') {
             return value;
@@ -145,7 +157,7 @@ export const mappingResolverFactory: MappingResolverFactory = <T extends new (..
         const [mapping, defaultValue]: [Mapping, any]
           = Reflect.getMetadata(metadataKey, clazz.prototype, propertyName);
 
-        object[propertyName](resolveMapping(propertyName, mapping, defaultValue));
+        object[propertyName] = resolveMapping(propertyName, mapping, defaultValue);
       });
 
       return object as ConstructorReturnType<T>;

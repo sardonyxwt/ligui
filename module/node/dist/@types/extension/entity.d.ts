@@ -7,7 +7,7 @@ export declare type Builder<T> = {
     [K in keyof T]: (value: T[K] | (() => T[K])) => Builder<T>;
 };
 export declare type BuilderFactory = <T extends new (...args: any[]) => any>(clazz: T) => (...constructorArgs: ConstructorParameters<typeof clazz>) => Builder<ConstructorReturnType<T>>;
-export declare type Mapping = string | ((source: any, target: any) => any) | MappingResolver<any> | [string | ((source: any) => any), MappingResolver<any>];
+export declare type Mapping = string | ((source: any, target: any) => any) | MappingResolver<any> | [string | ((source: any, target: any) => any), MappingResolver<any>];
 export declare type MappingDecorator = (mapping?: Mapping, defaultValue?: any) => PropertyDecorator;
 export declare type MappingDecoratorFactory = (sourceId?: string) => MappingDecorator;
 export interface MappingResolver<T> {
