@@ -5,14 +5,13 @@ export interface Resources {
     [key: string]: any;
 }
 export interface ResourceScopeState {
-    resources: Resources;
+    readonly resources: Resources;
 }
 export interface ResourceScopeAddResourceActionProps {
     key: string;
     resource: any;
 }
-export interface ResourceScopeAddons {
-    readonly resources: Resources;
+export interface ResourceScopeAddons extends ResourceScopeState {
     setResource(props: ResourceScopeAddResourceActionProps): void;
     getResource(key: string): any;
     isResourcesLoaded(keys: string[]): boolean;

@@ -9,22 +9,22 @@ import { JSXServiceImpl, JSXService } from './service/jsx.service';
 import { RestServiceImpl, RestService } from './service/rest.service';
 import { StoreServiceImpl, StoreService } from './service/store.service';
 import { EventBusServiceImpl, EventBusService } from './service/event-bus.service';
-import { ResourceServiceImpl, ResourceService } from './service/resource.service';
-import { LocalizationServiceImpl, LocalizationService } from './service/localization.service';
+import { ResourceServiceImpl, ResourceService, ResourceLoader } from './service/resource.service';
+import { LocalizationServiceImpl, LocalizationService, LocalizationLoader } from './service/localization.service';
+import { ModuleServiceImpl, ModuleService, ModuleLoader } from './service/module.service';
 import { useId } from './hook/id.hook';
 import { useRef } from './hook/ref.hook';
 import { usePocket } from './hook/pocket.hook';
 import { createStateHook } from './hook/state.hook';
 import { createDependencyHook, createDependenciesHook, ContainerKey } from './hook/dependency.hook';
 import { createLocalizationHook } from './hook/localization.hook';
+import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resources.hook';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
 import { PreloaderApi } from './api/preloader.api';
 import { ContextmenuApi } from './api/contextmenu.api';
 import { NotificationApi } from './api/notification.api';
-import { ResourcePartLoader, createResourceLoader } from './loader/resource.loader';
-import { LocalizationPartLoader, createLocalizationLoader } from './loader/localization.loader';
 import { ResourceScopeOptions, createResourceScope, Resources } from './scope/resource.scope';
 import { LocalizationScopeOptions, Translator, createLocalizationScope } from './scope/localization.scope';
 import { Store, StoreDevTool } from '@sardonyxwt/state-store';
@@ -47,19 +47,19 @@ export * from './extension/data';
 export * from './extension/function';
 export * from './scope/localization.scope';
 export * from './scope/resource.scope';
-export * from './loader/localization.loader';
-export * from './loader/resource.loader';
 export * from './service/jsx.service';
 export * from './service/localization.service';
 export * from './service/resource.service';
 export * from './service/rest.service';
 export * from './service/store.service';
+export * from './service/module.service';
 export * from './hook/id.hook';
 export * from './hook/state.hook';
 export * from './hook/pocket.hook';
 export * from './hook/ref.hook';
 export * from './hook/dependency.hook';
 export * from './hook/localization.hook';
+export * from './hook/module.hook';
 export * from './hook/resources.hook';
 export * from '@sardonyxwt/state-store';
 export * from '@sardonyxwt/event-bus';
@@ -78,10 +78,11 @@ export interface WebLiguiConfig {
   name: string;
   api?: LiguiApi;
   containerOptions: interfaces.ContainerOptions
-  resourcePartLoader: ResourcePartLoader;
+  resourceLoader: ResourceLoader;
   resourceScopeOptions: ResourceScopeOptions;
-  localizationPartLoader: LocalizationPartLoader;
+  localizationLoader: LocalizationLoader;
   localizationScopeOptions: LocalizationScopeOptions;
+  moduleLoader: ModuleLoader;
   storeDevTools?: Partial<StoreDevTool>;
   eventBusDevTools?: Partial<EventBusDevTool>;
 }
@@ -91,6 +92,7 @@ export interface WebLigui extends StoreService, EventBusService {
   readonly rest: RestService;
   readonly resource: ResourceService;
   readonly localization: LocalizationService;
+  readonly module: ModuleService;
   readonly api: LiguiApi;
   readonly context: Context;
   readonly store: Store;
@@ -103,6 +105,7 @@ export interface WebLigui extends StoreService, EventBusService {
   useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
   useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
   useLocalization: (keys: string[], fallbackTranslator?: Translator) => Translator;
+  useModule: <T = any>(key: string) => [T, Promise<T>];
   useResources: (keys: string[]) => Resources;
 
   clone: <T>(source: T) => T;
@@ -137,11 +140,9 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
   const localizationScope = createLocalizationScope(context.store, config.localizationScopeOptions);
 
-  const resourceLoader = createResourceLoader(resourceScope, config.resourcePartLoader);
-  const localizationLoader = createLocalizationLoader(localizationScope, config.localizationPartLoader);
-
-  context.container.bind(LIGUI_TYPES.RESOURCE_LOADER).toConstantValue(resourceLoader);
-  context.container.bind(LIGUI_TYPES.LOCALIZATION_LOADER).toConstantValue(localizationLoader);
+  context.container.bind(LIGUI_TYPES.MODULE_LOADER).toConstantValue(config.moduleLoader);
+  context.container.bind(LIGUI_TYPES.RESOURCE_LOADER).toConstantValue(config.resourceLoader);
+  context.container.bind(LIGUI_TYPES.LOCALIZATION_LOADER).toConstantValue(config.localizationLoader);
 
   context.container.bind(LIGUI_TYPES.RESOURCE_SCOPE).toConstantValue(resourceScope);
   context.container.bind(LIGUI_TYPES.LOCALIZATION_SCOPE).toConstantValue(localizationScope);
@@ -158,6 +159,8 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     .to(EventBusServiceImpl).inSingletonScope();
   context.container.bind<LocalizationService>(LIGUI_TYPES.LOCALIZATION_SERVICE)
     .to(LocalizationServiceImpl).inSingletonScope();
+  context.container.bind<ModuleService>(LIGUI_TYPES.MODULE_SERVICE)
+    .to(ModuleServiceImpl).inSingletonScope();
 
   const jsxService = context.container.get<JSXService>(LIGUI_TYPES.JSX_SERVICE);
   const restService = context.container.get<RestService>(LIGUI_TYPES.REST_SERVICE);
@@ -165,6 +168,7 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
   const resourceService = context.container.get<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE);
   const eventBusService = context.container.get<EventBusService>(LIGUI_TYPES.EVENT_BUS_SERVICE);
   const localizationService = context.container.get<LocalizationService>(LIGUI_TYPES.LOCALIZATION_SERVICE);
+  const moduleService = context.container.get<ModuleService>(LIGUI_TYPES.MODULE_SERVICE);
 
   if (config.storeDevTools) {
     storeService.setStoreDevTool(config.storeDevTools);
@@ -186,6 +190,9 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     },
     get localization() {
       return localizationService;
+    },
+    get module() {
+      return moduleService;
     },
     get api() {
       return config.api;
@@ -214,6 +221,7 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     useDependencies: createDependenciesHook(context.container),
     useLocalization: createLocalizationHook(localizationService),
     useResources: createResourceHook(resourceService),
+    useModule: createModuleHook(moduleService),
     useState: createStateHook(context.store),
     useRef,
     usePocket,

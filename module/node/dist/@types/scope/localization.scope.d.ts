@@ -10,21 +10,17 @@ export interface Localizations {
     [locale: string]: Localization;
 }
 export interface LocalizationScopeState {
-    locales: string[];
-    defaultLocale: string;
-    currentLocale: string;
-    localizations: Localizations;
+    readonly locales: string[];
+    readonly defaultLocale: string;
+    readonly currentLocale: string;
+    readonly localizations: Localizations;
 }
 export interface LocalizationScopeAddLocalizationActionProps {
     key: string;
     locale: string;
     localization: Localization;
 }
-export interface LocalizationScopeAddons {
-    readonly locales: string[];
-    readonly defaultLocale: string;
-    readonly currentLocale: string;
-    readonly localizations: Localizations;
+export interface LocalizationScopeAddons extends LocalizationScopeState {
     readonly currentLocalization: Localization;
     translate(path: string): string;
     changeLocale(locale: string): void;

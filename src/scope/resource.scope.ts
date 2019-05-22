@@ -8,7 +8,7 @@ export interface Resources {
 }
 
 export interface ResourceScopeState {
-  resources: Resources
+  readonly resources: Resources
 }
 
 export interface ResourceScopeAddResourceActionProps {
@@ -16,8 +16,7 @@ export interface ResourceScopeAddResourceActionProps {
   resource: any;
 }
 
-export interface ResourceScopeAddons {
-  readonly resources: Resources;
+export interface ResourceScopeAddons extends ResourceScopeState {
   setResource(props: ResourceScopeAddResourceActionProps): void;
   getResource(key: string): any;
   isResourcesLoaded(keys: string[]): boolean;

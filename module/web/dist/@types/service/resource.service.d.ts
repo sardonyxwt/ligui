@@ -1,13 +1,14 @@
 import { ScopeListener } from '@sardonyxwt/state-store';
 import { Resources, ResourceScope, ResourceScopeAddons, ResourceScopeAddResourceActionProps, ResourceScopeState } from '../scope/resource.scope';
-import { ResourceLoader } from '../loader/resource.loader';
+export declare type ResourceLoader = (key: string) => any | Promise<any>;
 export interface ResourceService extends ResourceScopeAddons {
     loadResources(keys: string[]): Promise<Resources>;
 }
 export declare class ResourceServiceImpl implements ResourceService {
-    private loader;
-    private scope;
-    constructor(loader: ResourceLoader, scope: ResourceScope);
+    private _loader;
+    private _scope;
+    private _resourcePromises;
+    constructor(_loader: ResourceLoader, _scope: ResourceScope);
     readonly resources: Resources;
     getResource(key: string): any;
     setResource(props: ResourceScopeAddResourceActionProps): void;
