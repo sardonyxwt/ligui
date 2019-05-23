@@ -27,26 +27,45 @@ export const createDependencyPreloaderHOC = (
 ) => (
   ...args: Parameters<typeof Component>
 ): ReturnType<typeof Component> => {
-  const isLoaded = (keys: string[]) => !Array.isArray(keys) || keys.length === 0;
 
-  const [isResourcesLoaded, setIsResourcesLoaded] = React.useState(() => isLoaded(resourceKeys));
-  const [isLocalizationsLoaded, setIsLocalizationLoaded] = React.useState(() => isLoaded(localizationKeys));
-  const [isModulesLoaded, setIsModulesLoaded] = React.useState(() => isLoaded(moduleKeys));
+  const [isResourcesLoaded, setIsResourcesLoaded] = React.useState(() =>
+    !Array.isArray(resourceKeys)
+    || resourceKeys.length === 0
+    || resourceKeys.map(resourceService.isResourceLoaded).reduce((v1, v2) => v1 && v2));
+
+  const [isLocalizationsLoaded, setIsLocalizationLoaded] = React.useState(() =>
+    !Array.isArray(localizationKeys)
+    || localizationKeys.length === 0
+    || localizationKeys.map(localizationService.isLocalizationLoaded).reduce((v1, v2) => v1 && v2));
+
+  const [isModulesLoaded, setIsModulesLoaded] = React.useState(() =>
+    !Array.isArray(moduleKeys)
+    || moduleKeys.length === 0
+    || moduleKeys.map(moduleService.isModuleLoaded).reduce((v1, v2) => v1 && v2));
 
   const isLoadedComplete = isResourcesLoaded && isLocalizationsLoaded && isModulesLoaded;
 
   if (!isResourcesLoaded) {
-    Promise.all(resourceKeys.map(it => resourceService.loadResources(it)))
+    Promise.all(
+      resourceKeys
+        .filter(it => !resourceService.isResourceLoaded(it))
+        .map(it => resourceService.loadResources(it)))
       .then(() => setIsResourcesLoaded(true));
   }
 
   if (!isLocalizationsLoaded) {
-    Promise.all(localizationKeys.map(it => localizationService.loadLocalization(it)))
+    Promise.all(
+      localizationKeys
+        .filter(it => !localizationService.isLocalizationLoaded(it))
+        .map(it => localizationService.loadLocalization(it)))
       .then(() => setIsLocalizationLoaded(true));
   }
 
   if (!isModulesLoaded) {
-    Promise.all(moduleKeys.map(it => moduleService.loadModule(it)))
+    Promise.all(
+      moduleKeys
+        .filter(it => !moduleService.isModuleLoaded(it))
+        .map(it => moduleService.loadModule(it)))
       .then(() => setIsModulesLoaded(true));
   }
 
