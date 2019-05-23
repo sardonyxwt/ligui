@@ -8,7 +8,7 @@ export interface DependencyPreloaderHOCOptions {
   resourceKeys?: string[];
   localizationKeys?: string[];
   moduleKeys?: string[];
-  placeholder?: (isLoaded, component: React.ReactElement) => React.ReactElement;
+  placeholder?: (isLoaded, component: React.ReactNode) => React.ReactNode;
 }
 
 export const createDependencyPreloaderHOC = (
