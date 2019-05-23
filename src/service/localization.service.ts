@@ -8,6 +8,7 @@ import {
 } from '../scope/localization.scope';
 import { LIGUI_TYPES } from '../types';
 import autobind from 'autobind-decorator';
+import { SynchronousPromise } from 'synchronous-promise';
 
 export type Translator = (key: string) => string;
 
@@ -96,7 +97,7 @@ export class LocalizationServiceImpl implements LocalizationService {
 
     if (!(localizationKey in _localizationPromises)) {
       if (localizations[currentLocale] && localizations[currentLocale][key]) {
-        _localizationPromises[localizationKey] = Promise.resolve(localizations[currentLocale][key]);
+        _localizationPromises[localizationKey] = SynchronousPromise.resolve(localizations[currentLocale][key]);
       } else {
         _localizationPromises[localizationKey] =
           new Promise<Localization>(resolve => _loader(currentLocale, key, resolve))

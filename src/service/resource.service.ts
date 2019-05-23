@@ -8,6 +8,7 @@ import {
 } from '../scope/resource.scope';
 import { LIGUI_TYPES } from '../types';
 import autobind from 'autobind-decorator';
+import { SynchronousPromise } from 'synchronous-promise';
 
 export type ResourceLoader = (key: string, cb: (resource: any) => void) => void;
 
@@ -49,7 +50,7 @@ export class ResourceServiceImpl implements ResourceService {
 
     if (!(key in _resourcePromises)) {
       if (_scope.resources[key]) {
-        _resourcePromises[key] = Promise.resolve(_scope.resources[key]);
+        _resourcePromises[key] = SynchronousPromise.resolve(_scope.resources[key]);
       } else {
         _resourcePromises[key] = new Promise(resolve => _loader(key, resolve))
           .then(resource => _scope.setResource({key, resource}));
