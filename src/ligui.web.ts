@@ -26,6 +26,7 @@ import { DialogApi } from './api/dialog.api';
 import { PreloaderApi } from './api/preloader.api';
 import { ContextmenuApi } from './api/contextmenu.api';
 import { NotificationApi } from './api/notification.api';
+import { createModuleScope } from './scope/module.scope';
 import { ResourceScopeOptions, createResourceScope } from './scope/resource.scope';
 import { LocalizationScopeOptions, createLocalizationScope } from './scope/localization.scope';
 import { Store, StoreDevTool } from '@sardonyxwt/state-store';
@@ -142,6 +143,7 @@ export interface WebLigui extends StoreService, EventBusService {
 export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
   const context = createContext(config.name, config.containerOptions);
 
+  const moduleScope = createModuleScope(context.store);
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
   const localizationScope = createLocalizationScope(context.store, config.localizationScopeOptions);
 
@@ -149,6 +151,7 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
   context.container.bind(LIGUI_TYPES.RESOURCE_LOADER).toConstantValue(config.resourceLoader);
   context.container.bind(LIGUI_TYPES.LOCALIZATION_LOADER).toConstantValue(config.localizationLoader);
 
+  context.container.bind(LIGUI_TYPES.MODULE_SCOPE).toConstantValue(moduleScope);
   context.container.bind(LIGUI_TYPES.RESOURCE_SCOPE).toConstantValue(resourceScope);
   context.container.bind(LIGUI_TYPES.LOCALIZATION_SCOPE).toConstantValue(localizationScope);
 

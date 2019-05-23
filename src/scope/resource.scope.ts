@@ -11,13 +11,13 @@ export interface ResourceScopeState {
   readonly resources: Resources
 }
 
-export interface ResourceScopeAddResourceActionProps {
+export interface ResourceScopeSetResourceActionProps {
   key: string;
   resource: any;
 }
 
 export interface ResourceScopeAddons extends ResourceScopeState {
-  setResource(props: ResourceScopeAddResourceActionProps): void;
+  setResource(props: ResourceScopeSetResourceActionProps): void;
   getResource(key: string): any;
   isResourceLoaded(key: string): boolean;
   onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback;
@@ -38,10 +38,10 @@ export function createResourceScope (store: Store, {initState}: ResourceScopeOpt
 
   resourceScope.registerAction(RESOURCE_SCOPE_SET_RESOURCE_ACTION, ({resources}, {
     key, resource
-  }: ResourceScopeAddResourceActionProps) => ({resources: {...resources, [key]: resource}}));
+  }: ResourceScopeSetResourceActionProps) => ({resources: {...resources, [key]: resource}}));
 
-  resourceScope.registerMacro('resources', state => state ? state.resources : null, ScopeMacroType.GETTER);
-  resourceScope.registerMacro('getResource', (state, key: string) => state ? state.resources[key] : null);
+  resourceScope.registerMacro('resources', state => state.resources, ScopeMacroType.GETTER);
+  resourceScope.registerMacro('getResource', (state, key: string) => state.resources[key]);
   resourceScope.registerMacro('isResourceLoaded', (state, key: string) => !!state.resources[key]);
 
   resourceScope.lock();

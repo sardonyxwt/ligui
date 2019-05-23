@@ -81,15 +81,11 @@ export function createLocalizationScope (store: Store, {initState}: Localization
     return {...state, localizations};
   });
 
-  localizationScope.registerMacro('locales', state => state ? state.locales : null, ScopeMacroType.GETTER);
-  localizationScope.registerMacro('defaultLocale', state => state ? state.defaultLocale : null, ScopeMacroType.GETTER);
-  localizationScope.registerMacro('currentLocale', state => state ? state.currentLocale : null, ScopeMacroType.GETTER);
-  localizationScope.registerMacro('localizations', state => state ? state.localizations : null, ScopeMacroType.GETTER);
+  localizationScope.registerMacro('locales', state => state.locales, ScopeMacroType.GETTER);
+  localizationScope.registerMacro('defaultLocale', state => state.defaultLocale, ScopeMacroType.GETTER);
+  localizationScope.registerMacro('currentLocale', state => state.currentLocale, ScopeMacroType.GETTER);
+  localizationScope.registerMacro('localizations', state => state.localizations, ScopeMacroType.GETTER);
   localizationScope.registerMacro('currentLocalization', state => {
-    if (!state) {
-      return null;
-    }
-
     const {localizations, currentLocale} = state;
 
     return localizations[currentLocale];

@@ -3,7 +3,7 @@ import { ScopeListener } from '@sardonyxwt/state-store';
 import {
   ResourceScope,
   ResourceScopeAddons,
-  ResourceScopeAddResourceActionProps,
+  ResourceScopeSetResourceActionProps,
   ResourceScopeState
 } from '../scope/resource.scope';
 import { LIGUI_TYPES } from '../types';
@@ -32,7 +32,7 @@ export class ResourceServiceImpl implements ResourceService {
     return this._scope.getResource(key)
   }
 
-  setResource(props: ResourceScopeAddResourceActionProps) {
+  setResource(props: ResourceScopeSetResourceActionProps) {
     this._scope.setResource(props)
   }
 

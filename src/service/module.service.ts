@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import autobind from 'autobind-decorator';
 import { LIGUI_TYPES } from '../types';
+import { ModuleScope } from '../scope/module.scope';
 
 export type ModuleLoader = (key: string, cb: (module: any) => void) => void;
 
@@ -16,36 +17,37 @@ export interface ModuleService {
 @autobind
 export class ModuleServiceImpl implements ModuleService {
 
-  private _modules: {[key: string]: any} = {};
   private _modulePromises: {[key: string]: Promise<any>} = {};
 
-  constructor(@inject(LIGUI_TYPES.MODULE_LOADER) private _loader: ModuleLoader) {}
+  constructor(@inject(LIGUI_TYPES.MODULE_LOADER) private _loader: ModuleLoader,
+              @inject(LIGUI_TYPES.MODULE_SCOPE) private _scope: ModuleScope) {}
 
   setModule<T>(key: string, module: T): void {
-    this._modules[key] = module;
+    this._scope.setModule({key, module});
   }
 
   getModule<T>(key: string): T {
-    return this._modules[key];
+    return this._scope.getModule(key);
   }
 
   getLoadedModulesKeys(): string[] {
-    return Object.getOwnPropertyNames(this._modules);
+    return Object.getOwnPropertyNames(this._scope.modules);
   }
 
   isModuleLoaded(key: string): boolean {
-    return !!this._modules[key];
+    return this._scope.isModuleLoaded(key);
   }
 
   loadModule<T>(key: string): Promise<T> {
-    const {_modulePromises, _loader, _modules} = this;
+    const {_modulePromises, _loader, _scope} = this;
+    const {modules, setModule, getModule} = _scope;
 
     if (!(key in _modulePromises)) {
-      if (_modules[key]) {
-        _modulePromises[key] = Promise.resolve(_modules[key]);
+      if (modules[key]) {
+        _modulePromises[key] = Promise.resolve(getModule(key));
       } else {
         _modulePromises[key] = new Promise(resolve => _loader(key, resolve))
-          .then(module => _modules[key] = module);
+          .then(module => setModule({key, module}));
       }
     }
 
