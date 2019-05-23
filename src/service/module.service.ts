@@ -1,7 +1,6 @@
 import { inject, injectable } from 'inversify';
 import autobind from 'autobind-decorator';
 import { LIGUI_TYPES } from '../types';
-import { SynchronousPromise } from 'synchronous-promise';
 
 export type ModuleLoader = (key: string, cb: (module: any) => void) => void;
 
@@ -43,7 +42,7 @@ export class ModuleServiceImpl implements ModuleService {
 
     if (!(key in _modulePromises)) {
       if (_modules[key]) {
-        _modulePromises[key] = SynchronousPromise.resolve(_modules[key]);
+        _modulePromises[key] = Promise.resolve(_modules[key]);
       } else {
         _modulePromises[key] = new Promise(resolve => _loader(key, resolve))
           .then(module => _modules[key] = module);
