@@ -72,7 +72,7 @@ export const createDependencyPreloaderHOC = (
   return placeholder(
     isLoadedComplete,
     isLoadedComplete
-      ? React.createElement(Component as any, args as any, args['children'])
+      ? React.createElement(Component as any, args[0] as any, (args[0] as any)['children'])
       : null
   ) as any as ReturnType<typeof Component>;
 };
