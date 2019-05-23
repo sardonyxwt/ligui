@@ -7,12 +7,12 @@ export interface Resources {
 export interface ResourceScopeState {
     readonly resources: Resources;
 }
-export interface ResourceScopeAddResourceActionProps {
+export interface ResourceScopeSetResourceActionProps {
     key: string;
     resource: any;
 }
 export interface ResourceScopeAddons extends ResourceScopeState {
-    setResource(props: ResourceScopeAddResourceActionProps): void;
+    setResource(props: ResourceScopeSetResourceActionProps): void;
     getResource(key: string): any;
     isResourceLoaded(key: string): boolean;
     onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback;

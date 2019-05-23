@@ -1,3 +1,4 @@
+import { ModuleScope } from '../scope/module.scope';
 export declare type ModuleLoader = (key: string, cb: (module: any) => void) => void;
 export interface ModuleService {
     setModule<T>(key: string, module: T): void;
@@ -8,9 +9,9 @@ export interface ModuleService {
 }
 export declare class ModuleServiceImpl implements ModuleService {
     private _loader;
-    private _modules;
+    private _scope;
     private _modulePromises;
-    constructor(_loader: ModuleLoader);
+    constructor(_loader: ModuleLoader, _scope: ModuleScope);
     setModule<T>(key: string, module: T): void;
     getModule<T>(key: string): T;
     getLoadedModulesKeys(): string[];
