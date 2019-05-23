@@ -2,9 +2,10 @@ import 'reflect-metadata';
 import { Context, createContext } from './context';
 import { createUniqueIdGenerator, generateUUID, generateSalt, Generator } from '@sardonyxwt/utils/generator';
 import { flatten, unflatten, deepFreeze, stringifyValue } from '@sardonyxwt/utils/object';
-import { arrayFrom, clone, cloneArray, cloneArrays, copyArray, copyArrays, resolveArray } from './extension/entity';
-import { charFromHexCode, deferred, DeferredCall, prepareFunctionCall, resolveFunctionCall } from './extension/function';
-import { Parameters, ReturnType } from './extension/data';
+import { arrayFrom, clone, cloneArray, cloneArrays, copyArray, copyArrays, resolveArray } from './extension/entity.extension';
+import { charFromHexCode, deferred, DeferredCall, prepareFunctionCall, resolveFunctionCall } from './extension/function.extension';
+import { Parameters, ReturnType } from './extension/data.extension';
+import { cleanImportsCache } from './extension/import.extension';
 import { RestServiceImpl, RestService } from './service/rest.service';
 import { StoreServiceImpl, StoreService } from './service/store.service';
 import { EventBusServiceImpl, EventBusService } from './service/event-bus.service';
@@ -21,10 +22,11 @@ import { LIGUI_TYPES } from './types';
 export * from 'inversify';
 export * from './types';
 export * from './context';
-export * from './extension/converter';
-export * from './extension/entity';
-export * from './extension/data';
-export * from './extension/function';
+export * from './extension/converter.extension';
+export * from './extension/entity.extension';
+export * from './extension/data.extension';
+export * from './extension/function.extension';
+export * from './extension/import.extension';
 export * from './scope/localization.scope';
 export * from './scope/resource.scope';
 export * from './service/localization.service';
@@ -82,6 +84,8 @@ export interface NodeLigui extends StoreService, EventBusService {
   resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
   prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) =>
     ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
+
+  cleanImportsCache: (moduleIds: string[]) => void;
 }
 
 export function createNewLiguiInstance(config: NodeLiguiConfig): NodeLigui {
@@ -180,6 +184,8 @@ export function createNewLiguiInstance(config: NodeLiguiConfig): NodeLigui {
 
     resolveFunctionCall,
     prepareFunctionCall,
+
+    cleanImportsCache
   };
 
   global[config.name] = ligui;

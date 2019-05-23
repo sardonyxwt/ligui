@@ -1,4 +1,4 @@
-import { ConstructorParameters, ConstructorReturnType } from './data';
+import { ConstructorParameters, ConstructorReturnType } from './data.extension';
 
 export type Builder<T> = {
   set: <K extends keyof T>(key: K, value: T[K] | (() => T[K])) => Builder<T>;

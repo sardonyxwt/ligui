@@ -1,4 +1,4 @@
-import { builderFactory } from './entity';
+import { builderFactory } from './entity.extension';
 
 export class Vector2 {
   public x: number;

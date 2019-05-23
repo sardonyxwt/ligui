@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ResourceService } from '../service/resource.service';
 import { LocalizationService } from '../service/localization.service';
 import { ModuleService } from '../service/module.service';
-import { Parameters, ReturnType } from '../extension/data';
+import { Parameters, ReturnType } from '../extension/data.extension';
 export interface DependencyPreloaderHOCOptions {
     resourceKeys?: string[];
     localizationKeys?: string[];

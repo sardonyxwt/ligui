@@ -1,5 +1,5 @@
 // ToDo move to utils package
-import { Parameters, ReturnType } from './data';
+import { Parameters, ReturnType } from './data.extension';
 
 export const resolveFunctionCall = <T extends Function>(func: T, ...flags: boolean[]): T =>
   !func || flags.findIndex(it => !it) >= 0 ? (() => null) as any : func;

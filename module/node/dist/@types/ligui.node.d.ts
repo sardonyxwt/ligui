@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { Context } from './context';
 import { Generator } from '@sardonyxwt/utils/generator';
-import { DeferredCall } from './extension/function';
-import { Parameters, ReturnType } from './extension/data';
+import { DeferredCall } from './extension/function.extension';
+import { Parameters, ReturnType } from './extension/data.extension';
 import { RestService } from './service/rest.service';
 import { StoreService } from './service/store.service';
 import { EventBusService } from './service/event-bus.service';
@@ -17,10 +17,11 @@ import { Container, interfaces } from 'inversify';
 export * from 'inversify';
 export * from './types';
 export * from './context';
-export * from './extension/converter';
-export * from './extension/entity';
-export * from './extension/data';
-export * from './extension/function';
+export * from './extension/converter.extension';
+export * from './extension/entity.extension';
+export * from './extension/data.extension';
+export * from './extension/function.extension';
+export * from './extension/import.extension';
 export * from './scope/localization.scope';
 export * from './scope/resource.scope';
 export * from './service/localization.service';
@@ -69,5 +70,6 @@ export interface NodeLigui extends StoreService, EventBusService {
     charFromHexCode: (hexCode: string) => string;
     resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
     prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
+    cleanImportsCache: (moduleIds: string[]) => void;
 }
 export declare function createNewLiguiInstance(config: NodeLiguiConfig): NodeLigui;
