@@ -92,7 +92,7 @@ export interface WebLigui extends StoreService, EventBusService {
     useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
     useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
     useTranslator: (keys: string[], fallbackTranslator?: Translator) => Translator;
-    useModule: <T = any>(key: string) => [T, Promise<T>];
+    useModule: <T = any>(key: string) => T;
     useResource: <T = any>(key: string) => T;
     withDependencyPreloader: (options: DependencyPreloaderHOCOptions) => <T>(Component: T) => (...args: Parameters<typeof Component>) => ReturnType<typeof Component>;
     clone: <T>(source: T) => T;
