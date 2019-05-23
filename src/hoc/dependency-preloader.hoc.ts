@@ -27,7 +27,7 @@ export const createDependencyPreloaderHOC = (
 ) => (
   ...args: Parameters<typeof Component>
 ): ReturnType<typeof Component> => {
-  const isLoaded = (keys: string[]) => !Array.isArray(keys) || (Array.isArray(keys) && !keys.length);
+  const isLoaded = (keys: string[]) => !Array.isArray(keys) || keys.length === 0;
 
   const [isResourcesLoaded, setIsResourcesLoaded] = React.useState(() => isLoaded(resourceKeys));
   const [isLocalizationsLoaded, setIsLocalizationLoaded] = React.useState(() => isLoaded(localizationKeys));
