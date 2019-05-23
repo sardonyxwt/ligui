@@ -1,6 +1,6 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "8.0.8",
+  "version": "8.0.9",
   "description": "Ligui",
   "keywords": [
     "sclib",
@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@sardonyxwt/event-bus": "1.2.0",
-    "@sardonyxwt/state-store": "5.0.2",
+    "@sardonyxwt/state-store": "5.1.0",
     "@sardonyxwt/utils": "2.1.1",
     "autobind-decorator": "^2.4.0",
     "inversify": "^5.0.1",
