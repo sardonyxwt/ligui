@@ -1,6 +1,8 @@
 import * as React from 'react';
 
-export function useRef<T>(initialValue?: T | null): [React.RefObject<T>, T] {
+export const useRef = <T>(
+  initialValue?: T | null
+): [React.RefObject<T>, T] => {
   const [el, setEl] = React.useState(initialValue);
 
   const refProxy: React.RefObject<T> = {
@@ -13,4 +15,4 @@ export function useRef<T>(initialValue?: T | null): [React.RefObject<T>, T] {
   };
 
   return [refProxy, el];
-}
+};

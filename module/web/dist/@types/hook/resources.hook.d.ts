@@ -1,3 +1,2 @@
-import { Resources } from '../scope/resource.scope';
 import { ResourceService } from '../service/resource.service';
-export declare const createResourceHook: (resourceService: ResourceService) => (keys: string[]) => Resources;
+export declare const createResourceHook: (resourceService: ResourceService) => <T = any>(key: string) => T;

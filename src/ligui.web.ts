@@ -10,23 +10,24 @@ import { RestServiceImpl, RestService } from './service/rest.service';
 import { StoreServiceImpl, StoreService } from './service/store.service';
 import { EventBusServiceImpl, EventBusService } from './service/event-bus.service';
 import { ResourceServiceImpl, ResourceService, ResourceLoader } from './service/resource.service';
-import { LocalizationServiceImpl, LocalizationService, LocalizationLoader } from './service/localization.service';
+import { LocalizationServiceImpl, LocalizationService, LocalizationLoader, Translator } from './service/localization.service';
 import { ModuleServiceImpl, ModuleService, ModuleLoader } from './service/module.service';
 import { useId } from './hook/id.hook';
 import { useRef } from './hook/ref.hook';
 import { usePocket } from './hook/pocket.hook';
 import { createStateHook } from './hook/state.hook';
 import { createDependencyHook, createDependenciesHook, ContainerKey } from './hook/dependency.hook';
-import { createLocalizationHook } from './hook/localization.hook';
+import { createTranslatorHook } from './hook/translator.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resources.hook';
+import { createDependencyPreloaderHOC, DependencyPreloaderHOCOptions } from './hoc/dependency-preloader.hoc';
 import { ToastApi } from './api/toast.api';
 import { DialogApi } from './api/dialog.api';
 import { PreloaderApi } from './api/preloader.api';
 import { ContextmenuApi } from './api/contextmenu.api';
 import { NotificationApi } from './api/notification.api';
-import { ResourceScopeOptions, createResourceScope, Resources } from './scope/resource.scope';
-import { LocalizationScopeOptions, Translator, createLocalizationScope } from './scope/localization.scope';
+import { ResourceScopeOptions, createResourceScope } from './scope/resource.scope';
+import { LocalizationScopeOptions, createLocalizationScope } from './scope/localization.scope';
 import { Store, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 import { Container, interfaces } from 'inversify';
@@ -58,9 +59,10 @@ export * from './hook/state.hook';
 export * from './hook/pocket.hook';
 export * from './hook/ref.hook';
 export * from './hook/dependency.hook';
-export * from './hook/localization.hook';
+export * from './hook/translator.hook';
 export * from './hook/module.hook';
 export * from './hook/resources.hook';
+export * from './hoc/dependency-preloader.hoc';
 export * from '@sardonyxwt/state-store';
 export * from '@sardonyxwt/event-bus';
 export * from '@sardonyxwt/utils/generator';
@@ -104,9 +106,12 @@ export interface WebLigui extends StoreService, EventBusService {
   usePocket: <T extends {}>(initialValue: T) => T;
   useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
   useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
-  useLocalization: (keys: string[], fallbackTranslator?: Translator) => Translator;
+  useTranslator: (keys: string[], fallbackTranslator?: Translator) => Translator;
   useModule: <T = any>(key: string) => [T, Promise<T>];
-  useResources: (keys: string[]) => Resources;
+  useResource: <T = any>(key: string) => T;
+
+  withDependencyPreloader: (options: DependencyPreloaderHOCOptions) => <T>(Component: T) =>
+    (...args: Parameters<typeof Component>) => ReturnType<typeof Component>;
 
   clone: <T>(source: T) => T;
   cloneArray: <T>(sources: T[]) => T[];
@@ -219,12 +224,15 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     useId,
     useDependency: createDependencyHook(context.container),
     useDependencies: createDependenciesHook(context.container),
-    useLocalization: createLocalizationHook(localizationService),
-    useResources: createResourceHook(resourceService),
+    useTranslator: createTranslatorHook(localizationService),
+    useResource: createResourceHook(resourceService),
     useModule: createModuleHook(moduleService),
     useState: createStateHook(context.store),
     useRef,
     usePocket,
+
+    withDependencyPreloader: createDependencyPreloaderHOC(
+      resourceService, localizationService, moduleService),
 
     clone,
     cloneArray,

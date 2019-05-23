@@ -5,7 +5,9 @@ const pocketIdGenerator = createUniqueIdGenerator('PocketId');
 
 const pockets: { [id: string]: object } = {};
 
-export function usePocket<T extends {}>(initialValue: T): T {
+export const usePocket = <T extends {}>(
+  initialValue: T
+): T => {
   const pocketId = React.useMemo(() => pocketIdGenerator(), []);
 
   if (!(pocketId in pockets)) {
@@ -17,4 +19,4 @@ export function usePocket<T extends {}>(initialValue: T): T {
   }, []);
 
   return pockets[pocketId] as T;
-}
+};

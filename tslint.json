@@ -81,7 +81,7 @@
       }
     ],
     "unified-signatures": true,
-    "variable-name": [true, "check-format", "allow-leading-underscore"],
+    "variable-name": false,
     "whitespace": [
       true,
       "check-branch",

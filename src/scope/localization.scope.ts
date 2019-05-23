@@ -4,8 +4,6 @@ export const LOCALIZATION_SCOPE_NAME = 'localization';
 export const LOCALIZATION_SCOPE_CHANGE_LOCALE_ACTION = 'changeLocale';
 export const LOCALIZATION_SCOPE_ADD_LOCALIZATION_ACTION = 'addLocalization';
 
-export type Translator = (key: string) => string;
-
 export interface Localization {
   [key: string]: Localization
 }
@@ -29,10 +27,9 @@ export interface LocalizationScopeAddLocalizationActionProps {
 
 export interface LocalizationScopeAddons extends LocalizationScopeState {
   readonly currentLocalization: Localization;
-  translate(path: string): string;
   changeLocale(locale: string): void;
   addLocalization(props: LocalizationScopeAddLocalizationActionProps): void;
-  isLocalizationsLoaded(keys: string[]): boolean;
+  isLocalizationLoaded(key: string): boolean;
   onChangeLocale(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
   onAddLocalization(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
 }
@@ -97,43 +94,14 @@ export function createLocalizationScope (store: Store, {initState}: Localization
 
     return localizations[currentLocale];
   }, ScopeMacroType.GETTER);
-  localizationScope.registerMacro('isLocalizationsLoaded', (state, keys: string[]) => {
-    if (!state) {
-      return false;
-    }
-
+  localizationScope.registerMacro('isLocalizationLoaded', (state, key: string) => {
     const {currentLocale, localizations} = state;
 
     if (!localizations[currentLocale]) {
       return false;
     }
 
-    keys.forEach(key => {
-      if (!localizations[currentLocale][key]) {
-        return false;
-      }
-    });
-
-    return true;
-  });
-  localizationScope.registerMacro('translate', (state, path: string) => {
-    if (!state || typeof path !== 'string') {
-      return null;
-    }
-
-    const {currentLocale, localizations} = state;
-
-    let result = localizations[currentLocale];
-    const pathParts = path.split(/[.\[\]]/).filter(it => it !== '');
-
-    for (let i = 0; i < pathParts.length; i++) {
-      result = result[pathParts[i]];
-      if (!result) {
-        break;
-      }
-    }
-
-    return result;
+    return !!localizations[currentLocale][key];
   });
 
   localizationScope.lock();

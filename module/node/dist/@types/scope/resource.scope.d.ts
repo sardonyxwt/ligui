@@ -14,7 +14,7 @@ export interface ResourceScopeAddResourceActionProps {
 export interface ResourceScopeAddons extends ResourceScopeState {
     setResource(props: ResourceScopeAddResourceActionProps): void;
     getResource(key: string): any;
-    isResourcesLoaded(keys: string[]): boolean;
+    isResourceLoaded(key: string): boolean;
     onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback;
 }
 export interface ResourceScope extends Scope<ResourceScopeState>, ResourceScopeAddons {

@@ -1,4 +1,4 @@
-export declare type ModuleLoader = (key: string) => any | Promise<any>;
+export declare type ModuleLoader = (key: string, cb: (module: any) => void) => void;
 export interface ModuleService {
     setModule<T>(key: string, module: T): void;
     getModule<T>(key: string): T;

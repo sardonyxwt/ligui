@@ -1,2 +1,2 @@
 import * as React from 'react';
-export declare function useRef<T>(initialValue?: T | null): [React.RefObject<T>, T];
+export declare const useRef: <T>(initialValue?: T) => [React.RefObject<T>, T];

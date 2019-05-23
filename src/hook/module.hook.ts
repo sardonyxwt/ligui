@@ -1,20 +1,17 @@
 import * as React from 'react';
 import { ModuleService } from '../service/module.service';
-import { SynchronousPromise } from 'synchronous-promise';
 
-export const createModuleHook = (moduleService: ModuleService) =>
-  <T = any>(key: string): [T, Promise<T>] => {
-    const [module, setModule] = React.useState(() => moduleService.getModule<T>(key));
+export const createModuleHook = (
+  moduleService: ModuleService
+) => <T = any>(key: string): T => {
+  const [module, setModule] = React.useState<T>(() => {
+    const isModuleLoaded = moduleService.isModuleLoaded(key);
+    if (isModuleLoaded) {
+      return moduleService.getModule(key);
+    }
+    moduleService.loadModule<T>(key).then(setModule);
+    return null;
+  });
 
-    const modulePromise = React.useMemo(() => {
-      if (module) {
-        return SynchronousPromise.resolve(module);
-      }
-      return moduleService.loadModule<T>(key).then(module => {
-        setModule(module);
-        return module;
-      });
-    }, []);
-
-    return [module, modulePromise];
-  };
+  return module;
+};

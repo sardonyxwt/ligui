@@ -1,1 +1,1 @@
-export declare function usePocket<T extends {}>(initialValue: T): T;
+export declare const usePocket: <T extends {}>(initialValue: T) => T;

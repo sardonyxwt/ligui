@@ -2,7 +2,6 @@ import { ScopeListener, Scope, Store, ScopeListenerUnsubscribeCallback } from '@
 export declare const LOCALIZATION_SCOPE_NAME = "localization";
 export declare const LOCALIZATION_SCOPE_CHANGE_LOCALE_ACTION = "changeLocale";
 export declare const LOCALIZATION_SCOPE_ADD_LOCALIZATION_ACTION = "addLocalization";
-export declare type Translator = (key: string) => string;
 export interface Localization {
     [key: string]: Localization;
 }
@@ -22,10 +21,9 @@ export interface LocalizationScopeAddLocalizationActionProps {
 }
 export interface LocalizationScopeAddons extends LocalizationScopeState {
     readonly currentLocalization: Localization;
-    translate(path: string): string;
     changeLocale(locale: string): void;
     addLocalization(props: LocalizationScopeAddLocalizationActionProps): void;
-    isLocalizationsLoaded(keys: string[]): boolean;
+    isLocalizationLoaded(key: string): boolean;
     onChangeLocale(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
     onAddLocalization(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
 }

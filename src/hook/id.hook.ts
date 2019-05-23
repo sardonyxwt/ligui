@@ -3,6 +3,4 @@ import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 
 const idHookListenerIdGenerator = createUniqueIdGenerator('ResourcesHook');
 
-export function useId (): string {
-  return React.useMemo(() => idHookListenerIdGenerator(), [true]);
-}
+export const useId = (): string => React.useMemo(() => idHookListenerIdGenerator(), [true]);

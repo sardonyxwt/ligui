@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import autobind from 'autobind-decorator';
 import { LIGUI_TYPES } from '../types';
 
-export type ModuleLoader = (key: string) => any | Promise<any>;
+export type ModuleLoader = (key: string, cb: (module: any) => void) => void;
 
 export interface ModuleService {
   setModule<T>(key: string, module: T): void;
@@ -44,7 +44,7 @@ export class ModuleServiceImpl implements ModuleService {
       if (_modules[key]) {
         _modulePromises[key] = Promise.resolve(_modules[key]);
       } else {
-        _modulePromises[key] = Promise.resolve(_loader(key))
+        _modulePromises[key] = new Promise(resolve => _loader(key, resolve))
           .then(module => _modules[key] = module);
       }
     }
