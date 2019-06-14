@@ -3,7 +3,7 @@ export declare const MODULE_SCOPE_NAME = "module";
 export declare const MODULE_SCOPE_SET_MODULE_ACTION = "setModule";
 export interface ModuleScopeState {
     readonly modules: {
-        [key: string]: any;
+        [key: string]: () => any;
     };
 }
 export interface ModuleScopeSetModuleActionProps {
