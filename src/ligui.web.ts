@@ -12,6 +12,7 @@ import { EventBusServiceImpl, EventBusService } from './service/event-bus.servic
 import { ResourceServiceImpl, ResourceService, ResourceLoader } from './service/resource.service';
 import { LocalizationServiceImpl, LocalizationService, LocalizationLoader, Translator } from './service/localization.service';
 import { ModuleServiceImpl, ModuleService, ModuleLoader } from './service/module.service';
+import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';
 import { useRef } from './hook/ref.hook';
 import { usePocket } from './hook/pocket.hook';
@@ -55,6 +56,7 @@ export * from './service/resource.service';
 export * from './service/rest.service';
 export * from './service/store.service';
 export * from './service/module.service';
+export * from './hook/data.hook';
 export * from './hook/id.hook';
 export * from './hook/state.hook';
 export * from './hook/pocket.hook';
@@ -103,6 +105,9 @@ export interface WebLigui extends StoreService, EventBusService {
 
   useId: () => string;
   useRef: <T>(initialValue?: T | null) => [React.RefObject<T>, T];
+  useData: <T>(dataResolver: () => T,
+               dataLoader?: () => Promise<T>,
+               dataSync?: (cb: (newData: T) => void) => (() => void | void)) => T;
   useState: <T = any>(scopeName: string, actions?: string[], retention?: number) => T;
   usePocket: <T extends {}>(initialValue: T) => T;
   useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
@@ -225,6 +230,7 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     setEventBusDevTool: eventBusService.setEventBusDevTool,
 
     useId,
+    useData,
     useDependency: createDependencyHook(context.container),
     useDependencies: createDependenciesHook(context.container),
     useTranslator: createTranslatorHook(localizationService),

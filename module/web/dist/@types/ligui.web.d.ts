@@ -43,6 +43,7 @@ export * from './service/resource.service';
 export * from './service/rest.service';
 export * from './service/store.service';
 export * from './service/module.service';
+export * from './hook/data.hook';
 export * from './hook/id.hook';
 export * from './hook/state.hook';
 export * from './hook/pocket.hook';
@@ -87,6 +88,7 @@ export interface WebLigui extends StoreService, EventBusService {
     readonly container: Container;
     useId: () => string;
     useRef: <T>(initialValue?: T | null) => [React.RefObject<T>, T];
+    useData: <T>(dataResolver: () => T, dataLoader?: () => Promise<T>, dataSync?: (cb: (newData: T) => void) => (() => void | void)) => T;
     useState: <T = any>(scopeName: string, actions?: string[], retention?: number) => T;
     usePocket: <T extends {}>(initialValue: T) => T;
     useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
