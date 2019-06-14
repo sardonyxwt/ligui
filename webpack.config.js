@@ -15,6 +15,10 @@ const createCommonConfig = (type) => ({
   stats: {
     source: false
   },
+  externals: {
+    'react': 'react',
+    'react-dom': 'react-dom',
+  },
   profile: true,
   devtool: 'source-map',
   resolve: {
@@ -46,10 +50,6 @@ const createCommonConfig = (type) => ({
 
 const webConfig = {
   ...createCommonConfig('web'),
-  externals: {
-    'react': 'react',
-    'react-dom': 'react-dom',
-  },
 };
 
 const nodeConfig = {

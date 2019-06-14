@@ -1,6 +1,6 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "8.2.8",
+  "version": "10.0.0",
   "description": "Ligui",
   "keywords": [
     "sclib",
@@ -45,10 +45,8 @@
     "@sardonyxwt/state-store": "5.1.0",
     "@sardonyxwt/utils": "2.1.1",
     "autobind-decorator": "^2.4.0",
-    "inversify": "^5.0.1",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "reflect-metadata": "^0.1.13"
+    "react-dom": "^16.8.6"
   },
   "devDependencies": {
     "@types/jest": "^24.0.12",
