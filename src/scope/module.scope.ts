@@ -21,10 +21,14 @@ export interface ModuleScopeAddons extends ModuleScopeState {
 
 export interface ModuleScope extends Scope<ModuleScopeState>, ModuleScopeAddons {}
 
-export function createModuleScope (store: Store) {
+export interface ModuleScopeOptions {
+  initState: ModuleScopeState;
+}
+
+export function createModuleScope (store: Store, {initState}: ModuleScopeOptions) {
   const moduleScope = store.createScope<ModuleScopeState>({
     name: MODULE_SCOPE_NAME,
-    initState: {modules: {}},
+    initState,
     isSubscribeMacroAutoCreateEnable: true
   }) as ModuleScope;
 

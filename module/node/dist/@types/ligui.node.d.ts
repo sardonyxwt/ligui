@@ -11,6 +11,7 @@ import { LocalizationService, LocalizationLoader } from './service/localization.
 import { ModuleService, ModuleLoader } from './service/module.service';
 import { ResourceScopeOptions } from './scope/resource.scope';
 import { LocalizationScopeOptions } from './scope/localization.scope';
+import { ModuleScopeOptions } from './scope/module.scope';
 import { Store, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 import { Container, interfaces } from 'inversify';
@@ -40,6 +41,7 @@ export interface NodeLiguiConfig {
     localizationLoader: LocalizationLoader;
     localizationScopeOptions: LocalizationScopeOptions;
     moduleLoader: ModuleLoader;
+    moduleScopeOptions: ModuleScopeOptions;
     storeDevTools?: Partial<StoreDevTool>;
     eventBusDevTools?: Partial<EventBusDevTool>;
 }

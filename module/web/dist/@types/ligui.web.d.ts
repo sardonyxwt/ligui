@@ -17,6 +17,7 @@ import { DialogApi } from './api/dialog.api';
 import { PreloaderApi } from './api/preloader.api';
 import { ContextmenuApi } from './api/contextmenu.api';
 import { NotificationApi } from './api/notification.api';
+import { ModuleScopeOptions } from './scope/module.scope';
 import { ResourceScopeOptions } from './scope/resource.scope';
 import { LocalizationScopeOptions } from './scope/localization.scope';
 import { Store, StoreDevTool } from '@sardonyxwt/state-store';
@@ -73,6 +74,7 @@ export interface WebLiguiConfig {
     localizationLoader: LocalizationLoader;
     localizationScopeOptions: LocalizationScopeOptions;
     moduleLoader: ModuleLoader;
+    moduleScopeOptions: ModuleScopeOptions;
     storeDevTools?: Partial<StoreDevTool>;
     eventBusDevTools?: Partial<EventBusDevTool>;
 }

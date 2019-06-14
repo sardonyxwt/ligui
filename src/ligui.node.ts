@@ -13,7 +13,7 @@ import { LocalizationServiceImpl, LocalizationService, LocalizationLoader } from
 import { ModuleServiceImpl, ModuleService, ModuleLoader } from './service/module.service';
 import { ResourceScopeOptions, createResourceScope } from './scope/resource.scope';
 import { LocalizationScopeOptions, createLocalizationScope } from './scope/localization.scope';
-import { createModuleScope } from './scope/module.scope';
+import { ModuleScopeOptions, createModuleScope } from './scope/module.scope';
 import { Store, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBusDevTool } from '@sardonyxwt/event-bus';
 import { Container, interfaces } from 'inversify';
@@ -46,6 +46,7 @@ export interface NodeLiguiConfig {
   localizationLoader: LocalizationLoader;
   localizationScopeOptions: LocalizationScopeOptions;
   moduleLoader: ModuleLoader;
+  moduleScopeOptions: ModuleScopeOptions;
   storeDevTools?: Partial<StoreDevTool>;
   eventBusDevTools?: Partial<EventBusDevTool>;
 }
@@ -88,7 +89,7 @@ export interface NodeLigui extends StoreService, EventBusService {
 export function createNewLiguiInstance(config: NodeLiguiConfig): NodeLigui {
   const context = createContext(config.name, config.containerOptions);
 
-  const moduleScope = createModuleScope(context.store);
+  const moduleScope = createModuleScope(context.store, config.moduleScopeOptions);
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
   const localizationScope = createLocalizationScope(context.store, config.localizationScopeOptions);
 

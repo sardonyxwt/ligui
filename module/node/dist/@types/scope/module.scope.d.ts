@@ -18,4 +18,7 @@ export interface ModuleScopeAddons extends ModuleScopeState {
 }
 export interface ModuleScope extends Scope<ModuleScopeState>, ModuleScopeAddons {
 }
-export declare function createModuleScope(store: Store): ModuleScope;
+export interface ModuleScopeOptions {
+    initState: ModuleScopeState;
+}
+export declare function createModuleScope(store: Store, { initState }: ModuleScopeOptions): ModuleScope;
