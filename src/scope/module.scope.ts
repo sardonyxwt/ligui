@@ -4,7 +4,7 @@ export const MODULE_SCOPE_NAME = 'module';
 export const MODULE_SCOPE_SET_MODULE_ACTION = 'setModule';
 
 export interface ModuleScopeState {
-  readonly modules: {[key: string]: () => any};
+  readonly modules: {[key: string]: any};
 }
 
 export interface ModuleScopeSetModuleActionProps {
@@ -34,10 +34,10 @@ export function createModuleScope (store: Store, {initState}: ModuleScopeOptions
 
   moduleScope.registerAction(MODULE_SCOPE_SET_MODULE_ACTION,
     ({modules}, props: ModuleScopeSetModuleActionProps) =>
-      ({modules: {...modules, [props.key]: () => props.module}}));
+      ({modules: {...modules, [props.key]: props.module}}));
 
   moduleScope.registerMacro('modules', state => state.modules, ScopeMacroType.GETTER);
-  moduleScope.registerMacro('getModule', (state, key: string) => state.modules[key] ? state.modules[key]() : undefined);
+  moduleScope.registerMacro('getModule', (state, key: string) => state.modules[key]);
   moduleScope.registerMacro('isModuleLoaded', (state, key: string) => !!state.modules[key]);
 
   moduleScope.lock();
