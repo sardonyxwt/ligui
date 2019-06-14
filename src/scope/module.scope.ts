@@ -32,7 +32,7 @@ export function createModuleScope (store: Store) {
     ({modules}, props: ModuleScopeSetModuleActionProps) => ({modules: {...modules, [props.key]: props.module}}));
 
   moduleScope.registerMacro('modules', state => state.modules, ScopeMacroType.GETTER);
-  moduleScope.registerMacro('getModule', (state, key: string) => state.modules[key] ? state.modules[key]() : undefined);
+  moduleScope.registerMacro('getModule', (state, key: string) => state.modules[key]);
   moduleScope.registerMacro('isModuleLoaded', (state, key: string) => !!state.modules[key]);
 
   moduleScope.lock();
