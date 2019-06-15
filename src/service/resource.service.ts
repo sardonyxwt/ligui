@@ -7,7 +7,6 @@ import {
   ResourceScopeState
 } from '../scope/resource.scope';
 import { LIGUI_TYPES } from '../types';
-import autobind from 'autobind-decorator';
 
 export type ResourceLoader = (key: string, cb: (resource: any) => void) => void;
 
@@ -16,7 +15,6 @@ export interface ResourceService extends ResourceScopeAddons {
 }
 
 @injectable()
-@autobind
 export class ResourceServiceImpl implements ResourceService {
 
   private _resourcePromises: {[key: string]: Promise<any>} = {};

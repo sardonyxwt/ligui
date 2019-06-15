@@ -7,7 +7,6 @@ import {
   LocalizationScopeAddons, LocalizationScopeState,
 } from '../scope/localization.scope';
 import { LIGUI_TYPES } from '../types';
-import autobind from 'autobind-decorator';
 
 export type Translator = (key: string) => string;
 
@@ -20,7 +19,6 @@ export interface LocalizationService extends LocalizationScopeAddons {
 }
 
 @injectable()
-@autobind
 export class LocalizationServiceImpl implements LocalizationService {
 
   private _localizationPromises: {[key: string]: Promise<Localization>} = {};

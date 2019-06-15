@@ -1,6 +1,5 @@
 import { injectable } from 'inversify';
 import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
-import autobind from 'autobind-decorator';
 
 export interface RequestProps extends RequestInit {
   queryParams?: { [key: string]: string | number };
@@ -26,7 +25,6 @@ export interface RestService {
 const restMiddlewareIdGenerator = createUniqueIdGenerator('Middleware');
 
 @injectable()
-@autobind
 export class RestServiceImpl implements RestService {
 
   private _defaultProps: RequestInit = {

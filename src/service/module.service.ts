@@ -1,5 +1,4 @@
 import { inject, injectable } from 'inversify';
-import autobind from 'autobind-decorator';
 import { LIGUI_TYPES } from '../types';
 import { ModuleScope } from '../scope/module.scope';
 
@@ -14,7 +13,6 @@ export interface ModuleService {
 }
 
 @injectable()
-@autobind
 export class ModuleServiceImpl implements ModuleService {
 
   private _modulePromises: {[key: string]: Promise<any>} = {};
