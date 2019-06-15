@@ -1,9 +1,0 @@
-{
-  "name": "@sardonyxwt/module/web",
-  "version": "1.0.0",
-  "description": "",
-  "main": "./dist/ligui.web.min.js",
-  "typings": "./dist/@types/ligui.web.d.ts",
-  "author": "sardonyx.wt@gmail.com",
-  "license": "MIT"
-}

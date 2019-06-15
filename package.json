@@ -1,7 +1,9 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "10.0.1",
+  "version": "11.0.1",
   "description": "Ligui",
+  "main": "./dist/ligui.min.js",
+  "typings": "./dist/@types/ligui.d.ts",
   "keywords": [
     "sclib",
     "ligui",
@@ -16,7 +18,7 @@
     "LICENSE",
     "README.md",
     "CHANGELOG.md",
-    "module"
+    "dist"
   ],
   "repository": {
     "type": "git",
@@ -45,8 +47,10 @@
     "@sardonyxwt/state-store": "5.1.0",
     "@sardonyxwt/utils": "2.1.1",
     "autobind-decorator": "^2.4.0",
+    "inversify": "^5.0.1",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/jest": "^24.0.12",

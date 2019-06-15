@@ -4,20 +4,16 @@ const VisualizerPlugin = require('webpack-visualizer-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const StatsPlugin = require('stats-webpack-plugin');
 
-const createCommonConfig = (type) => ({
-  entry: `./src/ligui.${type}.ts`,
+module.exports = {
+  entry: `./src/ligui.ts`,
   output: {
-    path: path.resolve(__dirname, 'module', type, 'dist'),
-    filename: `./ligui.${type}.min.js`,
+    path: path.resolve(__dirname, 'dist'),
+    filename: `./ligui.min.js`,
     libraryTarget: 'umd',
     umdNamedDefine: true
   },
   stats: {
     source: false
-  },
-  externals: {
-    'react': 'react',
-    'react-dom': 'react-dom',
   },
   profile: true,
   devtool: 'source-map',
@@ -30,7 +26,7 @@ const createCommonConfig = (type) => ({
       exclude: /node_modules/,
       loader: 'ts-loader',
       options: {
-        configFile: `tsconfig.${type}.json`
+        configFile: `tsconfig.json`
       }
     }]
   },
@@ -45,16 +41,9 @@ const createCommonConfig = (type) => ({
       analyzerMode: 'static',
       reportFilename: `./@stat/bundle.html`
     })
-  ]
-});
-
-const webConfig = {
-  ...createCommonConfig('web'),
+  ],
+  externals: {
+    'react': 'react',
+    'react-dom': 'react-dom',
+  },
 };
-
-const nodeConfig = {
-  ...createCommonConfig('node'),
-  target: 'node'
-};
-
-module.exports = [webConfig, nodeConfig];
