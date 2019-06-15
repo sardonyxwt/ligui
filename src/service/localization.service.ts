@@ -15,6 +15,7 @@ export type LocalizationLoader = (locale: string, id: string, cb: (localization:
 
 export interface LocalizationService extends LocalizationScopeAddons {
   translator: Translator;
+  getLocalization(key: string): Localization
   loadLocalization(key: string): Promise<Localization>;
 }
 
@@ -24,25 +25,15 @@ export class LocalizationServiceImpl implements LocalizationService {
 
   private _localizationPromises: {[key: string]: Promise<Localization>} = {};
   private _translator: Translator = (path: string) => {
-    const {state} = this._scope;
+    const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
 
-    if (!state || typeof path !== 'string') {
-      return null;
-    }
+    let result = this.getLocalization(key);
 
-    const {currentLocale, localizations} = state;
-
-    let result = localizations[currentLocale];
-    const pathParts = path.split(/[.\[\]]/).filter(it => it !== '');
-
-    for (let i = 0; i < pathParts.length; i++) {
+    for (let i = 0; i < pathParts.length && !!result; i++) {
       result = result[pathParts[i]];
-      if (!result) {
-        break;
-      }
     }
 
-    return result as any as string;
+    return result as unknown as string;
   };
 
   constructor(@inject(LIGUI_TYPES.LOCALIZATION_LOADER) private _loader: LocalizationLoader,
@@ -68,8 +59,13 @@ export class LocalizationServiceImpl implements LocalizationService {
     return this._translator;
   }
 
-  addLocalization(props: LocalizationScopeAddLocalizationActionProps) {
-    this._scope.addLocalization(props);
+  setLocalization(props: LocalizationScopeAddLocalizationActionProps) {
+    this._scope.setLocalization(props);
+  }
+
+  getLocalization(key: string): Localization {
+    const {currentLocale, localizations} = this;
+    return localizations[currentLocale] ? localizations[currentLocale][key] : null;
   }
 
   changeLocale(locale: string) {
@@ -80,8 +76,8 @@ export class LocalizationServiceImpl implements LocalizationService {
     return this._scope.isLocalizationLoaded(key);
   }
 
-  onAddLocalization(listener: ScopeListener<LocalizationScopeState>) {
-    return this._scope.onAddLocalization(listener);
+  onSetLocalization(listener: ScopeListener<LocalizationScopeState>) {
+    return this._scope.onSetLocalization(listener);
   }
 
   onChangeLocale(listener: ScopeListener<LocalizationScopeState>) {
@@ -90,7 +86,7 @@ export class LocalizationServiceImpl implements LocalizationService {
 
   loadLocalization(key: string) {
     const {_scope, _loader, _localizationPromises} = this;
-    const {currentLocale, defaultLocale, localizations, addLocalization} = _scope;
+    const {currentLocale, defaultLocale, localizations, setLocalization} = _scope;
 
     let localizationKey = `${currentLocale}:${key}`;
 
@@ -103,7 +99,7 @@ export class LocalizationServiceImpl implements LocalizationService {
             .then(null, () => new Promise<Localization>(
               resolve => _loader(defaultLocale, key, resolve)))
             .then(localization => {
-              addLocalization({locale: currentLocale, key, localization});
+              setLocalization({locale: currentLocale, key, localization});
               return localization;
             });
       }

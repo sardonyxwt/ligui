@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import autobind from 'autobind-decorator';
 import { Context, createContext } from './context';
 import { createUniqueIdGenerator, generateUUID, generateSalt, Generator } from '@sardonyxwt/utils/generator';
 import { flatten, unflatten, deepFreeze, stringifyValue } from '@sardonyxwt/utils/object';
@@ -29,6 +30,7 @@ import { Container, interfaces } from 'inversify';
 import { LIGUI_TYPES } from './types';
 import * as React from 'react';
 
+export { autobind };
 export * from 'inversify';
 export * from './types';
 export * from './context';

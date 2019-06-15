@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import autobind from 'autobind-decorator';
 import { Context } from './context';
 import { Generator } from '@sardonyxwt/utils/generator';
 import { DeferredCall } from './extension/function.extension';
@@ -17,6 +18,7 @@ import { Store, StoreConfig, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBus, EventBusConfig, EventBusDevTool } from '@sardonyxwt/event-bus';
 import { Container, interfaces } from 'inversify';
 import * as React from 'react';
+export { autobind };
 export * from 'inversify';
 export * from './types';
 export * from './context';

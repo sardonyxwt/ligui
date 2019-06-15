@@ -1,7 +1,7 @@
 import { ScopeListener, Scope, Store, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 export declare const LOCALIZATION_SCOPE_NAME = "localization";
 export declare const LOCALIZATION_SCOPE_CHANGE_LOCALE_ACTION = "changeLocale";
-export declare const LOCALIZATION_SCOPE_ADD_LOCALIZATION_ACTION = "addLocalization";
+export declare const LOCALIZATION_SCOPE_SET_LOCALIZATION_ACTION = "setLocalization";
 export interface Localization {
     [key: string]: Localization;
 }
@@ -22,10 +22,10 @@ export interface LocalizationScopeAddLocalizationActionProps {
 export interface LocalizationScopeAddons extends LocalizationScopeState {
     readonly currentLocalization: Localization;
     changeLocale(locale: string): void;
-    addLocalization(props: LocalizationScopeAddLocalizationActionProps): void;
+    setLocalization(props: LocalizationScopeAddLocalizationActionProps): void;
     isLocalizationLoaded(key: string): boolean;
     onChangeLocale(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
-    onAddLocalization(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
+    onSetLocalization(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
 }
 export interface LocalizationScope extends Scope<LocalizationScopeState>, LocalizationScopeAddons {
 }

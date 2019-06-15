@@ -4,6 +4,7 @@ export declare type Translator = (key: string) => string;
 export declare type LocalizationLoader = (locale: string, id: string, cb: (localization: Localization) => void) => void;
 export interface LocalizationService extends LocalizationScopeAddons {
     translator: Translator;
+    getLocalization(key: string): Localization;
     loadLocalization(key: string): Promise<Localization>;
 }
 export declare class LocalizationServiceImpl implements LocalizationService {
@@ -18,10 +19,11 @@ export declare class LocalizationServiceImpl implements LocalizationService {
     readonly locales: string[];
     readonly localizations: import("../scope/localization.scope").Localizations;
     readonly translator: Translator;
-    addLocalization(props: LocalizationScopeAddLocalizationActionProps): void;
+    setLocalization(props: LocalizationScopeAddLocalizationActionProps): void;
+    getLocalization(key: string): Localization;
     changeLocale(locale: string): void;
     isLocalizationLoaded(key: string): boolean;
-    onAddLocalization(listener: ScopeListener<LocalizationScopeState>): import("@sardonyxwt/state-store").ScopeListenerUnsubscribeCallback;
+    onSetLocalization(listener: ScopeListener<LocalizationScopeState>): import("@sardonyxwt/state-store").ScopeListenerUnsubscribeCallback;
     onChangeLocale(listener: ScopeListener<LocalizationScopeState>): import("@sardonyxwt/state-store").ScopeListenerUnsubscribeCallback;
     loadLocalization(key: string): Promise<Localization>;
 }
