@@ -10,6 +10,7 @@ import { RestServiceImpl, RestService } from './service/rest.service';
 import { ResourceServiceImpl, ResourceService, ResourceLoader } from './service/resource.service';
 import { LocalizationServiceImpl, LocalizationService, LocalizationLoader, Translator } from './service/localization.service';
 import { ModuleServiceImpl, ModuleService, ModuleLoader } from './service/module.service';
+import { useCurrent } from './hook/current.hook';
 import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';
 import { useRef } from './hook/ref.hook';
@@ -19,7 +20,6 @@ import { createDependencyHook, createDependenciesHook, ContainerKey } from './ho
 import { createTranslatorHook } from './hook/translator.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resource.hook';
-import { createDependencyPreloaderHOC, DependencyPreloaderHOCOptions } from './hoc/dependency-preloader.hoc';
 import { ModuleScopeOptions, createModuleScope } from './scope/module.scope';
 import { ResourceScopeOptions, createResourceScope } from './scope/resource.scope';
 import { LocalizationScopeOptions, createLocalizationScope } from './scope/localization.scope';
@@ -44,6 +44,7 @@ export * from './service/localization.service';
 export * from './service/resource.service';
 export * from './service/rest.service';
 export * from './service/module.service';
+export * from './hook/current.hook';
 export * from './hook/data.hook';
 export * from './hook/id.hook';
 export * from './hook/state.hook';
@@ -53,7 +54,6 @@ export * from './hook/dependency.hook';
 export * from './hook/translator.hook';
 export * from './hook/module.hook';
 export * from './hook/resource.hook';
-export * from './hoc/dependency-preloader.hoc';
 export * from '@sardonyxwt/state-store';
 export * from '@sardonyxwt/event-bus';
 export * from '@sardonyxwt/utils/generator';
@@ -96,14 +96,12 @@ export interface WebLigui {
                dataSync?: (cb: (newData: T) => void) => (() => void | void)) => T;
   useState: <T = any>(scopeName: string, actions?: string[], retention?: number) => T;
   usePocket: <T extends {}>(initialValue: T) => T;
+  useCurrent: <T>(valueProvider: () => T) => [T, (newValue: T) => void];
   useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
   useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
-  useTranslator: (keys: string[], fallbackTranslator?: Translator) => Translator;
   useModule: <T = any>(key: string) => T;
   useResource: <T = any>(key: string) => T;
-
-  withDependencyPreloader: (options: DependencyPreloaderHOCOptions) => <T>(Component: T) =>
-    (...args: Parameters<typeof Component>) => ReturnType<typeof Component>;
+  useTranslator: (keys: string[]) => Translator;
 
   clone: <T>(source: T) => T;
   cloneArray: <T>(sources: T[]) => T[];
@@ -193,17 +191,16 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     setEventBusDevTool: setEventBusDevTool,
 
     useId,
+    useRef,
     useData,
+    usePocket,
+    useCurrent,
+    useState: createStateHook(context.store),
+    useModule: createModuleHook(context.container),
+    useResource: createResourceHook(context.container),
+    useTranslator: createTranslatorHook(context.container),
     useDependency: createDependencyHook(context.container),
     useDependencies: createDependenciesHook(context.container),
-    useTranslator: createTranslatorHook(context.container),
-    useResource: createResourceHook(context.container),
-    useModule: createModuleHook(context.container),
-    useState: createStateHook(context.store),
-    useRef,
-    usePocket,
-
-    withDependencyPreloader: createDependencyPreloaderHOC(context.container),
 
     clone,
     cloneArray,

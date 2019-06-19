@@ -3,13 +3,10 @@ import { Container } from 'inversify';
 import { Translator, LocalizationService } from '../service/localization.service';
 import { LIGUI_TYPES } from '../types';
 
-export const defaultFallbackTranslator = (id) => id;
-
 export const createTranslatorHook = (
   container: Container
 ) => (
-  keys: string[],
-  fallbackTranslator: Translator = defaultFallbackTranslator
+  keys: string[]
 ): Translator => {
   const localizationService = container.get<LocalizationService>(LIGUI_TYPES.LOCALIZATION_SERVICE);
 
@@ -27,7 +24,7 @@ export const createTranslatorHook = (
     Promise.all(keys.map(it => localizationService.loadLocalization(it)))
       .then(() => setTranslator(localizationService.translator));
 
-    return fallbackTranslator;
+    return null;
   }
 
   React.useEffect(() => localizationService.onChangeLocale(
