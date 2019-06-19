@@ -1,1 +1,1 @@
-export declare const useCurrent: <T>(valueProvider: () => T) => [T, (newValue: T) => void];
+export declare const useCurrent: <T>(value: T) => [T, (newValue: T) => void];

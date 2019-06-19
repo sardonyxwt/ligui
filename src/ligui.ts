@@ -96,7 +96,7 @@ export interface WebLigui {
                dataSync?: (cb: (newData: T) => void) => (() => void | void)) => T;
   useState: <T = any>(scopeName: string, actions?: string[], retention?: number) => T;
   usePocket: <T extends {}>(initialValue: T) => T;
-  useCurrent: <T>(valueProvider: () => T) => [T, (newValue: T) => void];
+  useCurrent: <T>(value: T) => [T, (newValue: T) => void];
   useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
   useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
   useModule: <T = any>(key: string) => T;
