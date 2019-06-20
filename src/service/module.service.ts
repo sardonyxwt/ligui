@@ -68,7 +68,11 @@ export class ModuleServiceImpl implements ModuleService {
           throw new Error(`Module loader for key ${key} not found`);
         }
         _modulePromises.push({
-          key, promise: moduleLoader.loader().then(module => setModule({key, module}))
+          key, promise: moduleLoader.loader()
+            .then(module => {
+              setModule({key, module});
+              return module;
+            })
         });
       }
     }
