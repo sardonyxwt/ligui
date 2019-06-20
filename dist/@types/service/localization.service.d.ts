@@ -8,8 +8,8 @@ export interface LocalizationService extends LocalizationScopeAddons {
     loadLocalization(key: string): Promise<Localization>;
 }
 export declare class LocalizationServiceImpl implements LocalizationService {
-    private _loader;
-    private _scope;
+    protected _loader: LocalizationLoader;
+    protected _scope: LocalizationScope;
     private _localizationPromises;
     private _translator;
     constructor(_loader: LocalizationLoader, _scope: LocalizationScope);

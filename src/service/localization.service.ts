@@ -34,8 +34,8 @@ export class LocalizationServiceImpl implements LocalizationService {
     return result as unknown as string;
   };
 
-  constructor(@inject(LIGUI_TYPES.LOCALIZATION_LOADER) private _loader: LocalizationLoader,
-              @inject(LIGUI_TYPES.LOCALIZATION_SCOPE) private _scope: LocalizationScope) {}
+  constructor(@inject(LIGUI_TYPES.LOCALIZATION_LOADER) protected _loader: LocalizationLoader,
+              @inject(LIGUI_TYPES.LOCALIZATION_SCOPE) protected _scope: LocalizationScope) {}
 
   get currentLocale () {
     return this._scope.currentLocale

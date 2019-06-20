@@ -1,4 +1,5 @@
 import { ConstructorParameters, ConstructorReturnType } from './data.extension';
+import { resolveValue } from './util.extension';
 
 export type Builder<T> = {
   set: <K extends keyof T>(key: K, value: T[K] | (() => T[K])) => Builder<T>;
@@ -53,36 +54,6 @@ function createBuilder<T extends new (...args) => any>(
 
   return builder as Builder<ConstructorReturnType<T>>;
 }
-
-export const clone = <T>(source: T): T => Object.assign( Object.create( Object.getPrototypeOf(source)), source);
-export const cloneArray = <T>(sources: T[]): T[] => sources.map(clone);
-export const cloneArrays = <T>(...sourceArrays: (T[])[]): T[] => {
-  const result = [];
-  sourceArrays.forEach(sourceArray =>
-    sourceArray.forEach(source => result.push(clone(source))));
-  return result;
-};
-export const copyArray = <T>(sources: T[]): T[] => [...sources];
-export const copyArrays = <T>(...sourceArrays: (T[])[]): T[] => {
-  const result = [];
-  sourceArrays.forEach(sourceArray => result.push(...sourceArray));
-  return result;
-};
-export const resolveArray = <T>(source: T | T[]): T[] => Array.isArray(source) ? source : [source];
-export const arrayFrom = <T>(...sources: (T | T[])[]): T[] => copyArrays(...sources.map(resolveArray));
-
-export const resolveValue = (object, path: string) => {
-  const pathParts = path.split(/[.\[\]]/).filter(it => it !== '');
-  let result = object;
-  for (let i = 0; i < pathParts.length; i++) {
-    if (!result || typeof result !== 'object') {
-      result = undefined;
-      break;
-    }
-    result = result[pathParts[i]];
-  }
-  return result;
-};
 
 export const builderFactory: BuilderFactory = <T extends new (...args) => any> (clazz: T) =>
   (...constructorArgs: ConstructorParameters<typeof clazz>) => createBuilder<T>(clazz, ...constructorArgs);

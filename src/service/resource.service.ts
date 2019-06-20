@@ -19,8 +19,8 @@ export class ResourceServiceImpl implements ResourceService {
 
   private _resourcePromises: {[key: string]: Promise<any>} = {};
 
-  constructor(@inject(LIGUI_TYPES.RESOURCE_LOADER) private _loader: ResourceLoader,
-              @inject(LIGUI_TYPES.RESOURCE_SCOPE) private _scope: ResourceScope) {}
+  constructor(@inject(LIGUI_TYPES.RESOURCE_LOADER) protected _loader: ResourceLoader,
+              @inject(LIGUI_TYPES.RESOURCE_SCOPE) protected _scope: ResourceScope) {}
 
   get resources () {
     return this._scope.resources;

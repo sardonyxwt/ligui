@@ -2,7 +2,11 @@ import 'reflect-metadata';
 import { Context, createContext } from './context';
 import { createUniqueIdGenerator, generateUUID, generateSalt, Generator } from '@sardonyxwt/utils/generator';
 import { flatten, unflatten, deepFreeze, stringifyValue } from '@sardonyxwt/utils/object';
-import { arrayFrom, clone, cloneArray, cloneArrays, copyArray, copyArrays, resolveArray } from './extension/entity.extension';
+import {
+  arrayFrom, clone, cloneArray, cloneArrays,
+  copyArray, copyArrays, resolveArray, resolveValue,
+  saveToArray, deleteFromArray
+} from './extension/util.extension';
 import { charFromHexCode, deferred, DeferredCall, prepareFunctionCall, resolveFunctionCall } from './extension/function.extension';
 import { Parameters, ReturnType } from './extension/data.extension';
 import { JSXServiceImpl, JSXService } from './service/jsx.service';
@@ -33,6 +37,7 @@ export * from 'inversify';
 export * from './types';
 export * from './context';
 export * from './extension/converter.extension';
+export * from './extension/util.extension';
 export * from './extension/entity.extension';
 export * from './extension/data.extension';
 export * from './extension/function.extension';
@@ -66,7 +71,7 @@ export interface WebLiguiConfig {
   resourceScopeOptions: ResourceScopeOptions;
   localizationLoader: LocalizationLoader;
   localizationScopeOptions: LocalizationScopeOptions;
-  moduleLoader: ModuleLoader;
+  moduleLoaders: ModuleLoader[];
   moduleScopeOptions: ModuleScopeOptions;
 }
 
@@ -110,6 +115,9 @@ export interface WebLigui {
   copyArrays: <T>(...sources: (T[])[]) => T[];
   resolveArray: <T>(source: T | T[]) => T[];
   arrayFrom: <T>(...sources: (T | T[])[]) => T[];
+  resolveValue: (object, path: string) => any;
+  saveToArray: <T>(array: T[], newEl: T, compareFn?: (arrEl: T, newEl: T, index: number, arr: T[]) => boolean) => void;
+  deleteFromArray: <T>(array: T[], compareFn?: (arrEl: T, index: number, arr: T[]) => boolean) => void;
 
   generateUUID: Generator<string>;
   generateSalt: Generator<string>;
@@ -136,7 +144,8 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
   const localizationScope = createLocalizationScope(context.store, config.localizationScopeOptions);
 
-  context.container.bind(LIGUI_TYPES.MODULE_LOADER).toConstantValue(config.moduleLoader);
+  config.moduleLoaders.forEach(context.container.bind(LIGUI_TYPES.MODULE_LOADER).toConstantValue);
+
   context.container.bind(LIGUI_TYPES.RESOURCE_LOADER).toConstantValue(config.resourceLoader);
   context.container.bind(LIGUI_TYPES.LOCALIZATION_LOADER).toConstantValue(config.localizationLoader);
 
@@ -209,6 +218,9 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     copyArrays,
     resolveArray,
     arrayFrom,
+    resolveValue,
+    saveToArray,
+    deleteFromArray,
 
     generateUUID,
     generateSalt,

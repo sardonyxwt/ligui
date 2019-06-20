@@ -5,8 +5,8 @@ export interface ResourceService extends ResourceScopeAddons {
     loadResources<T>(key: string): Promise<T>;
 }
 export declare class ResourceServiceImpl implements ResourceService {
-    private _loader;
-    private _scope;
+    protected _loader: ResourceLoader;
+    protected _scope: ResourceScope;
     private _resourcePromises;
     constructor(_loader: ResourceLoader, _scope: ResourceScope);
     readonly resources: import("../scope/resource.scope").Resources;

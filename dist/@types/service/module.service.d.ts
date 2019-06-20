@@ -1,6 +1,14 @@
 import { ModuleScope } from '../scope/module.scope';
-export declare type ModuleLoader = (key: string, cb: (module: any) => void) => void;
+export interface ModuleLoader {
+    key: string;
+    loader: () => Promise<any>;
+}
+export interface ModulePromise {
+    key: string;
+    promise: Promise<any>;
+}
 export interface ModuleService {
+    setModuleLoader<T>(loader: ModuleLoader): any;
     setModule<T>(key: string, module: T): void;
     getModule<T>(key: string): T;
     getLoadedModulesKeys(): string[];
@@ -8,10 +16,11 @@ export interface ModuleService {
     isModuleLoaded(key: string): boolean;
 }
 export declare class ModuleServiceImpl implements ModuleService {
-    private _loader;
-    private _scope;
+    protected _scope: ModuleScope;
+    private _moduleLoaders;
     private _modulePromises;
-    constructor(_loader: ModuleLoader, _scope: ModuleScope);
+    constructor(_scope: ModuleScope, _moduleLoaders?: ModuleLoader[]);
+    setModuleLoader<T>(loader: ModuleLoader): void;
     setModule<T>(key: string, module: T): void;
     getModule<T>(key: string): T;
     getLoadedModulesKeys(): string[];

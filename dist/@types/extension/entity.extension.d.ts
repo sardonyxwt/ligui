@@ -15,14 +15,6 @@ export interface MappingResolver<T> {
     fromArray: (source: any) => T[];
 }
 export declare type MappingResolverFactory = <T extends new (...args: any[]) => any>(clazz: T, ...constructorArgs: ConstructorParameters<typeof clazz>) => (sourceId?: string) => MappingResolver<ConstructorReturnType<T>>;
-export declare const clone: <T>(source: T) => T;
-export declare const cloneArray: <T>(sources: T[]) => T[];
-export declare const cloneArrays: <T>(...sourceArrays: T[][]) => T[];
-export declare const copyArray: <T>(sources: T[]) => T[];
-export declare const copyArrays: <T>(...sourceArrays: T[][]) => T[];
-export declare const resolveArray: <T>(source: T | T[]) => T[];
-export declare const arrayFrom: <T>(...sources: (T | T[])[]) => T[];
-export declare const resolveValue: (object: any, path: string) => any;
 export declare const builderFactory: BuilderFactory;
 export declare const MAPPING_METADATA_KEY = "metadata:mapping";
 export declare const MAPPING_DEFAULT_SOURCE_ID = "default";

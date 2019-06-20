@@ -1,10 +1,20 @@
-import { inject, injectable } from 'inversify';
+import { inject, multiInject, injectable, optional } from 'inversify';
 import { LIGUI_TYPES } from '../types';
 import { ModuleScope } from '../scope/module.scope';
+import { deleteFromArray, saveToArray } from '../extension/util.extension';
 
-export type ModuleLoader = (key: string, cb: (module: any) => void) => void;
+export interface ModuleLoader {
+  key: string;
+  loader: () => Promise<any>;
+}
+
+export interface ModulePromise {
+  key: string;
+  promise: Promise<any>;
+}
 
 export interface ModuleService {
+  setModuleLoader<T>(loader: ModuleLoader)
   setModule<T>(key: string, module: T): void;
   getModule<T>(key: string): T;
   getLoadedModulesKeys(): string[];
@@ -15,10 +25,15 @@ export interface ModuleService {
 @injectable()
 export class ModuleServiceImpl implements ModuleService {
 
-  private _modulePromises: {[key: string]: Promise<any>} = {};
+  private _modulePromises: ModulePromise[] = [];
 
-  constructor(@inject(LIGUI_TYPES.MODULE_LOADER) private _loader: ModuleLoader,
-              @inject(LIGUI_TYPES.MODULE_SCOPE) private _scope: ModuleScope) {}
+  constructor(@inject(LIGUI_TYPES.MODULE_SCOPE) protected _scope: ModuleScope,
+              @multiInject(LIGUI_TYPES.MODULE_LOADER) @optional() private _moduleLoaders: ModuleLoader[] = []) {}
+
+  setModuleLoader<T>(loader: ModuleLoader) {
+    deleteFromArray(this._modulePromises, it => it.key === loader.key);
+    saveToArray(this._moduleLoaders, loader, it => it.key === loader.key);
+  }
 
   setModule<T>(key: string, module: T): void {
     this._scope.setModule({key, module});
@@ -37,19 +52,28 @@ export class ModuleServiceImpl implements ModuleService {
   }
 
   loadModule<T>(key: string): Promise<T> {
-    const {_modulePromises, _loader, _scope} = this;
+    const {_modulePromises, _moduleLoaders, _scope} = this;
     const {modules, setModule, getModule} = _scope;
 
-    if (!(key in _modulePromises)) {
+    const modulePromise = _modulePromises.find(it => it.key === key);
+
+    if (!modulePromise) {
       if (modules[key]) {
-        _modulePromises[key] = Promise.resolve(getModule(key));
+        _modulePromises.push({
+          key, promise: Promise.resolve(getModule(key))
+        });
       } else {
-        _modulePromises[key] = new Promise(resolve => _loader(key, resolve))
-          .then(module => setModule({key, module}));
+        const moduleLoader = _moduleLoaders.find(it => it.key === key);
+        if (!moduleLoader) {
+          throw new Error(`Module loader for key ${key} not found`);
+        }
+        _modulePromises.push({
+          key, promise: moduleLoader.loader().then(module => setModule({key, module}))
+        });
       }
     }
 
-    return _modulePromises[key];
+    return modulePromise.promise;
   }
 
 }

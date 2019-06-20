@@ -20,6 +20,7 @@ export * from 'inversify';
 export * from './types';
 export * from './context';
 export * from './extension/converter.extension';
+export * from './extension/util.extension';
 export * from './extension/entity.extension';
 export * from './extension/data.extension';
 export * from './extension/function.extension';
@@ -52,7 +53,7 @@ export interface WebLiguiConfig {
     resourceScopeOptions: ResourceScopeOptions;
     localizationLoader: LocalizationLoader;
     localizationScopeOptions: LocalizationScopeOptions;
-    moduleLoader: ModuleLoader;
+    moduleLoaders: ModuleLoader[];
     moduleScopeOptions: ModuleScopeOptions;
 }
 export interface WebLigui {
@@ -89,6 +90,9 @@ export interface WebLigui {
     copyArrays: <T>(...sources: (T[])[]) => T[];
     resolveArray: <T>(source: T | T[]) => T[];
     arrayFrom: <T>(...sources: (T | T[])[]) => T[];
+    resolveValue: (object: any, path: string) => any;
+    saveToArray: <T>(array: T[], newEl: T, compareFn?: (arrEl: T, newEl: T, index: number, arr: T[]) => boolean) => void;
+    deleteFromArray: <T>(array: T[], compareFn?: (arrEl: T, index: number, arr: T[]) => boolean) => void;
     generateUUID: Generator<string>;
     generateSalt: Generator<string>;
     createUniqueIdGenerator: (prefix: string) => Generator<string>;
