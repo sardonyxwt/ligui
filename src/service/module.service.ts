@@ -55,9 +55,9 @@ export class ModuleServiceImpl implements ModuleService {
     const {_modulePromises, _moduleLoaders, _scope} = this;
     const {modules, setModule, getModule} = _scope;
 
-    const modulePromise = _modulePromises.find(it => it.key === key);
+    const isModulePromiseExist = !!_modulePromises.find(it => it.key === key);
 
-    if (!modulePromise) {
+    if (!isModulePromiseExist) {
       if (modules[key]) {
         _modulePromises.push({
           key, promise: Promise.resolve(getModule(key))
@@ -77,7 +77,7 @@ export class ModuleServiceImpl implements ModuleService {
       }
     }
 
-    return modulePromise.promise;
+    return _modulePromises.find(it => it.key === key).promise;
   }
 
 }
