@@ -144,7 +144,7 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
   const localizationScope = createLocalizationScope(context.store, config.localizationScopeOptions);
 
-  config.moduleLoaders.forEach(context.container.bind(LIGUI_TYPES.MODULE_LOADER).toConstantValue);
+  config.moduleLoaders.forEach(it => context.container.bind(LIGUI_TYPES.MODULE_LOADER).toConstantValue(it));
 
   context.container.bind(LIGUI_TYPES.RESOURCE_LOADER).toConstantValue(config.resourceLoader);
   context.container.bind(LIGUI_TYPES.LOCALIZATION_LOADER).toConstantValue(config.localizationLoader);
