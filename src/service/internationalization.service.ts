@@ -1,13 +1,13 @@
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 import {
-  InternalizationScope,
-  InternalizationScopeAddons,
-  InternalizationScopeState,
+  InternationalizationScope,
+  InternationalizationScopeAddons,
+  InternationalizationScopeState,
   TranslateUnit,
   TranslateUnitData,
   TranslateUnitId,
   translateUnitIdComparator
-} from '../scope/internalization.scope';
+} from '../scope/internationalization.scope';
 import { deleteFromArray, saveToArray } from '../extension/util.extension';
 
 export type Translator = (key: string) => TranslateUnitData;
@@ -22,17 +22,17 @@ export interface TranslateUnitDataPromise {
   readonly promise: Promise<any>;
 }
 
-export interface InternalizationService extends InternalizationScopeAddons {
+export interface InternationalizationService extends InternationalizationScopeAddons {
   getTranslator(context: string, locale?: string): Translator;
   registerTranslateUnitDataLoader<T>(loader: TranslateUnitDataLoader);
   loadTranslateUnitData(id: TranslateUnitId): Promise<TranslateUnitData>;
 }
 
-export class InternalizationServiceImpl implements InternalizationService {
+export class InternationalizationServiceImpl implements InternationalizationService {
 
   private _translateUnitPromises: TranslateUnitDataPromise[] = [];
 
-  constructor(protected _scope: InternalizationScope,
+  constructor(protected _scope: InternationalizationScope,
               protected _translateUnitLoaders: TranslateUnitDataLoader[] = []) {
   }
 
@@ -85,11 +85,11 @@ export class InternalizationServiceImpl implements InternalizationService {
     };
   }
 
-  onSetLocale(listener: ScopeListener<InternalizationScopeState>): ScopeListenerUnsubscribeCallback {
+  onSetLocale(listener: ScopeListener<InternationalizationScopeState>): ScopeListenerUnsubscribeCallback {
     return this._scope.onSetLocale(listener);
   }
 
-  onSetTranslateUnit(listener: ScopeListener<InternalizationScopeState>): ScopeListenerUnsubscribeCallback {
+  onSetTranslateUnit(listener: ScopeListener<InternationalizationScopeState>): ScopeListenerUnsubscribeCallback {
     return this._scope.onSetTranslateUnit(listener);
   }
 

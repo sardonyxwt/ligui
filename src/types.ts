@@ -1,10 +1,10 @@
 export const LIGUI_TYPES = {
   MODULE_SCOPE: 'moduleScope',
   RESOURCE_SCOPE: 'resourceScope',
-  INTERNALIZATION_SCOPE: 'InternalizationScope',
+  INTERNATIONALIZATION_SCOPE: 'InternationalizationScope',
   MODULE_SERVICE: 'ModuleService',
   RESOURCE_SERVICE: 'ResourceService',
-  INTERNALIZATION_SERVICE: 'InternalizationService',
+  INTERNATIONALIZATION_SERVICE: 'InternationalizationService',
   JSX_SERVICE: 'JsxService',
   REST_SERVICE: 'RestService'
 };
