@@ -1,19 +1,20 @@
-import { ModuleScope, ModuleIdentifier, Module, moduleIdComparator, ModuleScopeAddons, ModuleScopeState } from '../scope/module.scope';
+import { ModuleScope, ModuleId, Module, moduleIdComparator, ModuleScopeAddons, ModuleScopeState } from '../scope/module.scope';
 import { deleteFromArray, saveToArray } from '../extension/util.extension';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 
 export interface ModuleLoader {
-  context: string;
-  loader: (key: string) => Promise<any>;
+  readonly context: string;
+  readonly loader: (key: string) => Promise<any>;
 }
 
-export interface ModulePromise extends ModuleIdentifier {
-  promise: Promise<any>;
+export interface ModulePromise {
+  readonly id: ModuleId;
+  readonly promise: Promise<any>;
 }
 
 export interface ModuleService extends ModuleScopeAddons {
   registerModuleLoader<T>(loader: ModuleLoader);
-  loadModule<T>(id: ModuleIdentifier): Promise<T>;
+  loadModule<T>(id: ModuleId): Promise<T>;
 }
 
 export class ModuleServiceImpl implements ModuleService {
@@ -28,7 +29,7 @@ export class ModuleServiceImpl implements ModuleService {
   }
 
   registerModuleLoader<T>(loader: ModuleLoader) {
-    deleteFromArray(this._modulePromises, modulePromise => modulePromise.context === loader.context);
+    deleteFromArray(this._modulePromises, modulePromise => modulePromise.id.context === loader.context);
     saveToArray(this._moduleLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
   }
 
@@ -36,11 +37,11 @@ export class ModuleServiceImpl implements ModuleService {
     this._scope.setModule(module);
   }
 
-  getModuleBody<T>(id: ModuleIdentifier): T {
+  getModuleBody<T>(id: ModuleId): T {
     return this._scope.getModuleBody(id);
   }
 
-  isModuleLoaded(id: ModuleIdentifier): boolean {
+  isModuleLoaded(id: ModuleId): boolean {
     return this._scope.isModuleLoaded(id);
   }
 
@@ -48,11 +49,11 @@ export class ModuleServiceImpl implements ModuleService {
     return this._scope.onSetModule(listener);
   }
 
-  loadModule<T>(id: ModuleIdentifier): Promise<T> {
+  loadModule<T>(id: ModuleId): Promise<T> {
     const {_modulePromises, _moduleLoaders, _scope} = this;
     const {setModule, getModuleBody} = _scope;
 
-    const modulePromise = _modulePromises.find(moduleIdComparator(id));
+    const modulePromise = _modulePromises.find(it => moduleIdComparator(id, it.id));
 
     if (modulePromise) {
       return modulePromise.promise;
@@ -62,7 +63,7 @@ export class ModuleServiceImpl implements ModuleService {
 
     if (moduleBody) {
       const newModulePromise: ModulePromise = {
-        ...id, promise: Promise.resolve(moduleBody)
+        id, promise: Promise.resolve(moduleBody)
       };
       _modulePromises.push(newModulePromise);
       return newModulePromise.promise;
@@ -75,8 +76,8 @@ export class ModuleServiceImpl implements ModuleService {
     }
 
     const newModulePromise: ModulePromise = {
-      ...id, promise: moduleLoader.loader(id.key).then(moduleBody => {
-        setModule({...id, body: moduleBody});
+      id, promise: moduleLoader.loader(id.key).then(moduleBody => {
+        setModule({id, body: moduleBody});
         return moduleBody;
       })
     };

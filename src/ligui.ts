@@ -12,7 +12,7 @@ import { Parameters, ReturnType } from './extension/data.extension';
 import { JSXServiceImpl, JSXService } from './service/jsx.service';
 import { RestServiceImpl, RestService } from './service/rest.service';
 import { ResourceServiceImpl, ResourceService, ResourceLoader } from './service/resource.service';
-import { LocalizationServiceImpl, LocalizationService, LocalizationLoader, Translator } from './service/localization.service';
+import { InternalizationServiceImpl, InternalizationService, TranslateUnitDataLoader } from './service/internalization.service';
 import { ModuleServiceImpl, ModuleService, ModuleLoader } from './service/module.service';
 import { useCurrent } from './hook/current.hook';
 import { useData } from './hook/data.hook';
@@ -21,12 +21,12 @@ import { useRef } from './hook/ref.hook';
 import { usePocket } from './hook/pocket.hook';
 import { createStateHook } from './hook/state.hook';
 import { createDependencyHook, createDependenciesHook, ContainerKey } from './hook/dependency.hook';
-import { createTranslatorHook } from './hook/translator.hook';
+import { createInternalizationHook, InternalizationHookReturnType } from './hook/internalization.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resource.hook';
 import { ModuleScopeOptions, createModuleScope } from './scope/module.scope';
 import { ResourceScopeOptions, createResourceScope } from './scope/resource.scope';
-import { LocalizationScopeOptions, createLocalizationScope } from './scope/localization.scope';
+import { InternalizationScopeOptions, createInternalizationScope } from './scope/internalization.scope';
 import { createStore, getState, getStore, setStoreDevTool, Store, StoreConfig, StoreDevTool } from '@sardonyxwt/state-store';
 import { createEventBus, EventBus, EventBusConfig, EventBusDevTool, getEventBus, setEventBusDevTool } from '@sardonyxwt/event-bus';
 import { Container, interfaces } from 'inversify';
@@ -43,9 +43,9 @@ export * from './extension/data.extension';
 export * from './extension/function.extension';
 export * from './scope/module.scope';
 export * from './scope/resource.scope';
-export * from './scope/localization.scope';
+export * from './scope/internalization.scope';
 export * from './service/jsx.service';
-export * from './service/localization.service';
+export * from './service/internalization.service';
 export * from './service/resource.service';
 export * from './service/rest.service';
 export * from './service/module.service';
@@ -56,7 +56,7 @@ export * from './hook/state.hook';
 export * from './hook/pocket.hook';
 export * from './hook/ref.hook';
 export * from './hook/dependency.hook';
-export * from './hook/translator.hook';
+export * from './hook/internalization.hook';
 export * from './hook/module.hook';
 export * from './hook/resource.hook';
 export * from '@sardonyxwt/state-store';
@@ -69,17 +69,17 @@ export interface WebLiguiConfig {
   containerOptions: interfaces.ContainerOptions
   moduleScopeOptions: ModuleScopeOptions;
   resourceScopeOptions: ResourceScopeOptions;
-  localizationScopeOptions: LocalizationScopeOptions;
+  internalizationScopeOptions: InternalizationScopeOptions;
   moduleLoaders?: ModuleLoader[];
   resourceLoaders?: ResourceLoader[];
-  localizationLoaders?: LocalizationLoader[];
+  internalizationLoaders?: TranslateUnitDataLoader[];
 }
 
 export interface WebLigui {
   readonly jsx: JSXService;
   readonly rest: RestService;
   readonly resource: ResourceService;
-  readonly localization: LocalizationService;
+  readonly internalization: InternalizationService;
   readonly module: ModuleService;
   readonly context: Context;
   readonly store: Store;
@@ -106,7 +106,7 @@ export interface WebLigui {
   useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
   useModule: <T = any>(key: string, context?: string) => T;
   useResource: <T = any>(key: string, context?: string) => T;
-  useTranslator: (keys: string[], context?: string) => Translator;
+  useInternalization: (keys: string[], context?: string) => InternalizationHookReturnType;
 
   clone: <T>(source: T) => T;
   cloneArray: <T>(sources: T[]) => T[];
@@ -142,11 +142,11 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
 
   const moduleScope = createModuleScope(context.store, config.moduleScopeOptions);
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
-  const localizationScope = createLocalizationScope(context.store, config.localizationScopeOptions);
+  const localizationScope = createInternalizationScope(context.store, config.internalizationScopeOptions);
 
   context.container.bind(LIGUI_TYPES.MODULE_SCOPE).toConstantValue(moduleScope);
   context.container.bind(LIGUI_TYPES.RESOURCE_SCOPE).toConstantValue(resourceScope);
-  context.container.bind(LIGUI_TYPES.LOCALIZATION_SCOPE).toConstantValue(localizationScope);
+  context.container.bind(LIGUI_TYPES.INTERNALIZATION_SCOPE).toConstantValue(localizationScope);
 
   context.container.bind<JSXService>(LIGUI_TYPES.JSX_SERVICE)
     .toDynamicValue(() => new JSXServiceImpl()).inSingletonScope();
@@ -158,8 +158,8 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
   context.container.bind<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE)
     .toDynamicValue(() => new ResourceServiceImpl(resourceScope, config.resourceLoaders))
     .inSingletonScope();
-  context.container.bind<LocalizationService>(LIGUI_TYPES.LOCALIZATION_SERVICE)
-    .toDynamicValue(() => new LocalizationServiceImpl(localizationScope, config.localizationLoaders))
+  context.container.bind<InternalizationService>(LIGUI_TYPES.INTERNALIZATION_SERVICE)
+    .toDynamicValue(() => new InternalizationServiceImpl(localizationScope, config.internalizationLoaders))
     .inSingletonScope();
 
   const ligui: WebLigui = {
@@ -172,8 +172,8 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     get resource() {
       return context.container.get<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE);
     },
-    get localization() {
-      return context.container.get<LocalizationService>(LIGUI_TYPES.LOCALIZATION_SERVICE);
+    get internalization() {
+      return context.container.get<InternalizationService>(LIGUI_TYPES.INTERNALIZATION_SERVICE);
     },
     get module() {
       return context.container.get<ModuleService>(LIGUI_TYPES.MODULE_SERVICE);
@@ -205,7 +205,7 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     useState: createStateHook(context.store),
     useModule: createModuleHook(context.container),
     useResource: createResourceHook(context.container),
-    useTranslator: createTranslatorHook(context.container),
+    useInternalization: createInternalizationHook(context.container),
     useDependency: createDependencyHook(context.container),
     useDependencies: createDependenciesHook(context.container),
 

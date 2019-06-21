@@ -4,12 +4,13 @@ import { copyArray, saveToArray } from '../extension/util.extension';
 export const RESOURCE_SCOPE_NAME = 'resource';
 export const RESOURCE_SCOPE_SET_RESOURCE_ACTION = 'setResource';
 
-export interface ResourceIdentifier {
+export interface ResourceId {
   readonly key: string;
   readonly context: string;
 }
 
-export interface Resource<T = any> extends ResourceIdentifier {
+export interface Resource<T = any> {
+  readonly id: ResourceId;
   readonly data: T;
 }
 
@@ -19,8 +20,8 @@ export interface ResourceScopeState {
 
 export interface ResourceScopeAddons extends ResourceScopeState {
   setResource(resource: Resource): void;
-  getResourceData(id: ResourceIdentifier): any;
-  isResourceLoaded(id: ResourceIdentifier): boolean;
+  getResourceData(id: ResourceId): any;
+  isResourceLoaded(id: ResourceId): boolean;
   onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback;
 }
 
@@ -30,7 +31,7 @@ export interface ResourceScopeOptions {
   initState: ResourceScopeState;
 }
 
-export const resourceIdComparator = (id1: ResourceIdentifier) => (id2: ResourceIdentifier) =>
+export const resourceIdComparator = (id1: ResourceId, id2: ResourceId) =>
   id1.key === id2.key && id1.context === id2.context;
 
 export function createResourceScope (store: Store, {initState}: ResourceScopeOptions) {
@@ -42,18 +43,18 @@ export function createResourceScope (store: Store, {initState}: ResourceScopeOpt
 
   resourceScope.registerAction(RESOURCE_SCOPE_SET_RESOURCE_ACTION, (state, resource: Resource) => {
     const resources = copyArray(state.resources);
-    saveToArray(resources, resource, resourceIdComparator(resource));
+    saveToArray(resources, resource, it => resourceIdComparator(resource.id, it.id));
 
     return {resources};
   });
 
   resourceScope.registerMacro('resources', state => state.resources, ScopeMacroType.GETTER);
-  resourceScope.registerMacro('getResourceData', (state, id: ResourceIdentifier) => {
-    const resource = state.resources.find(resourceIdComparator(id));
+  resourceScope.registerMacro('getResourceData', (state, id: ResourceId) => {
+    const resource = state.resources.find(it => resourceIdComparator(id, it.id));
 
     return !!resource ? resource.data : undefined;
   });
-  resourceScope.registerMacro('isResourceLoaded', (state, id: ResourceIdentifier): boolean => {
+  resourceScope.registerMacro('isResourceLoaded', (state, id: ResourceId): boolean => {
     return !(resourceScope.getResourceData(id) === undefined);
   });
 

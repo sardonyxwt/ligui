@@ -1,7 +1,7 @@
 import {
   Resource,
   resourceIdComparator,
-  ResourceIdentifier,
+  ResourceId,
   ResourceScope,
   ResourceScopeAddons,
   ResourceScopeState
@@ -10,17 +10,18 @@ import { deleteFromArray, saveToArray } from '../extension/util.extension';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 
 export interface ResourceLoader {
-  context: string;
-  loader: (key: string) => Promise<any>;
+  readonly context: string;
+  readonly loader: (key: string) => Promise<any>;
 }
 
-export interface ResourcePromise extends ResourceIdentifier {
-  promise: Promise<any>;
+export interface ResourcePromise {
+  readonly id: ResourceId;
+  readonly promise: Promise<any>;
 }
 
 export interface ResourceService extends ResourceScopeAddons {
   registerResourceLoader<T>(loader: ResourceLoader);
-  loadResource<T>(id: ResourceIdentifier): Promise<T>;
+  loadResource<T>(id: ResourceId): Promise<T>;
 }
 
 export class ResourceServiceImpl implements ResourceService {
@@ -35,7 +36,7 @@ export class ResourceServiceImpl implements ResourceService {
   }
 
   registerResourceLoader<T>(loader: ResourceLoader) {
-    deleteFromArray(this._resourcePromises, resourcePromise => resourcePromise.context === loader.context);
+    deleteFromArray(this._resourcePromises, resourcePromise => resourcePromise.id.context === loader.context);
     saveToArray(this._resourceLoaders, loader, resourceLoader => resourceLoader.context === loader.context);
   }
 
@@ -43,11 +44,11 @@ export class ResourceServiceImpl implements ResourceService {
     this._scope.setResource(resource);
   }
 
-  getResourceData<T>(id: ResourceIdentifier): T {
+  getResourceData<T>(id: ResourceId): T {
     return this._scope.getResourceData(id);
   }
 
-  isResourceLoaded(id: ResourceIdentifier): boolean {
+  isResourceLoaded(id: ResourceId): boolean {
     return this._scope.isResourceLoaded(id);
   }
 
@@ -55,11 +56,11 @@ export class ResourceServiceImpl implements ResourceService {
     return this._scope.onSetResource(listener);
   }
 
-  loadResource<T>(id: ResourceIdentifier): Promise<T> {
+  loadResource<T>(id: ResourceId): Promise<T> {
     const {_resourcePromises, _resourceLoaders, _scope} = this;
     const {setResource, getResourceData} = _scope;
 
-    const resourcePromise = _resourcePromises.find(resourceIdComparator(id));
+    const resourcePromise = _resourcePromises.find(it => resourceIdComparator(id, it.id));
 
     if (resourcePromise) {
       return resourcePromise.promise;
@@ -69,7 +70,7 @@ export class ResourceServiceImpl implements ResourceService {
 
     if (resourceData) {
       const newResourcePromise: ResourcePromise = {
-        ...id, promise: Promise.resolve(resourceData)
+        id, promise: Promise.resolve(resourceData)
       };
       _resourcePromises.push(newResourcePromise);
       return newResourcePromise.promise;
@@ -82,8 +83,8 @@ export class ResourceServiceImpl implements ResourceService {
     }
 
     const newResourcePromise: ResourcePromise = {
-      ...id, promise: resourceLoader.loader(id.key).then(resourceData => {
-        setResource({...id, data: resourceData});
+      id, promise: resourceLoader.loader(id.key).then(resourceData => {
+        setResource({id, data: resourceData});
         return resourceData;
       })
     };

@@ -1,15 +1,16 @@
-import { Resource, ResourceIdentifier, ResourceScope, ResourceScopeAddons, ResourceScopeState } from '../scope/resource.scope';
+import { Resource, ResourceId, ResourceScope, ResourceScopeAddons, ResourceScopeState } from '../scope/resource.scope';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 export interface ResourceLoader {
-    context: string;
-    loader: (key: string) => Promise<any>;
+    readonly context: string;
+    readonly loader: (key: string) => Promise<any>;
 }
-export interface ResourcePromise extends ResourceIdentifier {
-    promise: Promise<any>;
+export interface ResourcePromise {
+    readonly id: ResourceId;
+    readonly promise: Promise<any>;
 }
 export interface ResourceService extends ResourceScopeAddons {
     registerResourceLoader<T>(loader: ResourceLoader): any;
-    loadResource<T>(id: ResourceIdentifier): Promise<T>;
+    loadResource<T>(id: ResourceId): Promise<T>;
 }
 export declare class ResourceServiceImpl implements ResourceService {
     protected _scope: ResourceScope;
@@ -19,8 +20,8 @@ export declare class ResourceServiceImpl implements ResourceService {
     readonly resources: Resource[];
     registerResourceLoader<T>(loader: ResourceLoader): void;
     setResource<T>(resource: Resource<T>): void;
-    getResourceData<T>(id: ResourceIdentifier): T;
-    isResourceLoaded(id: ResourceIdentifier): boolean;
+    getResourceData<T>(id: ResourceId): T;
+    isResourceLoaded(id: ResourceId): boolean;
     onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback;
-    loadResource<T>(id: ResourceIdentifier): Promise<T>;
+    loadResource<T>(id: ResourceId): Promise<T>;
 }

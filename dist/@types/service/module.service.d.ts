@@ -1,15 +1,16 @@
-import { ModuleScope, ModuleIdentifier, Module, ModuleScopeAddons, ModuleScopeState } from '../scope/module.scope';
+import { ModuleScope, ModuleId, Module, ModuleScopeAddons, ModuleScopeState } from '../scope/module.scope';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 export interface ModuleLoader {
-    context: string;
-    loader: (key: string) => Promise<any>;
+    readonly context: string;
+    readonly loader: (key: string) => Promise<any>;
 }
-export interface ModulePromise extends ModuleIdentifier {
-    promise: Promise<any>;
+export interface ModulePromise {
+    readonly id: ModuleId;
+    readonly promise: Promise<any>;
 }
 export interface ModuleService extends ModuleScopeAddons {
     registerModuleLoader<T>(loader: ModuleLoader): any;
-    loadModule<T>(id: ModuleIdentifier): Promise<T>;
+    loadModule<T>(id: ModuleId): Promise<T>;
 }
 export declare class ModuleServiceImpl implements ModuleService {
     protected _scope: ModuleScope;
@@ -19,8 +20,8 @@ export declare class ModuleServiceImpl implements ModuleService {
     readonly modules: Module[];
     registerModuleLoader<T>(loader: ModuleLoader): void;
     setModule<T>(module: Module<T>): void;
-    getModuleBody<T>(id: ModuleIdentifier): T;
-    isModuleLoaded(id: ModuleIdentifier): boolean;
+    getModuleBody<T>(id: ModuleId): T;
+    isModuleLoaded(id: ModuleId): boolean;
     onSetModule(listener: ScopeListener<ModuleScopeState>): ScopeListenerUnsubscribeCallback;
-    loadModule<T>(id: ModuleIdentifier): Promise<T>;
+    loadModule<T>(id: ModuleId): Promise<T>;
 }

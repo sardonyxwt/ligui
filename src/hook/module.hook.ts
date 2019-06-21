@@ -2,9 +2,9 @@ import * as React from 'react';
 import { Container } from 'inversify';
 import { ModuleService } from '../service/module.service';
 import { LIGUI_TYPES } from '../types';
-import { ModuleIdentifier } from '../scope/module.scope';
+import { ModuleId } from '../scope/module.scope';
 
-export const ModuleKeyContext = React.createContext<string>(null);
+export const ModuleKeyContext = React.createContext<string>(undefined);
 export const {Consumer: ModuleKeyContextConsumer, Provider: ModuleKeyContextProvider} = ModuleKeyContext;
 
 export const createModuleHook = (
@@ -16,11 +16,7 @@ export const createModuleHook = (
 
   const moduleContext = context || moduleKeyContext;
 
-  if (!moduleContext) {
-    throw new Error('Module context not set you can use second parameter or ModuleKeyContextProvider');
-  }
-
-  const id: ModuleIdentifier = {key, context: moduleContext};
+  const id: ModuleId = {key, context: moduleContext};
 
   const [module, setModule] = React.useState<T>(() => {
     if (moduleService.isModuleLoaded({key, context})) {
