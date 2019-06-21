@@ -1,108 +1,139 @@
-import { inject, injectable } from 'inversify';
-import { ScopeListener } from '@sardonyxwt/state-store';
+import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 import {
   Localization,
+  LocalizationData,
+  LocalizationIdentifier,
   LocalizationScope,
-  LocalizationScopeAddLocalizationActionProps,
-  LocalizationScopeAddons, LocalizationScopeState,
+  LocalizationScopeState,
+  LocalizationScopeAddons, localizationIdComparator
 } from '../scope/localization.scope';
-import { LIGUI_TYPES } from '../types';
+import { deleteFromArray, saveToArray } from '../extension/util.extension';
 
 export type Translator = (key: string) => string;
 
-export type LocalizationLoader = (locale: string, id: string, cb: (localization: Localization) => void) => void;
-
-export interface LocalizationService extends LocalizationScopeAddons {
-  translator: Translator;
-  getLocalization(key: string): Localization
-  loadLocalization(key: string): Promise<Localization>;
+export interface LocalizationLoader {
+  context: string;
+  loader: (key: string, locale: string) => Promise<LocalizationData>;
 }
 
-@injectable()
+export interface LocalizationPromise extends LocalizationIdentifier {
+  promise: Promise<any>;
+}
+
+export interface LocalizationService extends LocalizationScopeAddons {
+  getTranslator(context: string, locale?: string): Translator;
+  registerLocalizationLoader<T>(loader: LocalizationLoader);
+  loadLocalization(id: LocalizationIdentifier): Promise<Localization>;
+}
+
 export class LocalizationServiceImpl implements LocalizationService {
 
-  private _localizationPromises: {[key: string]: Promise<Localization>} = {};
-  private _translator: Translator = (path: string) => {
-    const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
+  private _localizationPromises: LocalizationPromise[] = [];
 
-    let result = this.getLocalization(key);
+  constructor(protected _scope: LocalizationScope,
+              protected _localizationLoaders: LocalizationLoader[] = []) {}
 
-    for (let i = 0; i < pathParts.length && !!result; i++) {
-      result = result[pathParts[i]];
-    }
-
-    return result as unknown as string;
+  get currentLocale() {
+    return this._scope.currentLocale;
   };
 
-  constructor(@inject(LIGUI_TYPES.LOCALIZATION_LOADER) protected _loader: LocalizationLoader,
-              @inject(LIGUI_TYPES.LOCALIZATION_SCOPE) protected _scope: LocalizationScope) {}
+  get defaultLocale() {
+    return this._scope.defaultLocale;
+  };
 
-  get currentLocale () {
-    return this._scope.currentLocale
-  }
-  get currentLocalization () {
-    return this._scope.currentLocalization
-  }
-  get defaultLocale () {
-    return this._scope.defaultLocale
-  }
-  get locales () {
-    return this._scope.locales
-  }
-  get localizations () {
-    return this._scope.localizations
+  get locales() {
+    return this._scope.locales;
+  };
+
+  get localizations() {
+    return this._scope.localizations;
+  };
+
+  registerLocalizationLoader<T>(loader: LocalizationLoader) {
+    deleteFromArray(this._localizationPromises, modulePromise => modulePromise.context === loader.context);
+    saveToArray(this._localizationLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
   }
 
-  get translator() {
-    return this._translator;
+  getLocalizationData(id: LocalizationIdentifier): LocalizationData {
+    return this._scope.getLocalizationData(id);
   }
 
-  setLocalization(props: LocalizationScopeAddLocalizationActionProps) {
-    this._scope.setLocalization(props);
+  getTranslator(context: string, locale?: string): Translator {
+    return (path: string) => {
+      const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
+
+      const localizationId: LocalizationIdentifier = {key, context, locale: locale || this.currentLocale};
+
+      let result = this.getLocalizationData(localizationId);
+
+      for (let i = 0; i < pathParts.length && !!result; i++) {
+        result = result[pathParts[i]] as LocalizationData;
+      }
+
+      return result as unknown as string;
+    };
   }
 
-  getLocalization(key: string): Localization {
-    const {currentLocale, localizations} = this;
-    return localizations[currentLocale] ? localizations[currentLocale][key] : null;
+  isLocaleAvailable(locale: string): boolean {
+    return this._scope.isLocaleAvailable(locale);
   }
 
-  changeLocale(locale: string) {
-    this._scope.changeLocale(locale);
+  isLocalizationLoaded(id: LocalizationIdentifier): boolean {
+    return this._scope.isLocalizationLoaded(id);
   }
 
-  isLocalizationLoaded(key: string) {
-    return this._scope.isLocalizationLoaded(key);
+  loadLocalization(id: LocalizationIdentifier): Promise<Localization> {
+    const {_localizationPromises, _localizationLoaders, _scope} = this;
+    const {setLocalization, getLocalizationData} = _scope;
+
+    const localizationPromise = _localizationPromises.find(localizationIdComparator(id));
+
+    if (localizationPromise) {
+      return localizationPromise.promise;
+    }
+
+    const localizationData = getLocalizationData(id);
+
+    if (localizationData) {
+      const newLocalizationPromise: LocalizationPromise = {
+        ...id, promise: Promise.resolve(localizationData)
+      };
+      _localizationPromises.push(newLocalizationPromise);
+      return newLocalizationPromise.promise;
+    }
+
+    const localizationLoader = _localizationLoaders.find(it => it.context === id.context);
+
+    if (!localizationLoader) {
+      throw new Error(`Localization loader for key ${JSON.stringify(id)} not found`);
+    }
+
+    const newLocalizationPromise: LocalizationPromise = {
+      ...id, promise: localizationLoader.loader(id.key, id.locale).then(localizationData => {
+        setLocalization({...id, data: localizationData});
+        return localizationData;
+      })
+    };
+
+    _localizationPromises.push(newLocalizationPromise);
+
+    return newLocalizationPromise.promise;
   }
 
-  onSetLocalization(listener: ScopeListener<LocalizationScopeState>) {
+  onSetLocale(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback {
+    return this._scope.onSetLocale(listener);
+  }
+
+  onSetLocalization(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback {
     return this._scope.onSetLocalization(listener);
   }
 
-  onChangeLocale(listener: ScopeListener<LocalizationScopeState>) {
-    return this._scope.onChangeLocale(listener);
+  setLocale(locale: string): void {
+    this._scope.setLocale(locale);
   }
 
-  loadLocalization(key: string) {
-    const {_scope, _loader, _localizationPromises} = this;
-    const {currentLocale, defaultLocale, localizations, setLocalization} = _scope;
-
-    let localizationKey = `${currentLocale}:${key}`;
-
-    if (!(localizationKey in _localizationPromises)) {
-      if (localizations[currentLocale] && localizations[currentLocale][key]) {
-        _localizationPromises[localizationKey] = Promise.resolve(localizations[currentLocale][key]);
-      } else {
-        _localizationPromises[localizationKey] =
-          new Promise<Localization>(resolve => _loader(currentLocale, key, resolve))
-            .then(null, () => new Promise<Localization>(
-              resolve => _loader(defaultLocale, key, resolve)))
-            .then(localization => {
-              setLocalization({locale: currentLocale, key, localization});
-              return localization;
-            });
-      }
-    }
-    return _localizationPromises[localizationKey];
+  setLocalization(localization: Localization): void {
+    this._scope.setLocalization(localization);
   }
 
 }

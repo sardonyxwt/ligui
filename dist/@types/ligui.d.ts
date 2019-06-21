@@ -49,12 +49,12 @@ export * from '@sardonyxwt/utils/object';
 export interface WebLiguiConfig {
     name: string;
     containerOptions: interfaces.ContainerOptions;
-    resourceLoader: ResourceLoader;
-    resourceScopeOptions: ResourceScopeOptions;
-    localizationLoader: LocalizationLoader;
-    localizationScopeOptions: LocalizationScopeOptions;
-    moduleLoaders: ModuleLoader[];
     moduleScopeOptions: ModuleScopeOptions;
+    resourceScopeOptions: ResourceScopeOptions;
+    localizationScopeOptions: LocalizationScopeOptions;
+    moduleLoaders?: ModuleLoader[];
+    resourceLoaders?: ResourceLoader[];
+    localizationLoaders?: LocalizationLoader[];
 }
 export interface WebLigui {
     readonly jsx: JSXService;
@@ -80,9 +80,9 @@ export interface WebLigui {
     useCurrent: <T>(value: T) => [T, (newValue: T) => void];
     useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
     useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
-    useModule: <T = any>(key: string) => T;
-    useResource: <T = any>(key: string) => T;
-    useTranslator: (keys: string[]) => Translator;
+    useModule: <T = any>(key: string, context?: string) => T;
+    useResource: <T = any>(key: string, context?: string) => T;
+    useTranslator: (keys: string[], context?: string) => Translator;
     clone: <T>(source: T) => T;
     cloneArray: <T>(sources: T[]) => T[];
     cloneArrays: <T>(...sources: (T[])[]) => T[];

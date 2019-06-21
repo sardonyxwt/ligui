@@ -1,36 +1,38 @@
 import { ScopeListener, ScopeMacroType, Scope, Store, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
+import { copyArray, saveToArray } from '../extension/util.extension';
 
 export const LOCALIZATION_SCOPE_NAME = 'localization';
-export const LOCALIZATION_SCOPE_CHANGE_LOCALE_ACTION = 'changeLocale';
+export const LOCALIZATION_SCOPE_SET_LOCALE_ACTION = 'setLocale';
 export const LOCALIZATION_SCOPE_SET_LOCALIZATION_ACTION = 'setLocalization';
 
-export interface Localization {
-  [key: string]: Localization
+export interface LocalizationIdentifier {
+  key: string;
+  locale: string;
+  context: string;
 }
 
-export interface Localizations {
-  [locale: string]: Localization
+export interface LocalizationData {
+  [key: string]: string | number | boolean | LocalizationData | LocalizationData[];
+}
+
+export interface Localization extends LocalizationIdentifier {
+  data: LocalizationData;
 }
 
 export interface LocalizationScopeState {
   readonly locales: string[];
   readonly defaultLocale: string;
   readonly currentLocale: string;
-  readonly localizations: Localizations
-}
-
-export interface LocalizationScopeAddLocalizationActionProps {
-  key: string;
-  locale: string;
-  localization: Localization;
+  readonly localizations: Localization[];
 }
 
 export interface LocalizationScopeAddons extends LocalizationScopeState {
-  readonly currentLocalization: Localization;
-  changeLocale(locale: string): void;
-  setLocalization(props: LocalizationScopeAddLocalizationActionProps): void;
-  isLocalizationLoaded(key: string): boolean;
-  onChangeLocale(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
+  setLocale(locale: string): void;
+  setLocalization(localization: Localization): void;
+  getLocalizationData(id: LocalizationIdentifier): LocalizationData;
+  isLocaleAvailable(locale: string): boolean;
+  isLocalizationLoaded(id: LocalizationIdentifier): boolean;
+  onSetLocale(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
   onSetLocalization(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
 }
 
@@ -40,13 +42,16 @@ export interface LocalizationScopeOptions {
   initState: LocalizationScopeState;
 }
 
-function checkLocale(locales, locale) {
+function checkLocale(locales: string[], locale: string) {
   const isLocalNotAvailable = !locales.find(it => it === locale);
 
   if (isLocalNotAvailable) {
     throw new Error('Locale not present in locales.');
   }
 }
+
+export const localizationIdComparator = (id1: LocalizationIdentifier) => (id2: LocalizationIdentifier) =>
+  id1.key === id2.key && id1.context === id2.context && id1.locale === id2.locale;
 
 export function createLocalizationScope (store: Store, {initState}: LocalizationScopeOptions) {
   const {locales, defaultLocale, currentLocale} = initState;
@@ -60,23 +65,16 @@ export function createLocalizationScope (store: Store, {initState}: Localization
     isSubscribeMacroAutoCreateEnable: true
   }) as LocalizationScope;
 
-  localizationScope.registerAction(LOCALIZATION_SCOPE_CHANGE_LOCALE_ACTION, (state, locale: string) => {
+  localizationScope.registerAction(LOCALIZATION_SCOPE_SET_LOCALE_ACTION, (state, locale: string) => {
     checkLocale(state.locales, locale);
     return {...state, currentLocale: locale};
   });
 
-  localizationScope.registerAction(LOCALIZATION_SCOPE_SET_LOCALIZATION_ACTION, (state, {
-    key, locale, localization
-  }: LocalizationScopeAddLocalizationActionProps) => {
-    checkLocale(state.locales, locale);
+  localizationScope.registerAction(LOCALIZATION_SCOPE_SET_LOCALIZATION_ACTION, (state, localization: Localization) => {
+    checkLocale(state.locales, localization.locale);
 
-    const localizations = {
-      ...state.localizations,
-      [locale]: {
-        ...state.localizations[locale],
-        [key]: localization
-      }
-    };
+    const localizations = copyArray(state.localizations);
+    saveToArray(localizations, localization, localizationIdComparator(localization));
 
     return {...state, localizations};
   });
@@ -85,19 +83,12 @@ export function createLocalizationScope (store: Store, {initState}: Localization
   localizationScope.registerMacro('defaultLocale', state => state.defaultLocale, ScopeMacroType.GETTER);
   localizationScope.registerMacro('currentLocale', state => state.currentLocale, ScopeMacroType.GETTER);
   localizationScope.registerMacro('localizations', state => state.localizations, ScopeMacroType.GETTER);
-  localizationScope.registerMacro('currentLocalization', state => {
-    const {localizations, currentLocale} = state;
-
-    return localizations[currentLocale];
-  }, ScopeMacroType.GETTER);
-  localizationScope.registerMacro('isLocalizationLoaded', (state, key: string) => {
-    const {currentLocale, localizations} = state;
-
-    if (!localizations[currentLocale]) {
-      return false;
-    }
-
-    return !!localizations[currentLocale][key];
+  localizationScope.registerMacro('getLocalizationData', (state, id: LocalizationIdentifier): LocalizationData => {
+    const localization = state.localizations.find(localizationIdComparator(id));
+    return !!localization ? localization.data : undefined;
+  });
+  localizationScope.registerMacro('isLocalizationLoaded', (state, id: LocalizationIdentifier): boolean => {
+    return !(localizationScope.getLocalizationData(id) === undefined);
   });
 
   localizationScope.lock();

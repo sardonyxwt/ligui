@@ -1,29 +1,26 @@
-import { ModuleScope } from '../scope/module.scope';
+import { ModuleScope, ModuleIdentifier, Module, ModuleScopeAddons, ModuleScopeState } from '../scope/module.scope';
+import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 export interface ModuleLoader {
-    key: string;
-    loader: () => Promise<any>;
+    context: string;
+    loader: (key: string) => Promise<any>;
 }
-export interface ModulePromise {
-    key: string;
+export interface ModulePromise extends ModuleIdentifier {
     promise: Promise<any>;
 }
-export interface ModuleService {
-    setModuleLoader<T>(loader: ModuleLoader): any;
-    setModule<T>(key: string, module: T): void;
-    getModule<T>(key: string): T;
-    getLoadedModulesKeys(): string[];
-    loadModule<T>(key: string): Promise<T>;
-    isModuleLoaded(key: string): boolean;
+export interface ModuleService extends ModuleScopeAddons {
+    registerModuleLoader<T>(loader: ModuleLoader): any;
+    loadModule<T>(id: ModuleIdentifier): Promise<T>;
 }
 export declare class ModuleServiceImpl implements ModuleService {
     protected _scope: ModuleScope;
-    private _moduleLoaders;
+    protected _moduleLoaders: ModuleLoader[];
     private _modulePromises;
     constructor(_scope: ModuleScope, _moduleLoaders?: ModuleLoader[]);
-    setModuleLoader<T>(loader: ModuleLoader): void;
-    setModule<T>(key: string, module: T): void;
-    getModule<T>(key: string): T;
-    getLoadedModulesKeys(): string[];
-    isModuleLoaded(key: string): boolean;
-    loadModule<T>(key: string): Promise<T>;
+    readonly modules: Module[];
+    registerModuleLoader<T>(loader: ModuleLoader): void;
+    setModule<T>(module: Module<T>): void;
+    getModuleBody<T>(id: ModuleIdentifier): T;
+    isModuleLoaded(id: ModuleIdentifier): boolean;
+    onSetModule(listener: ScopeListener<ModuleScopeState>): ScopeListenerUnsubscribeCallback;
+    loadModule<T>(id: ModuleIdentifier): Promise<T>;
 }

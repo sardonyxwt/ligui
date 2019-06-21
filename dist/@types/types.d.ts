@@ -1,7 +1,4 @@
 export declare const LIGUI_TYPES: {
-    MODULE_LOADER: string;
-    RESOURCE_LOADER: string;
-    LOCALIZATION_LOADER: string;
     MODULE_SCOPE: string;
     RESOURCE_SCOPE: string;
     LOCALIZATION_SCOPE: string;

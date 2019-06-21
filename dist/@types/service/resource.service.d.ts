@@ -1,18 +1,26 @@
-import { ScopeListener } from '@sardonyxwt/state-store';
-import { ResourceScope, ResourceScopeAddons, ResourceScopeSetResourceActionProps, ResourceScopeState } from '../scope/resource.scope';
-export declare type ResourceLoader = (key: string, cb: (resource: any) => void) => void;
+import { Resource, ResourceIdentifier, ResourceScope, ResourceScopeAddons, ResourceScopeState } from '../scope/resource.scope';
+import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
+export interface ResourceLoader {
+    context: string;
+    loader: (key: string) => Promise<any>;
+}
+export interface ResourcePromise extends ResourceIdentifier {
+    promise: Promise<any>;
+}
 export interface ResourceService extends ResourceScopeAddons {
-    loadResources<T>(key: string): Promise<T>;
+    registerResourceLoader<T>(loader: ResourceLoader): any;
+    loadResource<T>(id: ResourceIdentifier): Promise<T>;
 }
 export declare class ResourceServiceImpl implements ResourceService {
-    protected _loader: ResourceLoader;
     protected _scope: ResourceScope;
+    protected _resourceLoaders: ResourceLoader[];
     private _resourcePromises;
-    constructor(_loader: ResourceLoader, _scope: ResourceScope);
-    readonly resources: import("../scope/resource.scope").Resources;
-    getResource(key: string): any;
-    setResource(props: ResourceScopeSetResourceActionProps): void;
-    isResourceLoaded(key: string): boolean;
-    onSetResource(listener: ScopeListener<ResourceScopeState>): import("@sardonyxwt/state-store").ScopeListenerUnsubscribeCallback;
-    loadResources(key: string): Promise<any>;
+    constructor(_scope: ResourceScope, _resourceLoaders?: ResourceLoader[]);
+    readonly resources: Resource[];
+    registerResourceLoader<T>(loader: ResourceLoader): void;
+    setResource<T>(resource: Resource<T>): void;
+    getResourceData<T>(id: ResourceIdentifier): T;
+    isResourceLoaded(id: ResourceIdentifier): boolean;
+    onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback;
+    loadResource<T>(id: ResourceIdentifier): Promise<T>;
 }

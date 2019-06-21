@@ -1,30 +1,31 @@
 import { ScopeListener, Scope, Store, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 export declare const LOCALIZATION_SCOPE_NAME = "localization";
-export declare const LOCALIZATION_SCOPE_CHANGE_LOCALE_ACTION = "changeLocale";
+export declare const LOCALIZATION_SCOPE_SET_LOCALE_ACTION = "setLocale";
 export declare const LOCALIZATION_SCOPE_SET_LOCALIZATION_ACTION = "setLocalization";
-export interface Localization {
-    [key: string]: Localization;
+export interface LocalizationIdentifier {
+    key: string;
+    locale: string;
+    context: string;
 }
-export interface Localizations {
-    [locale: string]: Localization;
+export interface LocalizationData {
+    [key: string]: string | number | boolean | LocalizationData | LocalizationData[];
+}
+export interface Localization extends LocalizationIdentifier {
+    data: LocalizationData;
 }
 export interface LocalizationScopeState {
     readonly locales: string[];
     readonly defaultLocale: string;
     readonly currentLocale: string;
-    readonly localizations: Localizations;
-}
-export interface LocalizationScopeAddLocalizationActionProps {
-    key: string;
-    locale: string;
-    localization: Localization;
+    readonly localizations: Localization[];
 }
 export interface LocalizationScopeAddons extends LocalizationScopeState {
-    readonly currentLocalization: Localization;
-    changeLocale(locale: string): void;
-    setLocalization(props: LocalizationScopeAddLocalizationActionProps): void;
-    isLocalizationLoaded(key: string): boolean;
-    onChangeLocale(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
+    setLocale(locale: string): void;
+    setLocalization(localization: Localization): void;
+    getLocalizationData(id: LocalizationIdentifier): LocalizationData;
+    isLocaleAvailable(locale: string): boolean;
+    isLocalizationLoaded(id: LocalizationIdentifier): boolean;
+    onSetLocale(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
     onSetLocalization(listener: ScopeListener<LocalizationScopeState>): ScopeListenerUnsubscribeCallback;
 }
 export interface LocalizationScope extends Scope<LocalizationScopeState>, LocalizationScopeAddons {
@@ -32,4 +33,5 @@ export interface LocalizationScope extends Scope<LocalizationScopeState>, Locali
 export interface LocalizationScopeOptions {
     initState: LocalizationScopeState;
 }
+export declare const localizationIdComparator: (id1: LocalizationIdentifier) => (id2: LocalizationIdentifier) => boolean;
 export declare function createLocalizationScope(store: Store, { initState }: LocalizationScopeOptions): LocalizationScope;

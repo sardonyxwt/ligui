@@ -1,59 +1,96 @@
-import { inject, injectable } from 'inversify';
-import { ScopeListener } from '@sardonyxwt/state-store';
 import {
+  Resource,
+  resourceIdComparator,
+  ResourceIdentifier,
   ResourceScope,
   ResourceScopeAddons,
-  ResourceScopeSetResourceActionProps,
   ResourceScopeState
 } from '../scope/resource.scope';
-import { LIGUI_TYPES } from '../types';
+import { deleteFromArray, saveToArray } from '../extension/util.extension';
+import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 
-export type ResourceLoader = (key: string, cb: (resource: any) => void) => void;
-
-export interface ResourceService extends ResourceScopeAddons {
-  loadResources<T>(key: string): Promise<T>;
+export interface ResourceLoader {
+  context: string;
+  loader: (key: string) => Promise<any>;
 }
 
-@injectable()
+export interface ResourcePromise extends ResourceIdentifier {
+  promise: Promise<any>;
+}
+
+export interface ResourceService extends ResourceScopeAddons {
+  registerResourceLoader<T>(loader: ResourceLoader);
+  loadResource<T>(id: ResourceIdentifier): Promise<T>;
+}
+
 export class ResourceServiceImpl implements ResourceService {
 
-  private _resourcePromises: {[key: string]: Promise<any>} = {};
+  private _resourcePromises: ResourcePromise[] = [];
 
-  constructor(@inject(LIGUI_TYPES.RESOURCE_LOADER) protected _loader: ResourceLoader,
-              @inject(LIGUI_TYPES.RESOURCE_SCOPE) protected _scope: ResourceScope) {}
+  constructor(protected _scope: ResourceScope,
+              protected _resourceLoaders: ResourceLoader[] = []) {}
 
-  get resources () {
+  get resources(): Resource[] {
     return this._scope.resources;
   }
 
-  getResource(key: string) {
-    return this._scope.getResource(key)
+  registerResourceLoader<T>(loader: ResourceLoader) {
+    deleteFromArray(this._resourcePromises, resourcePromise => resourcePromise.context === loader.context);
+    saveToArray(this._resourceLoaders, loader, resourceLoader => resourceLoader.context === loader.context);
   }
 
-  setResource(props: ResourceScopeSetResourceActionProps) {
-    this._scope.setResource(props)
+  setResource<T>(resource: Resource<T>): void {
+    this._scope.setResource(resource);
   }
 
-  isResourceLoaded(key: string) {
-    return this._scope.isResourceLoaded(key)
+  getResourceData<T>(id: ResourceIdentifier): T {
+    return this._scope.getResourceData(id);
   }
 
-  onSetResource(listener: ScopeListener<ResourceScopeState>) {
-    return this._scope.onSetResource(listener)
+  isResourceLoaded(id: ResourceIdentifier): boolean {
+    return this._scope.isResourceLoaded(id);
   }
 
-  loadResources(key: string) {
-    const {_resourcePromises, _loader, _scope} = this;
+  onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback {
+    return this._scope.onSetResource(listener);
+  }
 
-    if (!(key in _resourcePromises)) {
-      if (_scope.resources[key]) {
-        _resourcePromises[key] = Promise.resolve(_scope.resources[key]);
-      } else {
-        _resourcePromises[key] = new Promise(resolve => _loader(key, resolve))
-          .then(resource => _scope.setResource({key, resource}));
-      }
+  loadResource<T>(id: ResourceIdentifier): Promise<T> {
+    const {_resourcePromises, _resourceLoaders, _scope} = this;
+    const {setResource, getResourceData} = _scope;
+
+    const resourcePromise = _resourcePromises.find(resourceIdComparator(id));
+
+    if (resourcePromise) {
+      return resourcePromise.promise;
     }
-    return _resourcePromises[key];
+
+    const resourceData = getResourceData(id);
+
+    if (resourceData) {
+      const newResourcePromise: ResourcePromise = {
+        ...id, promise: Promise.resolve(resourceData)
+      };
+      _resourcePromises.push(newResourcePromise);
+      return newResourcePromise.promise;
+    }
+
+    const resourceLoader = _resourceLoaders.find(it => it.context === id.context);
+
+    if (!resourceLoader) {
+      throw new Error(`Resource loader for key ${JSON.stringify(id)} not found`);
+    }
+
+    const newResourcePromise: ResourcePromise = {
+      ...id, promise: resourceLoader.loader(id.key).then(resourceData => {
+        setResource({...id, data: resourceData});
+        return resourceData;
+      })
+    };
+
+    _resourcePromises.push(newResourcePromise);
+
+    return newResourcePromise.promise;
   }
 
 }

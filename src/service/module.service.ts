@@ -1,83 +1,89 @@
-import { inject, multiInject, injectable, optional } from 'inversify';
-import { LIGUI_TYPES } from '../types';
-import { ModuleScope } from '../scope/module.scope';
+import { ModuleScope, ModuleIdentifier, Module, moduleIdComparator, ModuleScopeAddons, ModuleScopeState } from '../scope/module.scope';
 import { deleteFromArray, saveToArray } from '../extension/util.extension';
+import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 
 export interface ModuleLoader {
-  key: string;
-  loader: () => Promise<any>;
+  context: string;
+  loader: (key: string) => Promise<any>;
 }
 
-export interface ModulePromise {
-  key: string;
+export interface ModulePromise extends ModuleIdentifier {
   promise: Promise<any>;
 }
 
-export interface ModuleService {
-  setModuleLoader<T>(loader: ModuleLoader)
-  setModule<T>(key: string, module: T): void;
-  getModule<T>(key: string): T;
-  getLoadedModulesKeys(): string[];
-  loadModule<T>(key: string): Promise<T>;
-  isModuleLoaded(key: string): boolean;
+export interface ModuleService extends ModuleScopeAddons {
+  registerModuleLoader<T>(loader: ModuleLoader);
+  loadModule<T>(id: ModuleIdentifier): Promise<T>;
 }
 
-@injectable()
 export class ModuleServiceImpl implements ModuleService {
 
   private _modulePromises: ModulePromise[] = [];
 
-  constructor(@inject(LIGUI_TYPES.MODULE_SCOPE) protected _scope: ModuleScope,
-              @multiInject(LIGUI_TYPES.MODULE_LOADER) @optional() private _moduleLoaders: ModuleLoader[] = []) {}
+  constructor(protected _scope: ModuleScope,
+              protected _moduleLoaders: ModuleLoader[] = []) {}
 
-  setModuleLoader<T>(loader: ModuleLoader) {
-    deleteFromArray(this._modulePromises, it => it.key === loader.key);
-    saveToArray(this._moduleLoaders, loader, it => it.key === loader.key);
+  get modules(): Module[] {
+    return this._scope.modules;
   }
 
-  setModule<T>(key: string, module: T): void {
-    this._scope.setModule({key, module});
+  registerModuleLoader<T>(loader: ModuleLoader) {
+    deleteFromArray(this._modulePromises, modulePromise => modulePromise.context === loader.context);
+    saveToArray(this._moduleLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
   }
 
-  getModule<T>(key: string): T {
-    return this._scope.getModule(key);
+  setModule<T>(module: Module<T>): void {
+    this._scope.setModule(module);
   }
 
-  getLoadedModulesKeys(): string[] {
-    return Object.getOwnPropertyNames(this._scope.modules);
+  getModuleBody<T>(id: ModuleIdentifier): T {
+    return this._scope.getModuleBody(id);
   }
 
-  isModuleLoaded(key: string): boolean {
-    return this._scope.isModuleLoaded(key);
+  isModuleLoaded(id: ModuleIdentifier): boolean {
+    return this._scope.isModuleLoaded(id);
   }
 
-  loadModule<T>(key: string): Promise<T> {
+  onSetModule(listener: ScopeListener<ModuleScopeState>): ScopeListenerUnsubscribeCallback {
+    return this._scope.onSetModule(listener);
+  }
+
+  loadModule<T>(id: ModuleIdentifier): Promise<T> {
     const {_modulePromises, _moduleLoaders, _scope} = this;
-    const {modules, setModule, getModule} = _scope;
+    const {setModule, getModuleBody} = _scope;
 
-    const isModulePromiseExist = !!_modulePromises.find(it => it.key === key);
+    const modulePromise = _modulePromises.find(moduleIdComparator(id));
 
-    if (!isModulePromiseExist) {
-      if (modules[key]) {
-        _modulePromises.push({
-          key, promise: Promise.resolve(getModule(key))
-        });
-      } else {
-        const moduleLoader = _moduleLoaders.find(it => it.key === key);
-        if (!moduleLoader) {
-          throw new Error(`Module loader for key ${key} not found`);
-        }
-        _modulePromises.push({
-          key, promise: moduleLoader.loader()
-            .then(module => {
-              setModule({key, module});
-              return module;
-            })
-        });
-      }
+    if (modulePromise) {
+      return modulePromise.promise;
     }
 
-    return _modulePromises.find(it => it.key === key).promise;
+    const moduleBody = getModuleBody(id);
+
+    if (moduleBody) {
+      const newModulePromise: ModulePromise = {
+        ...id, promise: Promise.resolve(moduleBody)
+      };
+      _modulePromises.push(newModulePromise);
+      return newModulePromise.promise;
+    }
+
+    const moduleLoader = _moduleLoaders.find(it => it.context === id.context);
+
+    if (!moduleLoader) {
+      throw new Error(`Module loader for key ${JSON.stringify(id)} not found`);
+    }
+
+    const newModulePromise: ModulePromise = {
+      ...id, promise: moduleLoader.loader(id.key).then(moduleBody => {
+        setModule({...id, body: moduleBody});
+        return moduleBody;
+      })
+    };
+
+    _modulePromises.push(newModulePromise);
+
+    return newModulePromise.promise;
   }
 
 }

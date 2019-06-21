@@ -67,12 +67,12 @@ export * from '@sardonyxwt/utils/object';
 export interface WebLiguiConfig {
   name: string;
   containerOptions: interfaces.ContainerOptions
-  resourceLoader: ResourceLoader;
-  resourceScopeOptions: ResourceScopeOptions;
-  localizationLoader: LocalizationLoader;
-  localizationScopeOptions: LocalizationScopeOptions;
-  moduleLoaders: ModuleLoader[];
   moduleScopeOptions: ModuleScopeOptions;
+  resourceScopeOptions: ResourceScopeOptions;
+  localizationScopeOptions: LocalizationScopeOptions;
+  moduleLoaders?: ModuleLoader[];
+  resourceLoaders?: ResourceLoader[];
+  localizationLoaders?: LocalizationLoader[];
 }
 
 export interface WebLigui {
@@ -104,9 +104,9 @@ export interface WebLigui {
   useCurrent: <T>(value: T) => [T, (newValue: T) => void];
   useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
   useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
-  useModule: <T = any>(key: string) => T;
-  useResource: <T = any>(key: string) => T;
-  useTranslator: (keys: string[]) => Translator;
+  useModule: <T = any>(key: string, context?: string) => T;
+  useResource: <T = any>(key: string, context?: string) => T;
+  useTranslator: (keys: string[], context?: string) => Translator;
 
   clone: <T>(source: T) => T;
   cloneArray: <T>(sources: T[]) => T[];
@@ -144,25 +144,23 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
   const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
   const localizationScope = createLocalizationScope(context.store, config.localizationScopeOptions);
 
-  config.moduleLoaders.forEach(it => context.container.bind(LIGUI_TYPES.MODULE_LOADER).toConstantValue(it));
-
-  context.container.bind(LIGUI_TYPES.RESOURCE_LOADER).toConstantValue(config.resourceLoader);
-  context.container.bind(LIGUI_TYPES.LOCALIZATION_LOADER).toConstantValue(config.localizationLoader);
-
   context.container.bind(LIGUI_TYPES.MODULE_SCOPE).toConstantValue(moduleScope);
   context.container.bind(LIGUI_TYPES.RESOURCE_SCOPE).toConstantValue(resourceScope);
   context.container.bind(LIGUI_TYPES.LOCALIZATION_SCOPE).toConstantValue(localizationScope);
 
   context.container.bind<JSXService>(LIGUI_TYPES.JSX_SERVICE)
-    .to(JSXServiceImpl).inSingletonScope();
+    .toDynamicValue(() => new JSXServiceImpl()).inSingletonScope();
   context.container.bind<RestService>(LIGUI_TYPES.REST_SERVICE)
-    .to(RestServiceImpl).inSingletonScope();
+    .toDynamicValue(() => new RestServiceImpl()).inSingletonScope();
   context.container.bind<ModuleService>(LIGUI_TYPES.MODULE_SERVICE)
-    .to(ModuleServiceImpl).inSingletonScope();
+    .toDynamicValue(() => new ModuleServiceImpl(moduleScope, config.moduleLoaders))
+    .inSingletonScope();
   context.container.bind<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE)
-    .to(ResourceServiceImpl).inSingletonScope();
+    .toDynamicValue(() => new ResourceServiceImpl(resourceScope, config.resourceLoaders))
+    .inSingletonScope();
   context.container.bind<LocalizationService>(LIGUI_TYPES.LOCALIZATION_SERVICE)
-    .to(LocalizationServiceImpl).inSingletonScope();
+    .toDynamicValue(() => new LocalizationServiceImpl(localizationScope, config.localizationLoaders))
+    .inSingletonScope();
 
   const ligui: WebLigui = {
     get jsx() {
