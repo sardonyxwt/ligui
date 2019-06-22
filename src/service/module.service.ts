@@ -14,8 +14,8 @@ export interface ModulePromise {
 }
 
 export interface ModuleService extends ModuleScopeAddons {
-  registerModuleLoader<T>(loader: ModuleBodyLoader);
-  loadModule<T>(id: ModuleId): Promise<T>;
+  registerModuleBodyLoader<T>(loader: ModuleBodyLoader): void;
+  loadModuleBody<T>(id: ModuleId): Promise<T>;
 }
 
 export class ModuleServiceImpl implements ModuleService {
@@ -29,7 +29,7 @@ export class ModuleServiceImpl implements ModuleService {
     return this._scope.modules;
   }
 
-  registerModuleLoader<T>(loader: ModuleBodyLoader) {
+  registerModuleBodyLoader<T>(loader: ModuleBodyLoader) {
     saveToArray(this._moduleLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
     this._modulePromises
       .filter(it => it.id.context === loader.context && !!it.resolver)
@@ -52,7 +52,7 @@ export class ModuleServiceImpl implements ModuleService {
     return this._scope.onSetModule(listener);
   }
 
-  loadModule<T>(id: ModuleId): Promise<T> {
+  loadModuleBody<T>(id: ModuleId): Promise<T> {
     const {_modulePromises, _scope, getModuleLoader, getModulePromise, createModulePromise} = this;
     const {getModuleBody} = _scope;
 

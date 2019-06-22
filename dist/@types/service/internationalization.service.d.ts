@@ -11,7 +11,7 @@ export interface TranslateUnitDataPromise {
 }
 export interface InternationalizationService extends InternationalizationScopeAddons {
     getTranslator(context: string, locale?: string): Translator;
-    registerTranslateUnitDataLoader<T>(loader: TranslateUnitDataLoader): any;
+    registerTranslateUnitDataLoader<T>(loader: TranslateUnitDataLoader): void;
     loadTranslateUnitData(id: TranslateUnitId): Promise<TranslateUnitData>;
 }
 export declare class InternationalizationServiceImpl implements InternationalizationService {

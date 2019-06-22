@@ -10,8 +10,8 @@ export interface ModulePromise {
     readonly promise: Promise<any>;
 }
 export interface ModuleService extends ModuleScopeAddons {
-    registerModuleLoader<T>(loader: ModuleBodyLoader): any;
-    loadModule<T>(id: ModuleId): Promise<T>;
+    registerModuleBodyLoader<T>(loader: ModuleBodyLoader): void;
+    loadModuleBody<T>(id: ModuleId): Promise<T>;
 }
 export declare class ModuleServiceImpl implements ModuleService {
     protected _scope: ModuleScope;
@@ -19,12 +19,12 @@ export declare class ModuleServiceImpl implements ModuleService {
     private _modulePromises;
     constructor(_scope: ModuleScope, _moduleLoaders?: ModuleBodyLoader[]);
     readonly modules: Module[];
-    registerModuleLoader<T>(loader: ModuleBodyLoader): void;
+    registerModuleBodyLoader<T>(loader: ModuleBodyLoader): void;
     setModule<T>(module: Module<T>): void;
     getModuleBody<T>(id: ModuleId): T;
     isModuleLoaded(id: ModuleId): boolean;
     onSetModule(listener: ScopeListener<ModuleScopeState>): ScopeListenerUnsubscribeCallback;
-    loadModule<T>(id: ModuleId): Promise<T>;
+    loadModuleBody<T>(id: ModuleId): Promise<T>;
     private getModuleLoader;
     private getModulePromise;
     private createModulePromise;
