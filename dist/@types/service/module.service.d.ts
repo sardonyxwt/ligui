@@ -6,6 +6,7 @@ export interface ModuleLoader {
 }
 export interface ModulePromise {
     readonly id: ModuleId;
+    readonly resolver?: () => void;
     readonly promise: Promise<any>;
 }
 export interface ModuleService extends ModuleScopeAddons {
@@ -24,4 +25,7 @@ export declare class ModuleServiceImpl implements ModuleService {
     isModuleLoaded(id: ModuleId): boolean;
     onSetModule(listener: ScopeListener<ModuleScopeState>): ScopeListenerUnsubscribeCallback;
     loadModule<T>(id: ModuleId): Promise<T>;
+    private getModuleLoader;
+    private getModulePromise;
+    private createModulePromise;
 }

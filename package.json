@@ -1,6 +1,6 @@
 {
   "name": "@sardonyxwt/ligui",
-  "version": "12.3.1",
+  "version": "12.3.3",
   "description": "Ligui",
   "main": "./dist/ligui.min.js",
   "typings": "./dist/@types/ligui.d.ts",
