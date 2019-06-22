@@ -8,7 +8,6 @@ import {
 } from '../scope/resource.scope';
 import { deleteFromArray, saveToArray } from '../extension/util.extension';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
-import autobind from 'autobind-decorator';
 
 export interface ResourceDataLoader {
   readonly context?: string;
@@ -25,7 +24,6 @@ export interface ResourceService extends ResourceScopeAddons {
   loadResourceData<T>(id: ResourceId): Promise<T>;
 }
 
-@autobind
 export class ResourceServiceImpl implements ResourceService {
 
   private _resourcePromises: ResourcePromise[] = [];

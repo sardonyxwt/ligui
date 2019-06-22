@@ -17,7 +17,6 @@ import { Store, StoreConfig, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBus, EventBusConfig, EventBusDevTool } from '@sardonyxwt/event-bus';
 import { Container, interfaces } from 'inversify';
 import * as React from 'react';
-import autobind from 'autobind-decorator';
 export * from 'inversify';
 export * from './types';
 export * from './context';
@@ -48,7 +47,6 @@ export * from '@sardonyxwt/state-store';
 export * from '@sardonyxwt/event-bus';
 export * from '@sardonyxwt/utils/generator';
 export * from '@sardonyxwt/utils/object';
-export { autobind };
 export interface WebLiguiConfig {
     name: string;
     containerOptions: interfaces.ContainerOptions;

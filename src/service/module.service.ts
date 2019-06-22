@@ -1,7 +1,6 @@
 import { ModuleScope, ModuleId, Module, ModuleScopeAddons, ModuleScopeState } from '../scope/module.scope';
 import { saveToArray } from '../extension/util.extension';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
-import autobind from 'autobind-decorator';
 
 export interface ModuleBodyLoader {
   readonly context?: string;
@@ -19,7 +18,6 @@ export interface ModuleService extends ModuleScopeAddons {
   loadModuleBody<T>(id: ModuleId): Promise<T>;
 }
 
-@autobind
 export class ModuleServiceImpl implements ModuleService {
 
   private _modulePromises: ModulePromise[] = [];
@@ -55,16 +53,15 @@ export class ModuleServiceImpl implements ModuleService {
   }
 
   loadModuleBody<T>(id: ModuleId): Promise<T> {
-    const {_modulePromises, _scope, getModuleLoader, getModulePromise, createModulePromise} = this;
-    const {getModuleBody} = _scope;
+    const {_modulePromises, _scope} = this;
 
-    const modulePromise = getModulePromise(id);
+    const modulePromise = this.getModulePromise(id);
 
     if (modulePromise) {
       return modulePromise.promise;
     }
 
-    const moduleBody = getModuleBody(id);
+    const moduleBody = _scope.getModuleBody(id);
 
     if (moduleBody) {
       const newModulePromise: ModulePromise = {
@@ -77,14 +74,14 @@ export class ModuleServiceImpl implements ModuleService {
     let resolver: () => void = null;
     let promise: Promise<any> = null;
 
-    const moduleLoader = getModuleLoader(id.context);
+    const moduleLoader = this.getModuleLoader(id.context);
 
     if (moduleLoader) {
-      promise = createModulePromise(id, moduleLoader);
+      promise = this.createModulePromise(id, moduleLoader);
     } else {
       promise = new Promise(resolve => {
         resolver = () => {
-          createModulePromise(id, getModuleLoader(id.context)).then(resolve);
+          this.createModulePromise(id, this.getModuleLoader(id.context)).then(resolve);
         }
       });
     }

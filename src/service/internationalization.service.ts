@@ -9,7 +9,6 @@ import {
   translateUnitIdComparator
 } from '../scope/internationalization.scope';
 import { deleteFromArray, saveToArray } from '../extension/util.extension';
-import autobind from 'autobind-decorator';
 
 export type Translator = (key: string) => TranslateUnitData;
 
@@ -29,7 +28,6 @@ export interface InternationalizationService extends InternationalizationScopeAd
   loadTranslateUnitData(id: TranslateUnitId): Promise<TranslateUnitData>;
 }
 
-@autobind
 export class InternationalizationServiceImpl implements InternationalizationService {
 
   private _translateUnitPromises: TranslateUnitDataPromise[] = [];

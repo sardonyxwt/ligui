@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import autobind from 'autobind-decorator';
 
 export interface CommonProps {
   className?: string;
@@ -59,7 +58,6 @@ export const mergeRefs = <T>(...refs: Array<React.Ref<T>>) => (ref: T) => {
   });
 };
 
-@autobind
 export class JSXServiceImpl implements JSXService {
 
   private _factories: {[factoryName: string]: React.Factory<{}>} = {};

@@ -36,7 +36,6 @@ import { createEventBus, EventBus, EventBusConfig, EventBusDevTool, getEventBus,
 import { Container, interfaces } from 'inversify';
 import { LIGUI_TYPES } from './types';
 import * as React from 'react';
-import autobind from 'autobind-decorator';
 
 export * from 'inversify';
 export * from './types';
@@ -68,7 +67,6 @@ export * from '@sardonyxwt/state-store';
 export * from '@sardonyxwt/event-bus';
 export * from '@sardonyxwt/utils/generator';
 export * from '@sardonyxwt/utils/object';
-export { autobind };
 
 export interface WebLiguiConfig {
   name: string;
