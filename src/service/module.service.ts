@@ -1,6 +1,7 @@
 import { ModuleScope, ModuleId, Module, ModuleScopeAddons, ModuleScopeState } from '../scope/module.scope';
 import { saveToArray } from '../extension/util.extension';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
+import autobind from 'autobind-decorator';
 
 export interface ModuleBodyLoader {
   readonly context?: string;
@@ -18,6 +19,7 @@ export interface ModuleService extends ModuleScopeAddons {
   loadModuleBody<T>(id: ModuleId): Promise<T>;
 }
 
+@autobind
 export class ModuleServiceImpl implements ModuleService {
 
   private _modulePromises: ModulePromise[] = [];
