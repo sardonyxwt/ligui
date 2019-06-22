@@ -11,13 +11,13 @@ import { charFromHexCode, deferred, DeferredCall, prepareFunctionCall, resolveFu
 import { Parameters, ReturnType } from './extension/data.extension';
 import { JSXServiceImpl, JSXService } from './service/jsx.service';
 import { RestServiceImpl, RestService } from './service/rest.service';
-import { ResourceServiceImpl, ResourceService, ResourceLoader } from './service/resource.service';
+import { ResourceServiceImpl, ResourceService, ResourceDataLoader } from './service/resource.service';
 import {
   InternationalizationServiceImpl,
   InternationalizationService,
   TranslateUnitDataLoader
 } from './service/internationalization.service';
-import { ModuleServiceImpl, ModuleService, ModuleLoader } from './service/module.service';
+import { ModuleServiceImpl, ModuleService, ModuleBodyLoader } from './service/module.service';
 import { useCurrent } from './hook/current.hook';
 import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';
@@ -74,8 +74,8 @@ export interface WebLiguiConfig {
   moduleScopeOptions: ModuleScopeOptions;
   resourceScopeOptions: ResourceScopeOptions;
   internationalizationScopeOptions: InternationalizationScopeOptions;
-  moduleLoaders?: ModuleLoader[];
-  resourceLoaders?: ResourceLoader[];
+  moduleLoaders?: ModuleBodyLoader[];
+  resourceLoaders?: ResourceDataLoader[];
   internationalizationLoaders?: TranslateUnitDataLoader[];
 }
 

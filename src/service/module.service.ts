@@ -2,8 +2,8 @@ import { ModuleScope, ModuleId, Module, ModuleScopeAddons, ModuleScopeState } fr
 import { saveToArray } from '../extension/util.extension';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 
-export interface ModuleLoader {
-  readonly context: string;
+export interface ModuleBodyLoader {
+  readonly context?: string;
   readonly loader: (key: string) => Promise<any>;
 }
 
@@ -14,7 +14,7 @@ export interface ModulePromise {
 }
 
 export interface ModuleService extends ModuleScopeAddons {
-  registerModuleLoader<T>(loader: ModuleLoader);
+  registerModuleLoader<T>(loader: ModuleBodyLoader);
   loadModule<T>(id: ModuleId): Promise<T>;
 }
 
@@ -23,13 +23,13 @@ export class ModuleServiceImpl implements ModuleService {
   private _modulePromises: ModulePromise[] = [];
 
   constructor(protected _scope: ModuleScope,
-              protected _moduleLoaders: ModuleLoader[] = []) {}
+              protected _moduleLoaders: ModuleBodyLoader[] = []) {}
 
   get modules(): Module[] {
     return this._scope.modules;
   }
 
-  registerModuleLoader<T>(loader: ModuleLoader) {
+  registerModuleLoader<T>(loader: ModuleBodyLoader) {
     saveToArray(this._moduleLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
     this._modulePromises
       .filter(it => it.id.context === loader.context && !!it.resolver)
@@ -104,7 +104,7 @@ export class ModuleServiceImpl implements ModuleService {
     return this._modulePromises.find(it => it.id === id);
   }
 
-  private createModulePromise(id: ModuleId, loader: ModuleLoader) {
+  private createModulePromise(id: ModuleId, loader: ModuleBodyLoader) {
     return loader.loader(id.key).then(moduleBody => {
       this.setModule({id, body: moduleBody});
       return moduleBody;

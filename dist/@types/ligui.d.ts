@@ -5,9 +5,9 @@ import { DeferredCall } from './extension/function.extension';
 import { Parameters, ReturnType } from './extension/data.extension';
 import { JSXService } from './service/jsx.service';
 import { RestService } from './service/rest.service';
-import { ResourceService, ResourceLoader } from './service/resource.service';
+import { ResourceService, ResourceDataLoader } from './service/resource.service';
 import { InternationalizationService, TranslateUnitDataLoader } from './service/internationalization.service';
-import { ModuleService, ModuleLoader } from './service/module.service';
+import { ModuleService, ModuleBodyLoader } from './service/module.service';
 import { ContainerKey } from './hook/dependency.hook';
 import { InternationalizationHookReturnType } from './hook/internationalization.hook';
 import { ModuleScopeOptions } from './scope/module.scope';
@@ -53,8 +53,8 @@ export interface WebLiguiConfig {
     moduleScopeOptions: ModuleScopeOptions;
     resourceScopeOptions: ResourceScopeOptions;
     internationalizationScopeOptions: InternationalizationScopeOptions;
-    moduleLoaders?: ModuleLoader[];
-    resourceLoaders?: ResourceLoader[];
+    moduleLoaders?: ModuleBodyLoader[];
+    resourceLoaders?: ResourceDataLoader[];
     internationalizationLoaders?: TranslateUnitDataLoader[];
 }
 export interface WebLigui {

@@ -1,7 +1,7 @@
 import { ModuleScope, ModuleId, Module, ModuleScopeAddons, ModuleScopeState } from '../scope/module.scope';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
-export interface ModuleLoader {
-    readonly context: string;
+export interface ModuleBodyLoader {
+    readonly context?: string;
     readonly loader: (key: string) => Promise<any>;
 }
 export interface ModulePromise {
@@ -10,16 +10,16 @@ export interface ModulePromise {
     readonly promise: Promise<any>;
 }
 export interface ModuleService extends ModuleScopeAddons {
-    registerModuleLoader<T>(loader: ModuleLoader): any;
+    registerModuleLoader<T>(loader: ModuleBodyLoader): any;
     loadModule<T>(id: ModuleId): Promise<T>;
 }
 export declare class ModuleServiceImpl implements ModuleService {
     protected _scope: ModuleScope;
-    protected _moduleLoaders: ModuleLoader[];
+    protected _moduleLoaders: ModuleBodyLoader[];
     private _modulePromises;
-    constructor(_scope: ModuleScope, _moduleLoaders?: ModuleLoader[]);
+    constructor(_scope: ModuleScope, _moduleLoaders?: ModuleBodyLoader[]);
     readonly modules: Module[];
-    registerModuleLoader<T>(loader: ModuleLoader): void;
+    registerModuleLoader<T>(loader: ModuleBodyLoader): void;
     setModule<T>(module: Module<T>): void;
     getModuleBody<T>(id: ModuleId): T;
     isModuleLoaded(id: ModuleId): boolean;

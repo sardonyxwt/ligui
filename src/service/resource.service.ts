@@ -9,8 +9,8 @@ import {
 import { deleteFromArray, saveToArray } from '../extension/util.extension';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 
-export interface ResourceLoader {
-  readonly context: string;
+export interface ResourceDataLoader {
+  readonly context?: string;
   readonly loader: (key: string) => Promise<any>;
 }
 
@@ -20,7 +20,7 @@ export interface ResourcePromise {
 }
 
 export interface ResourceService extends ResourceScopeAddons {
-  registerResourceLoader<T>(loader: ResourceLoader);
+  registerResourceLoader<T>(loader: ResourceDataLoader);
   loadResource<T>(id: ResourceId): Promise<T>;
 }
 
@@ -29,13 +29,13 @@ export class ResourceServiceImpl implements ResourceService {
   private _resourcePromises: ResourcePromise[] = [];
 
   constructor(protected _scope: ResourceScope,
-              protected _resourceLoaders: ResourceLoader[] = []) {}
+              protected _resourceLoaders: ResourceDataLoader[] = []) {}
 
   get resources(): Resource[] {
     return this._scope.resources;
   }
 
-  registerResourceLoader<T>(loader: ResourceLoader) {
+  registerResourceLoader<T>(loader: ResourceDataLoader) {
     deleteFromArray(this._resourcePromises, resourcePromise => resourcePromise.id.context === loader.context);
     saveToArray(this._resourceLoaders, loader, resourceLoader => resourceLoader.context === loader.context);
   }
