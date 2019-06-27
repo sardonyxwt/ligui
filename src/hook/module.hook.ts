@@ -22,7 +22,9 @@ export const createModuleHook = (
     if (moduleService.isModuleLoaded(id)) {
       return moduleService.getModuleBody(id);
     }
-    moduleService.loadModuleBody<T>(id).then(setModule);
+    moduleService.loadModuleBody<T>(id)
+      .then(module => setModule(module));
+
     return null;
   });
 

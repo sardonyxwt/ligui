@@ -22,7 +22,9 @@ export const createResourceHook = (
     if (resourceService.isResourceLoaded(id)) {
       return resourceService.getResourceData(id);
     }
-    resourceService.loadResourceData(id).then(setResource);
+    resourceService.loadResourceData(id)
+      .then(resource => setResource(resource));
+
     return null;
   });
 

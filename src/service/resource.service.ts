@@ -20,8 +20,8 @@ export interface ResourcePromise {
 }
 
 export interface ResourceService extends ResourceScopeAddons {
-  registerResourceDataLoader<T>(loader: ResourceDataLoader): void;
-  loadResourceData<T>(id: ResourceId): Promise<T>;
+  registerResourceDataLoader(loader: ResourceDataLoader): void;
+  loadResourceData<T = any>(id: ResourceId): Promise<T>;
 }
 
 export class ResourceServiceImpl implements ResourceService {
@@ -35,7 +35,7 @@ export class ResourceServiceImpl implements ResourceService {
     return this._scope.resources;
   }
 
-  registerResourceDataLoader<T>(loader: ResourceDataLoader) {
+  registerResourceDataLoader(loader: ResourceDataLoader) {
     deleteFromArray(this._resourcePromises, resourcePromise => resourcePromise.id.context === loader.context);
     saveToArray(this._resourceLoaders, loader, resourceLoader => resourceLoader.context === loader.context);
   }

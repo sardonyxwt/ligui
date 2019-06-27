@@ -9,8 +9,8 @@ export interface ResourcePromise {
     readonly promise: Promise<any>;
 }
 export interface ResourceService extends ResourceScopeAddons {
-    registerResourceDataLoader<T>(loader: ResourceDataLoader): void;
-    loadResourceData<T>(id: ResourceId): Promise<T>;
+    registerResourceDataLoader(loader: ResourceDataLoader): void;
+    loadResourceData<T = any>(id: ResourceId): Promise<T>;
 }
 export declare class ResourceServiceImpl implements ResourceService {
     protected _scope: ResourceScope;
@@ -18,7 +18,7 @@ export declare class ResourceServiceImpl implements ResourceService {
     private _resourcePromises;
     constructor(_scope: ResourceScope, _resourceLoaders?: ResourceDataLoader[]);
     readonly resources: Resource[];
-    registerResourceDataLoader<T>(loader: ResourceDataLoader): void;
+    registerResourceDataLoader(loader: ResourceDataLoader): void;
     setResource<T>(resource: Resource<T>): void;
     getResourceData<T>(id: ResourceId): T;
     isResourceLoaded(id: ResourceId): boolean;
