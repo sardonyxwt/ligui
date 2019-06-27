@@ -19,7 +19,7 @@ export const createModuleHook = (
   const id: ModuleId = {key, context: moduleContext};
 
   const [module, setModule] = React.useState<T>(() => {
-    if (moduleService.isModuleLoaded({key, context})) {
+    if (moduleService.isModuleLoaded(id)) {
       return moduleService.getModuleBody(id);
     }
     moduleService.loadModuleBody<T>(id).then(setModule);
