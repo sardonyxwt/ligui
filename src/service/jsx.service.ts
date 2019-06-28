@@ -10,6 +10,9 @@ export interface ChildrenProps<T extends any | any[] = React.ReactNode> {
   children?: T extends (infer U)[] ? U | U[] : T;
 }
 
+export type DOMEvent = MouseEvent | KeyboardEvent | TouchEvent
+  | React.MouseEvent | React.TouchEvent | React.KeyboardEvent;
+
 export interface JSXService {
   registerFactory<T extends {}>(name: string, factory: React.Factory<T>): void;
   node<T extends {}>(name: string, props?: T, ...children: React.ReactNode[]): React.ReactElement<T>;
@@ -18,8 +21,8 @@ export interface JSXService {
   renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
   hydrateComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
   classes(...classes: (string | [string, boolean])[]): string;
-  eventTrap(evt: MouseEvent | KeyboardEvent | TouchEvent
-    | React.MouseEvent | React.TouchEvent | React.KeyboardEvent, includeNative?: boolean): void;
+  eventTrap(evt: DOMEvent, includeNative?: boolean): void;
+  isModifiedEvent(evt: DOMEvent): boolean;
   mergeRefs<T>(...refs: Array<React.Ref<T>>): (ref: T) => void;
 }
 
@@ -38,14 +41,17 @@ export const classes = (...classes: (string | [string, boolean])[]) => {
   return resultClasses.join(' ')
 };
 
-export const eventTrap = (evt: MouseEvent | KeyboardEvent | TouchEvent
-  | React.MouseEvent | React.TouchEvent | React.KeyboardEvent, includeNative = true) => {
+export const eventTrap = (evt: DOMEvent, includeNative = true) => {
   evt.preventDefault();
   evt.stopPropagation();
   if (evt['nativeEvent'] && includeNative) {
     evt['nativeEvent'].preventDefault();
     evt['nativeEvent'].stopPropagation();
   }
+};
+
+export const isModifiedEvent = (evt: DOMEvent) => {
+  return !!(evt.metaKey || evt.altKey || evt.ctrlKey || evt.shiftKey);
 };
 
 export const mergeRefs = <T>(...refs: Array<React.Ref<T>>) => (ref: T) => {
@@ -64,6 +70,7 @@ export class JSXServiceImpl implements JSXService {
 
   classes = classes;
   eventTrap = eventTrap;
+  isModifiedEvent = isModifiedEvent;
   mergeRefs = mergeRefs;
 
   hydrate<T extends {}>(container: Element, element: React.ReactElement<T>) {
