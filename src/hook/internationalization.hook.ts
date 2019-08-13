@@ -3,8 +3,13 @@ import { Container } from 'inversify';
 import { Translator, InternationalizationService } from '../service/internationalization.service';
 import { LIGUI_TYPES } from '../types';
 
-export const InternationalizationKeyContext = React.createContext<string>(undefined);
-export const {Consumer: I18nKeyContextConsumer, Provider: I18nKeyContextProvider} = InternationalizationKeyContext;
+let InternationalizationKeyContext: React.Context<string> = null;
+
+if (!!React) {
+  InternationalizationKeyContext = React.createContext<string>(undefined);
+}
+
+export { InternationalizationKeyContext };
 
 export interface InternationalizationHookReturnType {
   setLocale: (locale: string) => void;

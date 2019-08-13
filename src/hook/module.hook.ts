@@ -4,8 +4,13 @@ import { ModuleService } from '../service/module.service';
 import { LIGUI_TYPES } from '../types';
 import { ModuleId } from '../scope/module.scope';
 
-export const ModuleKeyContext = React.createContext<string>(undefined);
-export const {Consumer: ModuleKeyContextConsumer, Provider: ModuleKeyContextProvider} = ModuleKeyContext;
+let ModuleKeyContext: React.Context<string> = null;
+
+if (!!React) {
+  ModuleKeyContext = React.createContext<string>(undefined);
+}
+
+export { ModuleKeyContext };
 
 export const createModuleHook = (
   container: Container

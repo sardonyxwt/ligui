@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Container } from 'inversify';
 import { Translator } from '../service/internationalization.service';
-export declare const InternationalizationKeyContext: React.Context<string>;
-export declare const I18nKeyContextConsumer: React.ExoticComponent<React.ConsumerProps<string>>, I18nKeyContextProvider: React.ProviderExoticComponent<React.ProviderProps<string>>;
+declare let InternationalizationKeyContext: React.Context<string>;
+export { InternationalizationKeyContext };
 export interface InternationalizationHookReturnType {
     setLocale: (locale: string) => void;
     translator: Translator;

@@ -4,8 +4,13 @@ import { ResourceService } from '../service/resource.service';
 import { LIGUI_TYPES } from '../types';
 import { ResourceId } from '../scope/resource.scope';
 
-export const ResourceKeyContext = React.createContext<string>(undefined);
-export const {Consumer: ResourceKeyContextConsumer, Provider: ResourceKeyContextProvider} = ResourceKeyContext;
+let ResourceKeyContext: React.Context<string> = null;
+
+if (!!React) {
+  ResourceKeyContext = React.createContext<string>(undefined);
+}
+
+export { ResourceKeyContext };
 
 export const createResourceHook = (
   container: Container
