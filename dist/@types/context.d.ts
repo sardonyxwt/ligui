@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Store } from '@sardonyxwt/state-store';
 import { Container, interfaces } from 'inversify';
 export interface Context {

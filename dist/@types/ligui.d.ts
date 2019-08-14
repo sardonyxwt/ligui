@@ -47,7 +47,7 @@ export * from '@sardonyxwt/state-store';
 export * from '@sardonyxwt/event-bus';
 export * from '@sardonyxwt/utils/generator';
 export * from '@sardonyxwt/utils/object';
-export interface WebLiguiConfig {
+export interface LiguiConfig {
     name: string;
     containerOptions: interfaces.ContainerOptions;
     moduleScopeOptions: ModuleScopeOptions;
@@ -57,7 +57,7 @@ export interface WebLiguiConfig {
     resourceLoaders?: ResourceDataLoader[];
     internationalizationLoaders?: TranslateUnitDataLoader[];
 }
-export interface WebLigui {
+export interface Ligui {
     readonly jsx: JSXService;
     readonly rest: RestService;
     readonly resource: ResourceService;
@@ -67,10 +67,12 @@ export interface WebLigui {
     readonly store: Store;
     readonly container: Container;
     createStore(config: StoreConfig): Store;
+    isStoreExist(storeName: string): boolean;
     getStore(storeName: string): Store;
     getState(): {};
     setStoreDevTool(devTool: Partial<StoreDevTool>): void;
     createEventBus(config?: EventBusConfig): EventBus;
+    isEventBusExist(storeName: string): boolean;
     getEventBus(scopeName: string): EventBus;
     setEventBusDevTool(devTool: Partial<EventBusDevTool>): void;
     useId: () => string;
@@ -106,4 +108,4 @@ export interface WebLigui {
     resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
     prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
-export declare function createNewLiguiInstance(config: WebLiguiConfig): WebLigui;
+export declare function createNewLiguiInstance(config: LiguiConfig): Ligui;

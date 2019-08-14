@@ -1,5 +1,4 @@
-import 'reflect-metadata';
-import { Store, createStore } from '@sardonyxwt/state-store';
+import { Store, createStore, isStoreExist, getStore } from '@sardonyxwt/state-store';
 import { Container, interfaces } from 'inversify';
 
 export interface Context {
@@ -12,7 +11,9 @@ export function createContext(
   containerOptions?: interfaces.ContainerOptions
 ): Context {
   return Object.freeze({
-    store: createStore({name}),
+    store: isStoreExist(name)
+      ? getStore(name)
+      : createStore({name}),
     container: new Container(containerOptions)
   });
 }

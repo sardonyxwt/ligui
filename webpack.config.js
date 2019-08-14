@@ -1,8 +1,8 @@
 const path = require("path");
-const CleanPlugin = require('clean-webpack-plugin');
 const VisualizerPlugin = require('webpack-visualizer-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const StatsPlugin = require('stats-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const {BundleAnalyzerPlugin} = require('webpack-bundle-analyzer');
 
 module.exports = {
   entry: `./src/ligui.ts`,
@@ -18,7 +18,7 @@ module.exports = {
   profile: true,
   devtool: 'source-map',
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx','.json']
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json']
   },
   module: {
     rules: [{
@@ -31,7 +31,7 @@ module.exports = {
     }]
   },
   plugins: [
-    new CleanPlugin(),
+    new CleanWebpackPlugin(),
     new StatsPlugin(`./@stat/webpack.json`, {}, false),
     new VisualizerPlugin({
       filename: `./@stat/visualization.html`

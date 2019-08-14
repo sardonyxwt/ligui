@@ -1,38 +1,92 @@
 import 'reflect-metadata';
 import { Context, createContext } from './context';
-import { createUniqueIdGenerator, generateUUID, generateSalt, Generator } from '@sardonyxwt/utils/generator';
-import { flatten, unflatten, deepFreeze, stringifyValue } from '@sardonyxwt/utils/object';
+import {
+  createUniqueIdGenerator,
+  generateUUID,
+  generateSalt,
+  Generator
+} from '@sardonyxwt/utils/generator';
+import {
+  flatten,
+  unflatten,
+  deepFreeze,
+  stringifyValue
+} from '@sardonyxwt/utils/object';
 import {
   arrayFrom, clone, cloneArray, cloneArrays,
   copyArray, copyArrays, resolveArray, resolveValue,
   saveToArray, deleteFromArray
 } from './extension/util.extension';
-import { charFromHexCode, deferred, DeferredCall, prepareFunctionCall, resolveFunctionCall } from './extension/function.extension';
+import {
+  charFromHexCode,
+  deferred,
+  DeferredCall,
+  prepareFunctionCall,
+  resolveFunctionCall
+} from './extension/function.extension';
 import { Parameters, ReturnType } from './extension/data.extension';
 import { JSXServiceImpl, JSXService } from './service/jsx.service';
 import { RestServiceImpl, RestService } from './service/rest.service';
-import { ResourceServiceImpl, ResourceService, ResourceDataLoader } from './service/resource.service';
+import {
+  ResourceServiceImpl,
+  ResourceService,
+  ResourceDataLoader
+} from './service/resource.service';
 import {
   InternationalizationServiceImpl,
   InternationalizationService,
   TranslateUnitDataLoader
 } from './service/internationalization.service';
-import { ModuleServiceImpl, ModuleService, ModuleBodyLoader } from './service/module.service';
+import {
+  ModuleServiceImpl,
+  ModuleService,
+  ModuleBodyLoader
+} from './service/module.service';
 import { useCurrent } from './hook/current.hook';
 import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';
 import { useRef } from './hook/ref.hook';
 import { usePocket } from './hook/pocket.hook';
 import { createStateHook } from './hook/state.hook';
-import { createDependencyHook, createDependenciesHook, ContainerKey } from './hook/dependency.hook';
-import { createI18nHook, InternationalizationHookReturnType } from './hook/internationalization.hook';
+import {
+  createDependencyHook,
+  createDependenciesHook,
+  ContainerKey
+} from './hook/dependency.hook';
+import {
+  createI18nHook,
+  InternationalizationHookReturnType
+} from './hook/internationalization.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resource.hook';
 import { ModuleScopeOptions, createModuleScope } from './scope/module.scope';
-import { ResourceScopeOptions, createResourceScope } from './scope/resource.scope';
-import { InternationalizationScopeOptions, createInternationalizationScope } from './scope/internationalization.scope';
-import { createStore, getState, getStore, setStoreDevTool, Store, StoreConfig, StoreDevTool } from '@sardonyxwt/state-store';
-import { createEventBus, EventBus, EventBusConfig, EventBusDevTool, getEventBus, setEventBusDevTool } from '@sardonyxwt/event-bus';
+import {
+  ResourceScopeOptions,
+  createResourceScope
+} from './scope/resource.scope';
+import {
+  InternationalizationScopeOptions,
+  createInternationalizationScope
+} from './scope/internationalization.scope';
+import {
+  createStore,
+  isStoreExist,
+  getState,
+  getStore,
+  setStoreDevTool,
+  Store,
+  StoreConfig,
+  StoreDevTool
+} from '@sardonyxwt/state-store';
+import {
+  createEventBus,
+  isEventBusExist,
+  getEventBus,
+  setEventBusDevTool,
+  EventBus,
+  EventBusConfig,
+  EventBusDevTool
+} from '@sardonyxwt/event-bus';
 import { Container, interfaces } from 'inversify';
 import { LIGUI_TYPES } from './types';
 import * as React from 'react';
@@ -68,7 +122,7 @@ export * from '@sardonyxwt/event-bus';
 export * from '@sardonyxwt/utils/generator';
 export * from '@sardonyxwt/utils/object';
 
-export interface WebLiguiConfig {
+export interface LiguiConfig {
   name: string;
   containerOptions: interfaces.ContainerOptions
   moduleScopeOptions: ModuleScopeOptions;
@@ -79,7 +133,7 @@ export interface WebLiguiConfig {
   internationalizationLoaders?: TranslateUnitDataLoader[];
 }
 
-export interface WebLigui {
+export interface Ligui {
   readonly jsx: JSXService;
   readonly rest: RestService;
   readonly resource: ResourceService;
@@ -90,11 +144,13 @@ export interface WebLigui {
   readonly container: Container;
 
   createStore(config: StoreConfig): Store;
+  isStoreExist(storeName: string): boolean;
   getStore(storeName: string): Store;
   getState(): {};
   setStoreDevTool(devTool: Partial<StoreDevTool>): void;
 
   createEventBus(config?: EventBusConfig): EventBus;
+  isEventBusExist(storeName: string): boolean;
   getEventBus(scopeName: string): EventBus;
   setEventBusDevTool(devTool: Partial<EventBusDevTool>): void;
 
@@ -141,7 +197,12 @@ export interface WebLigui {
     ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
 
-export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
+export function createNewLiguiInstance(config: LiguiConfig): Ligui {
+  // Check Ligui instance is present for HMR
+  if (!!global[config.name]) {
+    return global[config.name];
+  }
+
   const context = createContext(config.name, config.containerOptions);
 
   const moduleScope = createModuleScope(context.store, config.moduleScopeOptions);
@@ -166,7 +227,7 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     .toDynamicValue(() => new InternationalizationServiceImpl(localizationScope, config.internationalizationLoaders))
     .inSingletonScope();
 
-  const ligui: WebLigui = {
+  const ligui: Ligui = {
     get jsx() {
       return context.container.get<JSXService>(LIGUI_TYPES.JSX_SERVICE);
     },
@@ -193,11 +254,13 @@ export function createNewLiguiInstance(config: WebLiguiConfig): WebLigui {
     },
 
     createStore: createStore,
+    isStoreExist: isStoreExist,
     getState: getState,
     getStore: getStore,
     setStoreDevTool: setStoreDevTool,
 
     createEventBus: createEventBus,
+    isEventBusExist: isEventBusExist,
     getEventBus: getEventBus,
     setEventBusDevTool: setEventBusDevTool,
 
