@@ -192,8 +192,8 @@ export interface Ligui {
 
   charFromHexCode: (hexCode: string) => string;
 
-  resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
-  prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) =>
+  resolveFunctionCall: <T extends Function | undefined | null>(func: T, ...flags: boolean[]) => T;
+  prepareFunctionCall: <T extends Function | undefined | null>(func: T, ...flags: boolean[]) =>
     ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
 

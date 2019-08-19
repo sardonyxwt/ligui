@@ -105,7 +105,7 @@ export interface Ligui {
     deepFreeze: <T>(obj: T) => Readonly<T>;
     deferred: DeferredCall;
     charFromHexCode: (hexCode: string) => string;
-    resolveFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => T;
-    prepareFunctionCall: <T extends Function>(func: T, ...flags: boolean[]) => ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
+    resolveFunctionCall: <T extends Function | undefined | null>(func: T, ...flags: boolean[]) => T;
+    prepareFunctionCall: <T extends Function | undefined | null>(func: T, ...flags: boolean[]) => ((...args: Parameters<typeof func>) => () => ReturnType<typeof func>);
 }
 export declare function createNewLiguiInstance(config: LiguiConfig): Ligui;
