@@ -10,7 +10,7 @@ import {
 } from '../scope/internationalization.scope';
 import { deleteFromArray, saveToArray } from '../extension/util.extension';
 
-export type Translator = (key: string) => TranslateUnitData;
+export type Translator = <T = string>(key: string) => T;
 
 export interface TranslateUnitDataLoader {
   readonly context?: string;
@@ -70,7 +70,7 @@ export class InternationalizationServiceImpl implements InternationalizationServ
   }
 
   getTranslator(context: string, locale?: string): Translator {
-    return (path: string) => {
+    return <T>(path: string) => {
       const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
 
       const translateUnitId: TranslateUnitId = {key, context, locale: locale || this.currentLocale};
@@ -81,7 +81,7 @@ export class InternationalizationServiceImpl implements InternationalizationServ
         result = result[pathParts[i]] as TranslateUnitData;
       }
 
-      return result;
+      return result as unknown as T;
     };
   }
 
