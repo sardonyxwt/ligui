@@ -15,9 +15,9 @@ export { ResourceKeyContext };
 export const createResourceHook = (
   container: Container
 ) => <T = any>(key: string, context?: string): T => {
-  const resourceKeyContext = React.useContext(ResourceKeyContext);
-
   const resourceService = container.get<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE);
+
+  const resourceKeyContext = React.useContext(ResourceKeyContext);
 
   const resourceContext = context || resourceKeyContext;
 

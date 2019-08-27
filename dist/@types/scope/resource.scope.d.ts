@@ -3,7 +3,7 @@ export declare const RESOURCE_SCOPE_NAME = "resource";
 export declare const RESOURCE_SCOPE_SET_RESOURCE_ACTION = "setResource";
 export interface ResourceId {
     readonly key: string;
-    readonly context: string;
+    readonly context?: string;
 }
 export interface Resource<T = any> {
     readonly id: ResourceId;

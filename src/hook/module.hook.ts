@@ -15,9 +15,9 @@ export { ModuleKeyContext };
 export const createModuleHook = (
   container: Container
 ) => <T = any>(key: string, context?: string): T => {
-  const moduleKeyContext = React.useContext(ModuleKeyContext);
-
   const moduleService = container.get<ModuleService>(LIGUI_TYPES.MODULE_SERVICE);
+
+  const moduleKeyContext = React.useContext(ModuleKeyContext);
 
   const moduleContext = context || moduleKeyContext;
 

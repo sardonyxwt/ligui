@@ -6,7 +6,7 @@ export const RESOURCE_SCOPE_SET_RESOURCE_ACTION = 'setResource';
 
 export interface ResourceId {
   readonly key: string;
-  readonly context: string;
+  readonly context?: string;
 }
 
 export interface Resource<T = any> {
@@ -55,7 +55,7 @@ export function createResourceScope (store: Store, {initState}: ResourceScopeOpt
     return !!resource ? resource.data : undefined;
   });
   resourceScope.registerMacro('isResourceLoaded', (state, id: ResourceId): boolean => {
-    return !(resourceScope.getResourceData(id) === undefined);
+    return resourceScope.getResourceData(id) !== undefined;
   });
 
   resourceScope.lock();

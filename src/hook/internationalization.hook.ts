@@ -24,11 +24,11 @@ export const createI18nHook = (
 ) => (
   keys: string[], context?: string
 ): InternationalizationHookReturnType => {
+  const internationalizationService = container.get<InternationalizationService>(LIGUI_TYPES.INTERNATIONALIZATION_SERVICE);
+
   const internationalizationKeyContext = React.useContext(InternationalizationKeyContext);
 
-  const [translator, setTranslator] = React.useState<Translator>(resolveTranslator);
-
-  const internationalizationService = container.get<InternationalizationService>(LIGUI_TYPES.INTERNATIONALIZATION_SERVICE);
+  const [translator, setTranslator] = React.useState<Translator>(() => resolveTranslator());
 
   const internationalizationContext = context || internationalizationKeyContext;
 
@@ -45,14 +45,20 @@ export const createI18nHook = (
       return internationalizationService.getTranslator(internationalizationContext, locale);
     }
 
-    Promise.all(keys.map(key => internationalizationService.loadTranslateUnitData({
-      key, context: internationalizationContext, locale
-    }))).then(() => setTranslator(
-      internationalizationService.getTranslator(internationalizationContext, locale)
-    ));
-
     return null;
   }
+
+  React.useEffect(() => {
+    const locale = internationalizationService.currentLocale;
+
+    if (!translator) {
+      Promise.all(keys.map(key => internationalizationService.loadTranslateUnitData({
+        key, context: internationalizationContext, locale
+      }))).then(() => setTranslator(
+        internationalizationService.getTranslator(internationalizationContext, locale)
+      ));
+    }
+  }, [translator]);
 
   React.useEffect(() => internationalizationService.onSetLocale(
     () => setTranslator(resolveTranslator())));

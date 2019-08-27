@@ -88,7 +88,7 @@ export function createInternationalizationScope (store: Store, {initState}: Inte
     return !!translateUnit ? translateUnit.data : undefined;
   });
   internationalizationScope.registerMacro('isTranslateUnitLoaded', (state, id: TranslateUnitId): boolean => {
-    return typeof internationalizationScope.getTranslateUnitData(id) === 'undefined';
+    return typeof internationalizationScope.getTranslateUnitData(id) !== 'undefined';
   });
 
   internationalizationScope.lock();
