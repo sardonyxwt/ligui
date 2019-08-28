@@ -1,4 +1,4 @@
-import { Resource, ResourceId, ResourceScope, ResourceScopeAddons, ResourceScopeState } from '../scope/resource.scope';
+import { Resource, ResourceId, ResourceScope, ResourceScopeExtensions, ResourceScopeState } from '../scope/resource.scope';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 export interface ResourceDataLoader {
     readonly context?: string;
@@ -8,7 +8,7 @@ export interface ResourcePromise {
     readonly id: ResourceId;
     readonly promise: Promise<any>;
 }
-export interface ResourceService extends ResourceScopeAddons {
+export interface ResourceService extends ResourceScopeExtensions {
     registerResourceDataLoader(loader: ResourceDataLoader): void;
     loadResourceData<T = any>(id: ResourceId): Promise<T>;
 }

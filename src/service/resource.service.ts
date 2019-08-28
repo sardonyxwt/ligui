@@ -3,7 +3,7 @@ import {
   resourceIdComparator,
   ResourceId,
   ResourceScope,
-  ResourceScopeAddons,
+  ResourceScopeExtensions,
   ResourceScopeState
 } from '../scope/resource.scope';
 import { deleteFromArray, saveToArray } from '../extension/util.extension';
@@ -19,7 +19,7 @@ export interface ResourcePromise {
   readonly promise: Promise<any>;
 }
 
-export interface ResourceService extends ResourceScopeAddons {
+export interface ResourceService extends ResourceScopeExtensions {
   registerResourceDataLoader(loader: ResourceDataLoader): void;
   loadResourceData<T = any>(id: ResourceId): Promise<T>;
 }

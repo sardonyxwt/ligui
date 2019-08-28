@@ -20,7 +20,7 @@ export interface InternationalizationScopeState {
     readonly currentLocale: string;
     readonly translateUnits: TranslateUnit[];
 }
-export interface InternationalizationScopeAddons extends InternationalizationScopeState {
+export interface InternationalizationScopeExtensions extends InternationalizationScopeState {
     setLocale(locale: string): void;
     setTranslateUnit(translateUnit: TranslateUnit): void;
     getTranslateUnitData(id: TranslateUnitId): TranslateUnitData;
@@ -28,7 +28,7 @@ export interface InternationalizationScopeAddons extends InternationalizationSco
     onSetLocale(listener: ScopeListener<InternationalizationScopeState>): ScopeListenerUnsubscribeCallback;
     onSetTranslateUnit(listener: ScopeListener<InternationalizationScopeState>): ScopeListenerUnsubscribeCallback;
 }
-export interface InternationalizationScope extends Scope<InternationalizationScopeState>, InternationalizationScopeAddons {
+export interface InternationalizationScope extends Scope<InternationalizationScopeState>, InternationalizationScopeExtensions {
 }
 export interface InternationalizationScopeOptions {
     initState: InternationalizationScopeState;

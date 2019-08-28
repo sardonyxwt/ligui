@@ -1,4 +1,4 @@
-import { ModuleScope, ModuleId, Module, ModuleScopeAddons, ModuleScopeState } from '../scope/module.scope';
+import { ModuleScope, ModuleId, Module, ModuleScopeExtensions, ModuleScopeState } from '../scope/module.scope';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 export interface ModuleBodyLoader {
     readonly context?: string;
@@ -9,7 +9,7 @@ export interface ModulePromise {
     readonly resolver?: () => void;
     readonly promise: Promise<any>;
 }
-export interface ModuleService extends ModuleScopeAddons {
+export interface ModuleService extends ModuleScopeExtensions {
     registerModuleBodyLoader<T>(loader: ModuleBodyLoader): void;
     loadModuleBody<T>(id: ModuleId): Promise<T>;
 }

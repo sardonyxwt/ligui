@@ -1,5 +1,5 @@
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
-import { InternationalizationScope, InternationalizationScopeAddons, InternationalizationScopeState, TranslateUnit, TranslateUnitData, TranslateUnitId } from '../scope/internationalization.scope';
+import { InternationalizationScope, InternationalizationScopeExtensions, InternationalizationScopeState, TranslateUnit, TranslateUnitData, TranslateUnitId } from '../scope/internationalization.scope';
 export declare type Translator = <T = string>(key: string) => T;
 export interface TranslateUnitDataLoader {
     readonly context?: string;
@@ -9,7 +9,7 @@ export interface TranslateUnitDataPromise {
     readonly id: TranslateUnitId;
     readonly promise: Promise<any>;
 }
-export interface InternationalizationService extends InternationalizationScopeAddons {
+export interface InternationalizationService extends InternationalizationScopeExtensions {
     getTranslator(context: string, locale?: string): Translator;
     registerTranslateUnitDataLoader<T>(loader: TranslateUnitDataLoader): void;
     loadTranslateUnitData(id: TranslateUnitId): Promise<TranslateUnitData>;

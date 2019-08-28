@@ -27,7 +27,7 @@ export interface InternationalizationScopeState {
   readonly translateUnits: TranslateUnit[];
 }
 
-export interface InternationalizationScopeAddons extends InternationalizationScopeState {
+export interface InternationalizationScopeExtensions extends InternationalizationScopeState {
   setLocale(locale: string): void;
   setTranslateUnit(translateUnit: TranslateUnit): void;
   getTranslateUnitData(id: TranslateUnitId): TranslateUnitData;
@@ -36,7 +36,7 @@ export interface InternationalizationScopeAddons extends InternationalizationSco
   onSetTranslateUnit(listener: ScopeListener<InternationalizationScopeState>): ScopeListenerUnsubscribeCallback;
 }
 
-export interface InternationalizationScope extends Scope<InternationalizationScopeState>, InternationalizationScopeAddons {}
+export interface InternationalizationScope extends Scope<InternationalizationScopeState>, InternationalizationScopeExtensions {}
 
 export interface InternationalizationScopeOptions {
   initState: InternationalizationScopeState;
@@ -62,7 +62,7 @@ export function createInternationalizationScope (store: Store, {initState}: Inte
   const internationalizationScope = store.createScope<InternationalizationScopeState>({
     name: INTERNATIONALIZATION_SCOPE_NAME,
     initState,
-    isSubscribeMacroAutoCreateEnable: true
+    isSubscribedMacroAutoCreateEnabled: true
   }) as InternationalizationScope;
 
   internationalizationScope.registerAction(INTERNATIONALIZATION_SCOPE_SET_LOCALE_ACTION, (state, locale: string) => {

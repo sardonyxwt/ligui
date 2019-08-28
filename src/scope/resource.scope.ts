@@ -18,14 +18,14 @@ export interface ResourceScopeState {
   readonly resources: Resource[];
 }
 
-export interface ResourceScopeAddons extends ResourceScopeState {
+export interface ResourceScopeExtensions extends ResourceScopeState {
   setResource(resource: Resource): void;
   getResourceData(id: ResourceId): any;
   isResourceLoaded(id: ResourceId): boolean;
   onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback;
 }
 
-export interface ResourceScope extends Scope<ResourceScopeState>, ResourceScopeAddons {}
+export interface ResourceScope extends Scope<ResourceScopeState>, ResourceScopeExtensions {}
 
 export interface ResourceScopeOptions {
   initState: ResourceScopeState;
@@ -38,7 +38,7 @@ export function createResourceScope (store: Store, {initState}: ResourceScopeOpt
   const resourceScope = store.createScope<ResourceScopeState>({
     name: RESOURCE_SCOPE_NAME,
     initState,
-    isSubscribeMacroAutoCreateEnable: true
+    isSubscribedMacroAutoCreateEnabled: true
   }) as ResourceScope;
 
   resourceScope.registerAction(RESOURCE_SCOPE_SET_RESOURCE_ACTION, (state, resource: Resource) => {

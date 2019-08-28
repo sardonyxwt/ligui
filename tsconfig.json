@@ -1,26 +1,26 @@
 {
-  "compileOnSave": false,
-  "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "jsx": "react",
-    "alwaysStrict": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "lib": [
-      "es2015",
-      "dom"
-    ],
-    "noImplicitAny": false,
-    "allowSyntheticDefaultImports": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "typeRoots": [
-      "node_modules/@types/"
-    ],
-    "sourceMap": true,
-    "declaration": true,
-    "declarationDir": "./dist/@types",
-    "baseUrl": "."
-  }
+    "compileOnSave": false,
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "jsx": "react",
+        "alwaysStrict": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "lib": [
+            "es2015",
+            "dom"
+        ],
+        "noImplicitAny": false,
+        "allowSyntheticDefaultImports": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "typeRoots": [
+            "node_modules/@types/"
+        ],
+        "sourceMap": true,
+        "declaration": true,
+        "declarationDir": "./dist/@types",
+        "baseUrl": "."
+    }
 }

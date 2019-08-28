@@ -12,13 +12,13 @@ export interface Module<T = any> {
 export interface ModuleScopeState {
     readonly modules: Module[];
 }
-export interface ModuleScopeAddons extends ModuleScopeState {
+export interface ModuleScopeExtensions extends ModuleScopeState {
     setModule(module: Module): void;
     getModuleBody<T>(id: ModuleId): T;
     isModuleLoaded(id: ModuleId): boolean;
     onSetModule(listener: ScopeListener<ModuleScopeState>): ScopeListenerUnsubscribeCallback;
 }
-export interface ModuleScope extends Scope<ModuleScopeState>, ModuleScopeAddons {
+export interface ModuleScope extends Scope<ModuleScopeState>, ModuleScopeExtensions {
 }
 export interface ModuleScopeOptions {
     initState: ModuleScopeState;

@@ -18,14 +18,14 @@ export interface ModuleScopeState {
   readonly modules: Module[];
 }
 
-export interface ModuleScopeAddons extends ModuleScopeState {
+export interface ModuleScopeExtensions extends ModuleScopeState {
   setModule(module: Module): void;
   getModuleBody<T>(id: ModuleId): T;
   isModuleLoaded(id: ModuleId): boolean;
   onSetModule(listener: ScopeListener<ModuleScopeState>): ScopeListenerUnsubscribeCallback;
 }
 
-export interface ModuleScope extends Scope<ModuleScopeState>, ModuleScopeAddons {}
+export interface ModuleScope extends Scope<ModuleScopeState>, ModuleScopeExtensions {}
 
 export interface ModuleScopeOptions {
   initState: ModuleScopeState;
@@ -38,7 +38,7 @@ export function createModuleScope (store: Store, {initState}: ModuleScopeOptions
   const moduleScope = store.createScope<ModuleScopeState>({
     name: MODULE_SCOPE_NAME,
     initState,
-    isSubscribeMacroAutoCreateEnable: true
+    isSubscribedMacroAutoCreateEnabled: true
   }) as ModuleScope;
 
   moduleScope.registerAction(MODULE_SCOPE_SET_MODULE_ACTION, (state, module: Module) => {

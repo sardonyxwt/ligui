@@ -12,13 +12,13 @@ export interface Resource<T = any> {
 export interface ResourceScopeState {
     readonly resources: Resource[];
 }
-export interface ResourceScopeAddons extends ResourceScopeState {
+export interface ResourceScopeExtensions extends ResourceScopeState {
     setResource(resource: Resource): void;
     getResourceData(id: ResourceId): any;
     isResourceLoaded(id: ResourceId): boolean;
     onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback;
 }
-export interface ResourceScope extends Scope<ResourceScopeState>, ResourceScopeAddons {
+export interface ResourceScope extends Scope<ResourceScopeState>, ResourceScopeExtensions {
 }
 export interface ResourceScopeOptions {
     initState: ResourceScopeState;

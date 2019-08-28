@@ -1,7 +1,7 @@
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 import {
   InternationalizationScope,
-  InternationalizationScopeAddons,
+  InternationalizationScopeExtensions,
   InternationalizationScopeState,
   TranslateUnit,
   TranslateUnitData,
@@ -22,7 +22,7 @@ export interface TranslateUnitDataPromise {
   readonly promise: Promise<any>;
 }
 
-export interface InternationalizationService extends InternationalizationScopeAddons {
+export interface InternationalizationService extends InternationalizationScopeExtensions {
   getTranslator(context: string, locale?: string): Translator;
   registerTranslateUnitDataLoader<T>(loader: TranslateUnitDataLoader): void;
   loadTranslateUnitData(id: TranslateUnitId): Promise<TranslateUnitData>;

@@ -1,9 +1,10 @@
 # Add any directories, files, or patterns you don't want to be tracked by version control
 
 .idea/
-*.iml
+**/*.iml
 
-npm-debug.log
+**/npm-debug.log
+report/
 etc/
+node/
 node_modules/
-dist/@stat/
