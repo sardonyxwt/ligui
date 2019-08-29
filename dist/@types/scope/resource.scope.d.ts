@@ -1,4 +1,4 @@
-import { ScopeListener, Scope, Store, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
+import { Scope, ScopeListener, ScopeListenerUnsubscribeCallback, Store } from '@sardonyxwt/state-store';
 export declare const RESOURCE_SCOPE_NAME = "resource";
 export declare const RESOURCE_SCOPE_SET_RESOURCE_ACTION = "setResource";
 export interface ResourceId {

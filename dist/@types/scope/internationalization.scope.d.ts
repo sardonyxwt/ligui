@@ -1,4 +1,4 @@
-import { ScopeListener, Scope, Store, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
+import { Scope, ScopeListener, ScopeListenerUnsubscribeCallback, Store } from '@sardonyxwt/state-store';
 export declare const INTERNATIONALIZATION_SCOPE_NAME = "internationalization";
 export declare const INTERNATIONALIZATION_SCOPE_SET_LOCALE_ACTION = "setLocale";
 export declare const INTERNATIONALIZATION_SCOPE_SET_TRANSLATE_UNIT_ACTION = "setTranslateUnit";

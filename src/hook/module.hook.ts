@@ -7,31 +7,34 @@ import { ModuleId } from '../scope/module.scope';
 let ModuleKeyContext: React.Context<string> = null;
 
 if (!!React) {
-  ModuleKeyContext = React.createContext<string>(undefined);
+    ModuleKeyContext = React.createContext<string>(undefined);
 }
 
 export { ModuleKeyContext };
 
 export const createModuleHook = (
-  container: Container
+    container: Container
 ) => <T = any>(key: string, context?: string): T => {
-  const moduleService = container.get<ModuleService>(LIGUI_TYPES.MODULE_SERVICE);
+    const moduleService = container.get<ModuleService>(LIGUI_TYPES.MODULE_SERVICE);
 
-  const moduleKeyContext = React.useContext(ModuleKeyContext);
+    const moduleKeyContext = React.useContext(ModuleKeyContext);
 
-  const moduleContext = context || moduleKeyContext;
+    const moduleContext = context || moduleKeyContext;
 
-  const id: ModuleId = {key, context: moduleContext};
+    const id: ModuleId = {key, context: moduleContext};
 
-  const [module, setModule] = React.useState<T>(() => {
-    if (moduleService.isModuleLoaded(id)) {
-      return moduleService.getModuleBody(id);
-    }
-    moduleService.loadModuleBody<T>(id)
-      .then(module => setModule(module));
+    const [module, setModule] = React.useState<T>(() => {
+        if (moduleService.isModuleLoaded(id)) {
+            return moduleService.getModuleBody(id);
+        }
+        return null;
+    });
 
-    return null;
-  });
+    React.useEffect(() => {
+        if (!module) {
+            moduleService.loadModuleBody<T>(id).then(module => setModule(module));
+        }
+    }, []);
 
-  return module;
+    return module;
 };

@@ -1,97 +1,99 @@
 import {
-  Resource,
-  resourceIdComparator,
-  ResourceId,
-  ResourceScope,
-  ResourceScopeExtensions,
-  ResourceScopeState
+    Resource,
+    ResourceId,
+    resourceIdComparator,
+    ResourceScope,
+    ResourceScopeExtensions,
+    ResourceScopeState
 } from '../scope/resource.scope';
 import { deleteFromArray, saveToArray } from '../extension/util.extension';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 
 export interface ResourceDataLoader {
-  readonly context?: string;
-  readonly loader: (key: string) => Promise<any>;
+    readonly context?: string;
+    readonly loader: (key: string) => Promise<any>;
 }
 
 export interface ResourcePromise {
-  readonly id: ResourceId;
-  readonly promise: Promise<any>;
+    readonly id: ResourceId;
+    readonly promise: Promise<any>;
 }
 
 export interface ResourceService extends ResourceScopeExtensions {
-  registerResourceDataLoader(loader: ResourceDataLoader): void;
-  loadResourceData<T = any>(id: ResourceId): Promise<T>;
+    registerResourceDataLoader(loader: ResourceDataLoader): void;
+
+    loadResourceData<T = any>(id: ResourceId): Promise<T>;
 }
 
 export class ResourceServiceImpl implements ResourceService {
 
-  private _resourcePromises: ResourcePromise[] = [];
+    private _resourcePromises: ResourcePromise[] = [];
 
-  constructor(protected _scope: ResourceScope,
-              protected _resourceLoaders: ResourceDataLoader[] = []) {}
-
-  get resources(): Resource[] {
-    return this._scope.resources;
-  }
-
-  registerResourceDataLoader(loader: ResourceDataLoader) {
-    deleteFromArray(this._resourcePromises, resourcePromise => resourcePromise.id.context === loader.context);
-    saveToArray(this._resourceLoaders, loader, resourceLoader => resourceLoader.context === loader.context);
-  }
-
-  setResource<T>(resource: Resource<T>): void {
-    this._scope.setResource(resource);
-  }
-
-  getResourceData<T>(id: ResourceId): T {
-    return this._scope.getResourceData(id);
-  }
-
-  isResourceLoaded(id: ResourceId): boolean {
-    return this._scope.isResourceLoaded(id);
-  }
-
-  onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback {
-    return this._scope.onSetResource(listener);
-  }
-
-  loadResourceData<T>(id: ResourceId): Promise<T> {
-    const {_resourcePromises, _resourceLoaders, _scope} = this;
-    const {setResource, getResourceData} = _scope;
-
-    const resourcePromise = _resourcePromises.find(it => resourceIdComparator(id, it.id));
-
-    if (resourcePromise) {
-      return resourcePromise.promise;
+    constructor(protected _scope: ResourceScope,
+                protected _resourceLoaders: ResourceDataLoader[] = []) {
     }
 
-    const resourceData = getResourceData(id);
-
-    if (resourceData) {
-      const newResourcePromise: ResourcePromise = {
-        id, promise: Promise.resolve(resourceData)
-      };
-      _resourcePromises.push(newResourcePromise);
-      return newResourcePromise.promise;
+    get resources(): Resource[] {
+        return this._scope.resources;
     }
 
-    const resourceLoader = _resourceLoaders.find(it => it.context === id.context);
-
-    if (!resourceLoader) {
-      throw new Error(`Resource loader for key ${JSON.stringify(id)} not found`);
+    registerResourceDataLoader(loader: ResourceDataLoader) {
+        deleteFromArray(this._resourcePromises, resourcePromise => resourcePromise.id.context === loader.context);
+        saveToArray(this._resourceLoaders, loader, resourceLoader => resourceLoader.context === loader.context);
     }
 
-    const newResourcePromise: ResourcePromise = {
-      id, promise: resourceLoader.loader(id.key).then(resourceData => {
-        setResource({id, data: resourceData});
-        return resourceData;
-      })
-    };
+    setResource<T>(resource: Resource<T>): void {
+        this._scope.setResource(resource);
+    }
 
-    _resourcePromises.push(newResourcePromise);
+    getResourceData<T>(id: ResourceId): T {
+        return this._scope.getResourceData(id);
+    }
 
-    return newResourcePromise.promise;
-  }
+    isResourceLoaded(id: ResourceId): boolean {
+        return this._scope.isResourceLoaded(id);
+    }
+
+    onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback {
+        return this._scope.onSetResource(listener);
+    }
+
+    loadResourceData<T>(id: ResourceId): Promise<T> {
+        const {_resourcePromises, _resourceLoaders, _scope} = this;
+        const {setResource, getResourceData} = _scope;
+
+        const resourcePromise = _resourcePromises.find(it => resourceIdComparator(id, it.id));
+
+        if (resourcePromise) {
+            return resourcePromise.promise;
+        }
+
+        const resourceData = getResourceData(id);
+
+        if (resourceData) {
+            const newResourcePromise: ResourcePromise = {
+                id, promise: Promise.resolve(resourceData)
+            };
+            _resourcePromises.push(newResourcePromise);
+            return newResourcePromise.promise;
+        }
+
+        const resourceLoader = _resourceLoaders.find(it => it.context === id.context);
+
+        if (!resourceLoader) {
+            throw new Error(`Resource loader for key ${JSON.stringify(id)} not found`);
+        }
+
+        const newResourcePromise: ResourcePromise = {
+            id, promise: resourceLoader.loader(id.key).then(resourceData => {
+                setResource({id, data: resourceData});
+                return resourceData;
+            })
+        };
+
+        _resourcePromises.push(newResourcePromise);
+
+        return newResourcePromise.promise;
+    }
 
 }

@@ -1,4 +1,4 @@
-import { ScopeListener, Scope, Store, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
+import { Scope, ScopeListener, ScopeListenerUnsubscribeCallback, Store } from '@sardonyxwt/state-store';
 export declare const MODULE_SCOPE_NAME = "module";
 export declare const MODULE_SCOPE_SET_MODULE_ACTION = "setModule";
 export interface ModuleId {

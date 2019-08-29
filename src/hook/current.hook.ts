@@ -1,14 +1,14 @@
 import * as React from 'react';
 
 export const useCurrent = <T>(
-  value: T
+    value: T
 ): [T, (newValue: T) => void] => {
-  const valueRef = React.useRef<T>(null);
+    const valueRef = React.useRef<T>(null);
 
-  valueRef.current = value;
+    valueRef.current = value;
 
-  return [
-    valueRef.current,
-    newValue => valueRef.current = newValue
-  ];
+    return [
+        valueRef.current,
+        newValue => valueRef.current = newValue
+    ];
 };

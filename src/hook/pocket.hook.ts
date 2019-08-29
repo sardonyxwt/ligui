@@ -6,17 +6,17 @@ const pocketIdGenerator = createUniqueIdGenerator('PocketId');
 const pockets: { [id: string]: object } = {};
 
 export const usePocket = <T extends {}>(
-  initialValue: T
+    initialValue: T
 ): T => {
-  const pocketId = React.useMemo(() => pocketIdGenerator(), []);
+    const pocketId = React.useMemo(() => pocketIdGenerator(), []);
 
-  if (!(pocketId in pockets)) {
-    pockets[pocketId] = initialValue;
-  }
+    if (!(pocketId in pockets)) {
+        pockets[pocketId] = initialValue;
+    }
 
-  React.useEffect(() => {
-    return () => delete pockets[pocketId];
-  }, []);
+    React.useEffect(() => {
+        return () => delete pockets[pocketId];
+    }, []);
 
-  return pockets[pocketId] as T;
+    return pockets[pocketId] as T;
 };

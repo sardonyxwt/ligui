@@ -7,31 +7,34 @@ import { ResourceId } from '../scope/resource.scope';
 let ResourceKeyContext: React.Context<string> = null;
 
 if (!!React) {
-  ResourceKeyContext = React.createContext<string>(undefined);
+    ResourceKeyContext = React.createContext<string>(undefined);
 }
 
 export { ResourceKeyContext };
 
 export const createResourceHook = (
-  container: Container
+    container: Container
 ) => <T = any>(key: string, context?: string): T => {
-  const resourceService = container.get<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE);
+    const resourceService = container.get<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE);
 
-  const resourceKeyContext = React.useContext(ResourceKeyContext);
+    const resourceKeyContext = React.useContext(ResourceKeyContext);
 
-  const resourceContext = context || resourceKeyContext;
+    const resourceContext = context || resourceKeyContext;
 
-  const id: ResourceId = {key, context: resourceContext};
+    const id: ResourceId = {key, context: resourceContext};
 
-  const [resource, setResource] = React.useState<T>(() => {
-    if (resourceService.isResourceLoaded(id)) {
-      return resourceService.getResourceData(id);
-    }
-    resourceService.loadResourceData(id)
-      .then(resource => setResource(resource));
+    const [resource, setResource] = React.useState<T>(() => {
+        if (resourceService.isResourceLoaded(id)) {
+            return resourceService.getResourceData(id);
+        }
+        return null;
+    });
 
-    return null;
-  });
+    React.useEffect(() => {
+        if (!resource) {
+            resourceService.loadResourceData(id).then(resource => setResource(resource));
+        }
+    }, []);
 
-  return resource;
+    return resource;
 };
