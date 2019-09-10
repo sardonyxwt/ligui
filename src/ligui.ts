@@ -64,6 +64,8 @@ export * from './hook/dependency.hook';
 export * from './hook/internationalization.hook';
 export * from './hook/module.hook';
 export * from './hook/resource.hook';
+export * from '@sardonyxwt/event-bus';
+export * from '@sardonyxwt/state-store';
 
 export interface LiguiConfig {
     name: string;
