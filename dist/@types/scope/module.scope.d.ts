@@ -20,9 +20,6 @@ export interface ModuleScopeExtensions extends ModuleScopeState {
 }
 export interface ModuleScope extends Scope<ModuleScopeState>, ModuleScopeExtensions {
 }
-export interface ModuleScopeOptions {
-    initState: ModuleScopeState;
-}
 export declare const moduleIdComparator: (id1: ModuleId, id2: ModuleId) => boolean;
-export declare function createModuleScope(store: Store, { initState }: ModuleScopeOptions): ModuleScope;
+export declare function createModuleScope(store: Store, initState?: ModuleScopeState): ModuleScope;
 //# sourceMappingURL=module.scope.d.ts.map

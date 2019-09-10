@@ -30,9 +30,6 @@ export interface InternationalizationScopeExtensions extends Internationalizatio
 }
 export interface InternationalizationScope extends Scope<InternationalizationScopeState>, InternationalizationScopeExtensions {
 }
-export interface InternationalizationScopeOptions {
-    initState: InternationalizationScopeState;
-}
 export declare const translateUnitIdComparator: (id1: TranslateUnitId, id2: TranslateUnitId) => boolean;
-export declare function createInternationalizationScope(store: Store, { initState }: InternationalizationScopeOptions): InternationalizationScope;
+export declare function createInternationalizationScope(store: Store, initState?: InternationalizationScopeState): InternationalizationScope;
 //# sourceMappingURL=internationalization.scope.d.ts.map

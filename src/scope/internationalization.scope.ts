@@ -45,10 +45,6 @@ export interface InternationalizationScope extends Scope<InternationalizationSco
     InternationalizationScopeExtensions {
 }
 
-export interface InternationalizationScopeOptions {
-    initState: InternationalizationScopeState;
-}
-
 function checkLocale(locales: string[], locale: string) {
     const isLocalNotAvailable = !locales.find(it => it === locale);
 
@@ -60,7 +56,14 @@ function checkLocale(locales: string[], locale: string) {
 export const translateUnitIdComparator = (id1: TranslateUnitId, id2: TranslateUnitId) =>
     id1.key === id2.key && id1.context === id2.context && id1.locale === id2.locale;
 
-export function createInternationalizationScope(store: Store, {initState}: InternationalizationScopeOptions) {
+const defaultInternationalizationScopeInitState: InternationalizationScopeState = {
+    currentLocale: 'en',
+    defaultLocale: 'en',
+    locales: ['en'],
+    translateUnits: []
+};
+
+export function createInternationalizationScope(store: Store, initState = defaultInternationalizationScopeInitState) {
     const {locales, defaultLocale, currentLocale} = initState;
 
     checkLocale(locales, defaultLocale);

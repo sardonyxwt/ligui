@@ -6,9 +6,9 @@ import { InternationalizationService, TranslateUnitDataLoader } from './service/
 import { ModuleBodyLoader, ModuleService } from './service/module.service';
 import { ContainerKey } from './hook/dependency.hook';
 import { InternationalizationHookReturnType } from './hook/internationalization.hook';
-import { ModuleScopeOptions } from './scope/module.scope';
-import { ResourceScopeOptions } from './scope/resource.scope';
-import { InternationalizationScopeOptions } from './scope/internationalization.scope';
+import { ModuleScopeState } from './scope/module.scope';
+import { ResourceScopeState } from './scope/resource.scope';
+import { InternationalizationScopeState } from './scope/internationalization.scope';
 import { Store, StoreConfig, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBus, EventBusConfig, EventBusDevTool } from '@sardonyxwt/event-bus';
 import { Container, interfaces } from 'inversify';
@@ -37,10 +37,10 @@ export * from '@sardonyxwt/event-bus';
 export * from '@sardonyxwt/state-store';
 export interface LiguiConfig {
     name: string;
-    containerOptions: interfaces.ContainerOptions;
-    moduleScopeOptions: ModuleScopeOptions;
-    resourceScopeOptions: ResourceScopeOptions;
-    internationalizationScopeOptions: InternationalizationScopeOptions;
+    containerOptions?: interfaces.ContainerOptions;
+    moduleScopeInitState?: ModuleScopeState;
+    resourceScopeInitState?: ResourceScopeState;
+    internationalizationScopeInitState?: InternationalizationScopeState;
     moduleLoaders?: ModuleBodyLoader[];
     resourceLoaders?: ResourceDataLoader[];
     internationalizationLoaders?: TranslateUnitDataLoader[];

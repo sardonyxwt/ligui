@@ -31,14 +31,14 @@ export interface ModuleScopeExtensions extends ModuleScopeState {
 export interface ModuleScope extends Scope<ModuleScopeState>, ModuleScopeExtensions {
 }
 
-export interface ModuleScopeOptions {
-    initState: ModuleScopeState;
-}
-
 export const moduleIdComparator = (id1: ModuleId, id2: ModuleId) =>
     id1.key === id2.key && id1.context === id2.context;
 
-export function createModuleScope(store: Store, {initState}: ModuleScopeOptions) {
+const defaultModuleScopeInitState: ModuleScopeState = {
+    modules: []
+};
+
+export function createModuleScope(store: Store, initState = defaultModuleScopeInitState) {
     const moduleScope = store.createScope<ModuleScopeState>({
         name: MODULE_SCOPE_NAME,
         initState,

@@ -18,9 +18,9 @@ import { ContainerKey, createDependenciesHook, createDependencyHook } from './ho
 import { createI18nHook, InternationalizationHookReturnType } from './hook/internationalization.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resource.hook';
-import { createModuleScope, ModuleScopeOptions } from './scope/module.scope';
-import { createResourceScope, ResourceScopeOptions } from './scope/resource.scope';
-import { createInternationalizationScope, InternationalizationScopeOptions } from './scope/internationalization.scope';
+import { createModuleScope, ModuleScopeState } from './scope/module.scope';
+import { createResourceScope, ResourceScopeState } from './scope/resource.scope';
+import { createInternationalizationScope, InternationalizationScopeState } from './scope/internationalization.scope';
 import {
     createStore,
     getState,
@@ -69,10 +69,10 @@ export * from '@sardonyxwt/state-store';
 
 export interface LiguiConfig {
     name: string;
-    containerOptions: interfaces.ContainerOptions
-    moduleScopeOptions: ModuleScopeOptions;
-    resourceScopeOptions: ResourceScopeOptions;
-    internationalizationScopeOptions: InternationalizationScopeOptions;
+    containerOptions?: interfaces.ContainerOptions
+    moduleScopeInitState?: ModuleScopeState;
+    resourceScopeInitState?: ResourceScopeState;
+    internationalizationScopeInitState?: InternationalizationScopeState;
     moduleLoaders?: ModuleBodyLoader[];
     resourceLoaders?: ResourceDataLoader[];
     internationalizationLoaders?: TranslateUnitDataLoader[];
@@ -120,9 +120,9 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
 
     const context = createContext(config.name, config.containerOptions);
 
-    const moduleScope = createModuleScope(context.store, config.moduleScopeOptions);
-    const resourceScope = createResourceScope(context.store, config.resourceScopeOptions);
-    const localizationScope = createInternationalizationScope(context.store, config.internationalizationScopeOptions);
+    const moduleScope = createModuleScope(context.store, config.moduleScopeInitState);
+    const resourceScope = createResourceScope(context.store, config.resourceScopeInitState);
+    const localizationScope = createInternationalizationScope(context.store, config.internationalizationScopeInitState);
 
     context.container.bind(LIGUI_TYPES.MODULE_SCOPE).toConstantValue(moduleScope);
     context.container.bind(LIGUI_TYPES.RESOURCE_SCOPE).toConstantValue(resourceScope);

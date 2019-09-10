@@ -6,9 +6,14 @@ export interface Context {
     readonly container: Container;
 }
 
+const defaultContainerOptions: interfaces.ContainerOptions = {
+    autoBindInjectable: true,
+    skipBaseClassChecks: true
+};
+
 export function createContext(
     name: string,
-    containerOptions?: interfaces.ContainerOptions
+    containerOptions = defaultContainerOptions
 ): Context {
     return Object.freeze({
         store: isStoreExist(name)

@@ -20,9 +20,6 @@ export interface ResourceScopeExtensions extends ResourceScopeState {
 }
 export interface ResourceScope extends Scope<ResourceScopeState>, ResourceScopeExtensions {
 }
-export interface ResourceScopeOptions {
-    initState: ResourceScopeState;
-}
 export declare const resourceIdComparator: (id1: ResourceId, id2: ResourceId) => boolean;
-export declare function createResourceScope(store: Store, { initState }: ResourceScopeOptions): ResourceScope;
+export declare function createResourceScope(store: Store, initState?: ResourceScopeState): ResourceScope;
 //# sourceMappingURL=resource.scope.d.ts.map

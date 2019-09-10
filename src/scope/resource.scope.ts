@@ -31,14 +31,14 @@ export interface ResourceScopeExtensions extends ResourceScopeState {
 export interface ResourceScope extends Scope<ResourceScopeState>, ResourceScopeExtensions {
 }
 
-export interface ResourceScopeOptions {
-    initState: ResourceScopeState;
-}
-
 export const resourceIdComparator = (id1: ResourceId, id2: ResourceId) =>
     id1.key === id2.key && id1.context === id2.context;
 
-export function createResourceScope(store: Store, {initState}: ResourceScopeOptions) {
+const defaultResourceScopeInitState: ResourceScopeState = {
+    resources: []
+};
+
+export function createResourceScope(store: Store, initState = defaultResourceScopeInitState) {
     const resourceScope = store.createScope<ResourceScopeState>({
         name: RESOURCE_SCOPE_NAME,
         initState,
