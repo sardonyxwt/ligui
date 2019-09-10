@@ -25,3 +25,4 @@ export interface ModuleScopeOptions {
 }
 export declare const moduleIdComparator: (id1: ModuleId, id2: ModuleId) => boolean;
 export declare function createModuleScope(store: Store, { initState }: ModuleScopeOptions): ModuleScope;
+//# sourceMappingURL=module.scope.d.ts.map

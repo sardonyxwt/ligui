@@ -1,5 +1,5 @@
 import { Scope, ScopeListener, ScopeListenerUnsubscribeCallback, ScopeMacroType, Store } from '@sardonyxwt/state-store';
-import { copyArray, saveToArray } from '../extension/util.extension';
+import { copyArray, saveToArray } from '@sardonyxwt/utils/object';
 
 export const MODULE_SCOPE_NAME = 'module';
 export const MODULE_SCOPE_SET_MODULE_ACTION = 'setModule';

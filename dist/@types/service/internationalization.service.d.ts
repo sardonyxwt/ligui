@@ -33,3 +33,4 @@ export declare class InternationalizationServiceImpl implements Internationaliza
     isTranslateUnitLoaded(id: TranslateUnitId): boolean;
     loadTranslateUnitData(id: TranslateUnitId): Promise<TranslateUnitData>;
 }
+//# sourceMappingURL=internationalization.service.d.ts.map

@@ -6,7 +6,7 @@ import {
     ResourceScopeExtensions,
     ResourceScopeState
 } from '../scope/resource.scope';
-import { deleteFromArray, saveToArray } from '../extension/util.extension';
+import { deleteFromArray, saveToArray } from '@sardonyxwt/utils/object';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 
 export interface ResourceDataLoader {

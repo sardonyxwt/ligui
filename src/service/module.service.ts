@@ -1,5 +1,5 @@
 import { Module, ModuleId, ModuleScope, ModuleScopeExtensions, ModuleScopeState } from '../scope/module.scope';
-import { saveToArray } from '../extension/util.extension';
+import { saveToArray } from '@sardonyxwt/utils/object';
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 
 export interface ModuleBodyLoader {

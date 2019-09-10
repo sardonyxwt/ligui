@@ -25,3 +25,4 @@ export interface ResourceScopeOptions {
 }
 export declare const resourceIdComparator: (id1: ResourceId, id2: ResourceId) => boolean;
 export declare function createResourceScope(store: Store, { initState }: ResourceScopeOptions): ResourceScope;
+//# sourceMappingURL=resource.scope.d.ts.map

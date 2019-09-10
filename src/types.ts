@@ -5,6 +5,5 @@ export const LIGUI_TYPES = {
     MODULE_SERVICE: 'ModuleService',
     RESOURCE_SERVICE: 'ResourceService',
     INTERNATIONALIZATION_SERVICE: 'InternationalizationService',
-    JSX_SERVICE: 'JsxService',
-    REST_SERVICE: 'RestService'
+    JSX_SERVICE: 'JsxService'
 };

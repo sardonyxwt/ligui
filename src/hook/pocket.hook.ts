@@ -3,20 +3,20 @@ import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 
 const pocketIdGenerator = createUniqueIdGenerator('PocketId');
 
-const pockets: { [id: string]: object } = {};
+const pockets = new Map<string, object>();
 
 export const usePocket = <T extends {}>(
     initialValue: T
 ): T => {
     const pocketId = React.useMemo(() => pocketIdGenerator(), []);
 
-    if (!(pocketId in pockets)) {
-        pockets[pocketId] = initialValue;
+    if (!pockets.has(pocketId)) {
+        pockets.set(pocketId, initialValue);
     }
 
     React.useEffect(() => {
-        return () => delete pockets[pocketId];
+        return () => pockets.delete(pocketId);
     }, []);
 
-    return pockets[pocketId] as T;
+    return pockets.get(pocketId) as T;
 };

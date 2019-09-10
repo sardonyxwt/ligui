@@ -1,5 +1,5 @@
 import { Scope, ScopeListener, ScopeListenerUnsubscribeCallback, ScopeMacroType, Store } from '@sardonyxwt/state-store';
-import { copyArray, saveToArray } from '../extension/util.extension';
+import { copyArray, saveToArray } from '@sardonyxwt/utils/object';
 
 export const RESOURCE_SCOPE_NAME = 'resource';
 export const RESOURCE_SCOPE_SET_RESOURCE_ACTION = 'setResource';

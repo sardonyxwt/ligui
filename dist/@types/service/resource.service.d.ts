@@ -25,3 +25,4 @@ export declare class ResourceServiceImpl implements ResourceService {
     onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback;
     loadResourceData<T>(id: ResourceId): Promise<T>;
 }
+//# sourceMappingURL=resource.service.d.ts.map

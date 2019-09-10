@@ -1,5 +1,5 @@
 import { Scope, ScopeListener, ScopeListenerUnsubscribeCallback, ScopeMacroType, Store } from '@sardonyxwt/state-store';
-import { copyArray, saveToArray } from '../extension/util.extension';
+import { copyArray, saveToArray } from '@sardonyxwt/utils/object';
 
 export const INTERNATIONALIZATION_SCOPE_NAME = 'internationalization';
 export const INTERNATIONALIZATION_SCOPE_SET_LOCALE_ACTION = 'setLocale';

@@ -35,3 +35,4 @@ export interface InternationalizationScopeOptions {
 }
 export declare const translateUnitIdComparator: (id1: TranslateUnitId, id2: TranslateUnitId) => boolean;
 export declare function createInternationalizationScope(store: Store, { initState }: InternationalizationScopeOptions): InternationalizationScope;
+//# sourceMappingURL=internationalization.scope.d.ts.map

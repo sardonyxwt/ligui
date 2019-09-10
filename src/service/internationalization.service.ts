@@ -8,7 +8,7 @@ import {
     TranslateUnitId,
     translateUnitIdComparator
 } from '../scope/internationalization.scope';
-import { deleteFromArray, saveToArray } from '../extension/util.extension';
+import { deleteFromArray, saveToArray } from '@sardonyxwt/utils/object';
 
 export type Translator = <T = string>(key: string) => T;
 

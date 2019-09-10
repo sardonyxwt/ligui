@@ -29,3 +29,4 @@ export declare class ModuleServiceImpl implements ModuleService {
     private getModulePromise;
     private createModulePromise;
 }
+//# sourceMappingURL=module.service.d.ts.map
