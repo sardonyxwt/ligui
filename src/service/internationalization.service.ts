@@ -73,6 +73,10 @@ export class InternationalizationServiceImpl implements InternationalizationServ
 
     getTranslator(context: string, locale?: string): Translator {
         return <T>(path: string) => {
+            if (typeof path !== 'string') {
+                return null;
+            }
+
             const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
 
             const translateUnitId: TranslateUnitId = {key, context, locale: locale || this.currentLocale};
