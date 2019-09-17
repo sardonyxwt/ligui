@@ -66,7 +66,7 @@ export const createI18nHook = (
 
     return {
         translator,
-        setLocale: internationalizationService.setLocale,
+        setLocale: (locale: string) => internationalizationService.setLocale(locale),
         currentLocale: internationalizationService.currentLocale,
         defaultLocale: internationalizationService.defaultLocale,
         locales: internationalizationService.locales
