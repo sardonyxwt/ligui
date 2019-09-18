@@ -26,44 +26,47 @@ export const createI18nHook = (
 ): InternationalizationHookReturnType => {
     const internationalizationService = container.get<InternationalizationService>(LIGUI_TYPES.INTERNATIONALIZATION_SERVICE);
 
-    const internationalizationKeyContext = React.useContext(InternationalizationKeyContext);
+    const internationalizationContext = context || React.useContext(InternationalizationKeyContext);
 
-    const internationalizationContext = context || internationalizationKeyContext;
-
-    const {currentLocale, defaultLocale, locales} = internationalizationService;
+    function getTranslator() {
+        return internationalizationService.getTranslator(
+            internationalizationContext,
+            internationalizationService.currentLocale
+        );
+    }
 
     function checkIsTranslateUnitsLoaded () {
         return keys
             .map(key => internationalizationService.isTranslateUnitLoaded({
-                key, context: internationalizationContext, locale: currentLocale
+                key, context: internationalizationContext, locale: internationalizationService.currentLocale
             }))
             .reduce((v1, v2) => v1 && v2);
     }
 
-    const [isTranslateUnitsLoaded, setIsTranslateUnitsLoaded] = React.useState<boolean>(checkIsTranslateUnitsLoaded);
+    const [translator, setTranslator] = React.useState<Translator>(() => {
+        return checkIsTranslateUnitsLoaded() ? getTranslator() : null;
+    });
 
     React.useEffect(() => {
-        if (isTranslateUnitsLoaded) {
+        if (translator) {
             return;
         }
         Promise.all(keys.map(key => internationalizationService.loadTranslateUnitData({
-            key, context: internationalizationContext, locale: currentLocale
-        }))).then(() => setIsTranslateUnitsLoaded(true));
-    }, [isTranslateUnitsLoaded]);
+            key, context: internationalizationContext, locale: internationalizationService.currentLocale
+        }))).then(() => setTranslator(() => getTranslator()));
+    }, [translator]);
 
     React.useEffect(() => {
         return internationalizationService.onSetLocale(
-            () => setIsTranslateUnitsLoaded(checkIsTranslateUnitsLoaded)
+            () => setTranslator(() => checkIsTranslateUnitsLoaded() ? getTranslator() : null)
         );
     }, []);
 
     return {
-        translator: isTranslateUnitsLoaded
-            ? internationalizationService.getTranslator(internationalizationContext, currentLocale)
-            : (<T>(id) => `<${id}>` as unknown as T),
+        translator: translator || (<T>(id) => `<${id}>` as unknown as T),
         setLocale: (locale: string) => internationalizationService.setLocale(locale),
-        currentLocale,
-        defaultLocale,
-        locales
+        currentLocale: internationalizationService.currentLocale,
+        defaultLocale: internationalizationService.defaultLocale,
+        locales: internationalizationService.locales
     };
 };
