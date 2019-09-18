@@ -74,7 +74,7 @@ export class InternationalizationServiceImpl implements InternationalizationServ
     getTranslator(context: string, locale?: string): Translator {
         return <T>(path: string) => {
             if (typeof path !== 'string') {
-                return null;
+                throw new Error(`Invalid translator arg path format ${path}`)
             }
 
             const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
