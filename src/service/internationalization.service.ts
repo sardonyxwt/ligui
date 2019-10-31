@@ -10,7 +10,7 @@ import {
 } from '../scope/internationalization.scope';
 import { deleteFromArray, saveToArray } from '@sardonyxwt/utils/object';
 
-export type Translator = <T = string>(key: string) => T;
+export type Translator = <T = string>(key: string, defaultValue?: T) => T;
 
 export interface TranslateUnitDataLoader {
     readonly context?: string;
@@ -72,7 +72,7 @@ export class InternationalizationServiceImpl implements InternationalizationServ
     }
 
     getTranslator(context: string, locale?: string): Translator {
-        return <T>(path: string) => {
+        return <T>(path: string, defaultValue?: T) => {
             if (typeof path !== 'string') {
                 throw new Error(`Invalid translator arg path format ${path}`)
             }
@@ -85,6 +85,10 @@ export class InternationalizationServiceImpl implements InternationalizationServ
 
             for (let i = 0; i < pathParts.length && !!result; i++) {
                 result = result[pathParts[i]] as TranslateUnitData;
+            }
+
+            if (result === undefined) {
+                return defaultValue;
             }
 
             return result as unknown as T;
