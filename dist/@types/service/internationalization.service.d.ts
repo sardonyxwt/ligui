@@ -1,6 +1,6 @@
 import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
 import { InternationalizationScope, InternationalizationScopeExtensions, InternationalizationScopeState, TranslateUnit, TranslateUnitData, TranslateUnitId } from '../scope/internationalization.scope';
-export declare type Translator = <T = string>(key: string) => T;
+export declare type Translator = <T = string>(key: string, defaultValue?: T) => T;
 export interface TranslateUnitDataLoader {
     readonly context?: string;
     readonly loader: (key: string, locale: string) => Promise<TranslateUnitData>;
