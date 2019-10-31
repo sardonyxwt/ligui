@@ -9,6 +9,7 @@ export interface InternationalizationHookReturnType {
     currentLocale: string;
     defaultLocale: string;
     locales: string[];
+    isTranslatorReady: boolean;
 }
 export declare const createI18nHook: (container: Container) => (keys: string[], context?: string) => InternationalizationHookReturnType;
 //# sourceMappingURL=internationalization.hook.d.ts.map

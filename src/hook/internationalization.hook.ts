@@ -17,6 +17,7 @@ export interface InternationalizationHookReturnType {
     currentLocale: string;
     defaultLocale: string;
     locales: string[];
+    isTranslatorReady: boolean;
 }
 
 export const createI18nHook = (
@@ -67,6 +68,7 @@ export const createI18nHook = (
         setLocale: (locale: string) => internationalizationService.setLocale(locale),
         currentLocale: internationalizationService.currentLocale,
         defaultLocale: internationalizationService.defaultLocale,
-        locales: internationalizationService.locales
+        locales: internationalizationService.locales,
+        isTranslatorReady: !!translator
     };
 };
