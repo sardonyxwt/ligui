@@ -15,7 +15,12 @@ import { useRef } from './hook/ref.hook';
 import { usePocket } from './hook/pocket.hook';
 import { createStateHook } from './hook/state.hook';
 import { ContainerKey, createDependenciesHook, createDependencyHook } from './hook/dependency.hook';
-import { createI18nHook, InternationalizationHookReturnType } from './hook/internationalization.hook';
+import {
+    createI18nHook,
+    createTranslatorHook,
+    InternationalizationHookReturnType,
+    TranslatorHookReturnType
+} from './hook/internationalization.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resource.hook';
 import { createModuleScope, ModuleScopeState } from './scope/module.scope';
@@ -109,7 +114,8 @@ export interface Ligui {
     useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
     useModule: <T = any>(key: string, context?: string) => T;
     useResource: <T = any>(key: string, context?: string) => T;
-    useI18n: (keys: string[], context?: string) => InternationalizationHookReturnType;
+    useI18n: () => InternationalizationHookReturnType;
+    useTranslator: (key: string, context?: string) => TranslatorHookReturnType;
 }
 
 export function createNewLiguiInstance(config: LiguiConfig): Ligui {
@@ -187,6 +193,7 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         useModule: createModuleHook(context.container),
         useResource: createResourceHook(context.container),
         useI18n: createI18nHook(context.container),
+        useTranslator: createTranslatorHook(context.container),
         useDependency: createDependencyHook(context.container),
         useDependencies: createDependenciesHook(context.container),
     };

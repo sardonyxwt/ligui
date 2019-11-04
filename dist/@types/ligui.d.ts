@@ -5,7 +5,7 @@ import { ResourceDataLoader, ResourceService } from './service/resource.service'
 import { InternationalizationService, TranslateUnitDataLoader } from './service/internationalization.service';
 import { ModuleBodyLoader, ModuleService } from './service/module.service';
 import { ContainerKey } from './hook/dependency.hook';
-import { InternationalizationHookReturnType } from './hook/internationalization.hook';
+import { InternationalizationHookReturnType, TranslatorHookReturnType } from './hook/internationalization.hook';
 import { ModuleScopeState } from './scope/module.scope';
 import { ResourceScopeState } from './scope/resource.scope';
 import { InternationalizationScopeState } from './scope/internationalization.scope';
@@ -72,7 +72,8 @@ export interface Ligui {
     useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
     useModule: <T = any>(key: string, context?: string) => T;
     useResource: <T = any>(key: string, context?: string) => T;
-    useI18n: (keys: string[], context?: string) => InternationalizationHookReturnType;
+    useI18n: () => InternationalizationHookReturnType;
+    useTranslator: (key: string, context?: string) => TranslatorHookReturnType;
 }
 export declare function createNewLiguiInstance(config: LiguiConfig): Ligui;
 //# sourceMappingURL=ligui.d.ts.map

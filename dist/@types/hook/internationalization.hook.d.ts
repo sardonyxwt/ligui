@@ -5,11 +5,11 @@ declare let InternationalizationKeyContext: React.Context<string>;
 export { InternationalizationKeyContext };
 export interface InternationalizationHookReturnType {
     setLocale: (locale: string) => void;
-    translator: Translator;
     currentLocale: string;
     defaultLocale: string;
     locales: string[];
-    isTranslatorReady: boolean;
 }
-export declare const createI18nHook: (container: Container) => (keys: string[], context?: string) => InternationalizationHookReturnType;
+export declare const createI18nHook: (container: Container) => () => InternationalizationHookReturnType;
+export declare type TranslatorHookReturnType = [Translator, boolean];
+export declare const createTranslatorHook: (container: Container) => (key: string, context?: string) => [Translator, boolean];
 //# sourceMappingURL=internationalization.hook.d.ts.map
