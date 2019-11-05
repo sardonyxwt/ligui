@@ -44,22 +44,24 @@ export type TranslatorHookReturnType = [Translator, boolean];
 export const createTranslatorHook = (
     container: Container
 ) => (
-    key: string, context?: string
+    translateUnitKey: string, context?: string
 ): TranslatorHookReturnType => {
     const internationalizationService = container.get<InternationalizationService>(LIGUI_TYPES.INTERNATIONALIZATION_SERVICE);
 
     const internationalizationContext = context || React.useContext(InternationalizationKeyContext);
 
-    function getTranslator() {
-        return internationalizationService.getTranslator(
+    function getTranslator(): Translator {
+        const translator = internationalizationService.getTranslator(
             internationalizationContext,
             internationalizationService.currentLocale
         );
+
+        return <T = string>(key: string, defaultValue?: T) => translator<T>(`${translateUnitKey}.${key}`, defaultValue);
     }
 
     function checkIsTranslateUnitLoaded() {
         return internationalizationService.isTranslateUnitLoaded({
-            key, context: internationalizationContext, locale: internationalizationService.currentLocale
+            key: translateUnitKey, context: internationalizationContext, locale: internationalizationService.currentLocale
         });
     }
 
@@ -74,7 +76,7 @@ export const createTranslatorHook = (
             return;
         }
         internationalizationService.loadTranslateUnitData({
-            key, context: internationalizationContext, locale: internationalizationService.currentLocale
+            key: translateUnitKey, context: internationalizationContext, locale: internationalizationService.currentLocale
         }).then(() => setTranslator(() => getTranslator()));
     }, [translator]);
 
