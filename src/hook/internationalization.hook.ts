@@ -77,7 +77,7 @@ export const createTranslatorHook = (
         }
         internationalizationService.loadTranslateUnitData({
             key: translateUnitKey, context: internationalizationContext, locale: internationalizationService.currentLocale
-        }).then(() => setTranslator(() => getTranslator()));
+        }).then(() => setTranslator(getTranslator));
     }, [translator]);
 
     React.useEffect(() => {

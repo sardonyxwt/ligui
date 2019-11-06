@@ -58,10 +58,7 @@ import {
     InternationalizationHookReturnType,
     TranslatorHookReturnType
 } from './hook/internationalization.hook';
-import {
-    createConfiguratorHook,
-    ConfiguratorHookReturnType
-} from './hook/configurator.hook';
+import { createConfigHook } from './hook/config.hook';
 
 export * from 'inversify';
 export * from '@sardonyxwt/event-bus';
@@ -88,7 +85,7 @@ export * from './hook/pocket.hook';
 export * from './hook/ref.hook';
 export * from './hook/dependency.hook';
 export * from './hook/internationalization.hook';
-export * from './hook/configurator.hook';
+export * from './hook/config.hook';
 export * from './hook/module.hook';
 export * from './hook/resource.hook';
 
@@ -139,7 +136,7 @@ export interface Ligui {
     useResource: <T = any>(key: string, context?: string) => T;
     useI18n: () => InternationalizationHookReturnType;
     useTranslator: (key: string, context?: string) => TranslatorHookReturnType;
-    useConfigurator: (key: string, context?: string) => ConfiguratorHookReturnType;
+    useConfig: <T extends {}>(key: string, context?: string) => T;
 }
 
 export function createNewLiguiInstance(config: LiguiConfig): Ligui {
@@ -227,7 +224,7 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         useResource: createResourceHook(context.container),
         useI18n: createI18nHook(context.container),
         useTranslator: createTranslatorHook(context.container),
-        useConfigurator: createConfiguratorHook(context.container),
+        useConfig: createConfigHook(context.container),
         useDependency: createDependencyHook(context.container),
         useDependencies: createDependenciesHook(context.container),
     };

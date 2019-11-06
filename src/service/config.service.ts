@@ -10,8 +10,6 @@ import {
 } from '../scope/config.scope';
 import { deleteFromArray, saveToArray } from '@sardonyxwt/utils/object';
 
-export type Configurator = <T = string>(key: string, defaultValue?: T) => T;
-
 export interface ConfigUnitDataLoader {
     readonly context?: string;
     readonly loader: (key: string) => Promise<ConfigUnitData>;
@@ -23,8 +21,6 @@ export interface ConfigUnitDataPromise {
 }
 
 export interface ConfigService extends ConfigScopeExtensions {
-    getConfigurator(context: string): Configurator;
-
     registerConfigUnitDataLoader<T>(loader: ConfigUnitDataLoader): void;
 
     loadConfigUnitData(id: ConfigUnitId): Promise<ConfigUnitData>;
@@ -53,30 +49,6 @@ export class ConfigServiceImpl implements ConfigService {
 
     getConfigUnitData(id: ConfigUnitId): ConfigUnitData {
         return this._scope.getConfigUnitData(id);
-    }
-
-    getConfigurator(context: string): Configurator {
-        return <T>(path: string, defaultValue?: T) => {
-            if (typeof path !== 'string') {
-                throw new Error(`Invalid configurator arg path format ${path}`)
-            }
-
-            const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
-
-            const configUnitId: ConfigUnitId = {key, context};
-
-            let result = this.getConfigUnitData(configUnitId);
-
-            for (let i = 0; i < pathParts.length && !!result; i++) {
-                result = result[pathParts[i]] as ConfigUnitData;
-            }
-
-            if (result === undefined) {
-                return defaultValue;
-            }
-
-            return result as unknown as T;
-        };
     }
 
     onSetConfigUnit(listener: ScopeListener<ConfigScopeState>): ScopeListenerUnsubscribeCallback {
