@@ -1,31 +1,6 @@
 import 'reflect-metadata';
-import { Context, createContext } from './context';
-import { JSXService, JSXServiceImpl } from './service/jsx.service';
-import { ResourceDataLoader, ResourceService, ResourceServiceImpl } from './service/resource.service';
-import {
-    InternationalizationService,
-    InternationalizationServiceImpl,
-    TranslateUnitDataLoader
-} from './service/internationalization.service';
-import { ModuleBodyLoader, ModuleService, ModuleServiceImpl } from './service/module.service';
-import { useCurrent } from './hook/current.hook';
-import { useData } from './hook/data.hook';
-import { useId } from './hook/id.hook';
-import { useRef } from './hook/ref.hook';
-import { usePocket } from './hook/pocket.hook';
-import { createStateHook } from './hook/state.hook';
-import { ContainerKey, createDependenciesHook, createDependencyHook } from './hook/dependency.hook';
-import {
-    createI18nHook,
-    createTranslatorHook,
-    InternationalizationHookReturnType,
-    TranslatorHookReturnType
-} from './hook/internationalization.hook';
-import { createModuleHook } from './hook/module.hook';
-import { createResourceHook } from './hook/resource.hook';
-import { createModuleScope, ModuleScopeState } from './scope/module.scope';
-import { createResourceScope, ResourceScopeState } from './scope/resource.scope';
-import { createInternationalizationScope, InternationalizationScopeState } from './scope/internationalization.scope';
+import * as React from 'react';
+import { Container, interfaces } from 'inversify';
 import {
     createStore,
     getState,
@@ -45,20 +20,66 @@ import {
     isEventBusExist,
     setEventBusDevTool
 } from '@sardonyxwt/event-bus';
-import { Container, interfaces } from 'inversify';
+
 import { LIGUI_TYPES } from './types';
-import * as React from 'react';
+import { createContext, Context } from './context';
+
+import { createModuleScope, ModuleScopeState } from './scope/module.scope';
+import { createResourceScope, ResourceScopeState } from './scope/resource.scope';
+import { createInternationalizationScope, InternationalizationScopeState } from './scope/internationalization.scope';
+import { createConfigScope, ConfigScopeState } from './scope/config.scope';
+
+import { JSXService, JSXServiceImpl } from './service/jsx.service';
+import { ResourceDataLoader, ResourceService, ResourceServiceImpl } from './service/resource.service';
+import {
+    InternationalizationService,
+    InternationalizationServiceImpl,
+    TranslateUnitDataLoader
+} from './service/internationalization.service';
+import { ConfigService, ConfigServiceImpl, ConfigUnitDataLoader } from './service/config.service';
+import { ModuleBodyLoader, ModuleService, ModuleServiceImpl } from './service/module.service';
+
+import { useCurrent } from './hook/current.hook';
+import { useData } from './hook/data.hook';
+import { useId } from './hook/id.hook';
+import { useRef } from './hook/ref.hook';
+import { usePocket } from './hook/pocket.hook';
+import { createStateHook } from './hook/state.hook';
+import { createModuleHook } from './hook/module.hook';
+import { createResourceHook } from './hook/resource.hook';
+import {
+    createDependenciesHook,
+    createDependencyHook,
+    ContainerKey
+} from './hook/dependency.hook';
+import {
+    createI18nHook,
+    createTranslatorHook,
+    InternationalizationHookReturnType,
+    TranslatorHookReturnType
+} from './hook/internationalization.hook';
+import {
+    createConfiguratorHook,
+    ConfiguratorHookReturnType
+} from './hook/configurator.hook';
 
 export * from 'inversify';
+export * from '@sardonyxwt/event-bus';
+export * from '@sardonyxwt/state-store';
 export * from './types';
 export * from './context';
+
 export * from './scope/module.scope';
 export * from './scope/resource.scope';
 export * from './scope/internationalization.scope';
+export * from './scope/config.scope';
+
 export * from './service/jsx.service';
 export * from './service/internationalization.service';
+export * from './service/config.service';
 export * from './service/resource.service';
 export * from './service/module.service';
+
 export * from './hook/current.hook';
 export * from './hook/data.hook';
 export * from './hook/id.hook';
@@ -67,10 +88,9 @@ export * from './hook/pocket.hook';
 export * from './hook/ref.hook';
 export * from './hook/dependency.hook';
 export * from './hook/internationalization.hook';
+export * from './hook/configurator.hook';
 export * from './hook/module.hook';
 export * from './hook/resource.hook';
-export * from '@sardonyxwt/event-bus';
-export * from '@sardonyxwt/state-store';
 
 export interface LiguiConfig {
     name: string;
@@ -78,15 +98,18 @@ export interface LiguiConfig {
     moduleScopeInitState?: ModuleScopeState;
     resourceScopeInitState?: ResourceScopeState;
     internationalizationScopeInitState?: InternationalizationScopeState;
+    configScopeInitState?: ConfigScopeState;
     moduleLoaders?: ModuleBodyLoader[];
     resourceLoaders?: ResourceDataLoader[];
     internationalizationLoaders?: TranslateUnitDataLoader[];
+    configLoaders?: ConfigUnitDataLoader[];
 }
 
 export interface Ligui {
     readonly jsx: JSXService;
     readonly resource: ResourceService;
     readonly internationalization: InternationalizationService;
+    readonly config: ConfigService;
     readonly module: ModuleService;
     readonly context: Context;
     readonly store: Store;
@@ -116,6 +139,7 @@ export interface Ligui {
     useResource: <T = any>(key: string, context?: string) => T;
     useI18n: () => InternationalizationHookReturnType;
     useTranslator: (key: string, context?: string) => TranslatorHookReturnType;
+    useConfigurator: (key: string, context?: string) => ConfiguratorHookReturnType;
 }
 
 export function createNewLiguiInstance(config: LiguiConfig): Ligui {
@@ -129,10 +153,12 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
     const moduleScope = createModuleScope(context.store, config.moduleScopeInitState);
     const resourceScope = createResourceScope(context.store, config.resourceScopeInitState);
     const localizationScope = createInternationalizationScope(context.store, config.internationalizationScopeInitState);
+    const configScope = createConfigScope(context.store, config.configScopeInitState);
 
     context.container.bind(LIGUI_TYPES.MODULE_SCOPE).toConstantValue(moduleScope);
     context.container.bind(LIGUI_TYPES.RESOURCE_SCOPE).toConstantValue(resourceScope);
     context.container.bind(LIGUI_TYPES.INTERNATIONALIZATION_SCOPE).toConstantValue(localizationScope);
+    context.container.bind(LIGUI_TYPES.CONFIG_SCOPE).toConstantValue(configScope);
 
     context.container.bind<JSXService>(LIGUI_TYPES.JSX_SERVICE)
         .toDynamicValue(() =>
@@ -149,6 +175,10 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         .toDynamicValue(() =>
             new InternationalizationServiceImpl(localizationScope, config.internationalizationLoaders))
         .inSingletonScope();
+    context.container.bind<ConfigService>(LIGUI_TYPES.CONFIG_SERVICE)
+        .toDynamicValue(() =>
+            new ConfigServiceImpl(configScope, config.configLoaders))
+        .inSingletonScope();
 
     const ligui: Ligui = {
         get jsx() {
@@ -159,6 +189,9 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         },
         get internationalization() {
             return context.container.get<InternationalizationService>(LIGUI_TYPES.INTERNATIONALIZATION_SERVICE);
+        },
+        get config() {
+            return context.container.get<ConfigService>(LIGUI_TYPES.CONFIG_SERVICE);
         },
         get module() {
             return context.container.get<ModuleService>(LIGUI_TYPES.MODULE_SERVICE);
@@ -194,6 +227,7 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         useResource: createResourceHook(context.container),
         useI18n: createI18nHook(context.container),
         useTranslator: createTranslatorHook(context.container),
+        useConfigurator: createConfiguratorHook(context.container),
         useDependency: createDependencyHook(context.container),
         useDependencies: createDependenciesHook(context.container),
     };
