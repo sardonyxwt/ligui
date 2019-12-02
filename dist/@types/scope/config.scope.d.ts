@@ -6,7 +6,7 @@ export interface ConfigUnitId {
     readonly context?: string;
 }
 export interface ConfigUnitData {
-    readonly [key: string]: string | number | boolean | ConfigUnitData | ConfigUnitData[];
+    readonly [key: string]: string | number | boolean | string[] | number[] | boolean[] | ConfigUnitData | ConfigUnitData[];
 }
 export interface ConfigUnit {
     readonly id: ConfigUnitId;
@@ -17,7 +17,7 @@ export interface ConfigScopeState {
 }
 export interface ConfigScopeExtensions extends ConfigScopeState {
     setConfigUnit(configUnit: ConfigUnit): void;
-    getConfigUnitData(id: ConfigUnitId): ConfigUnitData;
+    getConfigUnitData<T extends ConfigUnitData = ConfigUnitData>(id: ConfigUnitId): T;
     isConfigUnitLoaded(id: ConfigUnitId): boolean;
     onSetConfigUnit(listener: ScopeListener<ConfigScopeState>): ScopeListenerUnsubscribeCallback;
 }

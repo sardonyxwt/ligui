@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Container } from 'inversify';
 import { ConfigService } from '../service/config.service';
 import { LIGUI_TYPES } from '../types';
+import { ConfigUnitData } from '../scope/config.scope';
 
 let ConfigKeyContext: React.Context<string> = null;
 
@@ -13,7 +14,7 @@ export { ConfigKeyContext };
 
 export const createConfigHook = (
     container: Container
-) => <T extends {}>(
+) => <T extends ConfigUnitData = ConfigUnitData>(
     configUnitKey: string, context?: string
 ): T => {
     const configService = container.get<ConfigService>(LIGUI_TYPES.CONFIG_SERVICE);
@@ -21,7 +22,7 @@ export const createConfigHook = (
     const configContext = context || React.useContext(ConfigKeyContext);
 
     function prepareConfig() {
-        return configService.getConfigUnitData({key: configUnitKey, context}) as T;
+        return configService.getConfigUnitData<T>({key: configUnitKey, context});
     }
 
     const [config, setConfig] = React.useState<T>(prepareConfig);
@@ -30,7 +31,7 @@ export const createConfigHook = (
         if (config) {
             return;
         }
-        configService.loadConfigUnitData({
+        configService.loadConfigUnitData<T>({
             key: configUnitKey, context: configContext
         }).then(() => setConfig(prepareConfig));
     }, []);

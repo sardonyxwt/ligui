@@ -15,15 +15,15 @@ export interface ConfigUnitDataLoader {
     readonly loader: (key: string) => Promise<ConfigUnitData>;
 }
 
-export interface ConfigUnitDataPromise {
+export interface ConfigUnitDataPromise<T = any> {
     readonly id: ConfigUnitId
-    readonly promise: Promise<any>;
+    readonly promise: Promise<T>;
 }
 
 export interface ConfigService extends ConfigScopeExtensions {
     registerConfigUnitDataLoader<T>(loader: ConfigUnitDataLoader): void;
 
-    loadConfigUnitData(id: ConfigUnitId): Promise<ConfigUnitData>;
+    loadConfigUnitData<T extends ConfigUnitData = ConfigUnitData>(id: ConfigUnitId): Promise<T>;
 }
 
 export class ConfigServiceImpl implements ConfigService {
@@ -47,8 +47,8 @@ export class ConfigServiceImpl implements ConfigService {
         this._scope.setConfigUnit(configUnit);
     }
 
-    getConfigUnitData(id: ConfigUnitId): ConfigUnitData {
-        return this._scope.getConfigUnitData(id);
+    getConfigUnitData<T extends ConfigUnitData = ConfigUnitData>(id: ConfigUnitId): T {
+        return this._scope.getConfigUnitData<T>(id);
     }
 
     onSetConfigUnit(listener: ScopeListener<ConfigScopeState>): ScopeListenerUnsubscribeCallback {
@@ -59,7 +59,7 @@ export class ConfigServiceImpl implements ConfigService {
         return this._scope.isConfigUnitLoaded(id);
     }
 
-    loadConfigUnitData(id: ConfigUnitId): Promise<ConfigUnitData> {
+    loadConfigUnitData<T extends ConfigUnitData = ConfigUnitData>(id: ConfigUnitId): Promise<T> {
         const {_configUnitPromises, _configUnitLoaders, _scope} = this;
         const {setConfigUnit, getConfigUnitData} = _scope;
 
@@ -85,11 +85,11 @@ export class ConfigServiceImpl implements ConfigService {
             throw new Error(`ConfigUnitData loader for key ${JSON.stringify(id)} not found`);
         }
 
-        const newConfigUnitDataPromise: ConfigUnitDataPromise = {
+        const newConfigUnitDataPromise: ConfigUnitDataPromise<T> = {
             id, promise: configUnitLoader.loader(id.key)
                 .then(configUnitData => {
                     setConfigUnit({id, data: configUnitData});
-                    return configUnitData;
+                    return configUnitData as T;
                 })
         };
 
