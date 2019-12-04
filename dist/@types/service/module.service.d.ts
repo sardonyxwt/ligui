@@ -18,7 +18,7 @@ export declare class ModuleServiceImpl implements ModuleService {
     protected _moduleLoaders: ModuleBodyLoader[];
     private _modulePromises;
     constructor(_scope: ModuleScope, _moduleLoaders?: ModuleBodyLoader[]);
-    readonly modules: Module[];
+    get modules(): Module[];
     registerModuleBodyLoader<T>(loader: ModuleBodyLoader): void;
     setModule<T>(module: Module<T>): void;
     getModuleBody<T>(id: ModuleId): T;

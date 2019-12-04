@@ -29,6 +29,8 @@ export interface JSXService {
 
     classes(...classes: (string | [string, boolean])[]): string;
 
+    styles(...styles: (React.CSSProperties | [React.CSSProperties, boolean])[]): React.CSSProperties;
+
     eventTrap(evt: DOMEvent, includeNative?: boolean): void;
 
     isModifiedEvent(evt: DOMEvent): boolean;
@@ -49,6 +51,21 @@ export const classes = (...classes: (string | [string, boolean])[]) => {
         }
     });
     return resultClasses.join(' ')
+};
+
+export const styles = (...styles: (React.CSSProperties | [React.CSSProperties, boolean])[]) => {
+    const resultStyles: React.CSSProperties[] = [];
+    styles.filter(it => !!it).forEach(style => {
+        if (Array.isArray(style)) {
+            const [styleProperties, isUsed] = style;
+            if (isUsed) {
+                resultStyles.push(styleProperties);
+            }
+        } else {
+            resultStyles.push(style);
+        }
+    });
+    return resultStyles.reduce((prev, current) => Object.assign(prev, current));
 };
 
 export const eventTrap = (evt: DOMEvent, includeNative = true) => {
@@ -79,6 +96,7 @@ export class JSXServiceImpl implements JSXService {
     private _factories: { [factoryName: string]: React.Factory<{}> } = {};
 
     classes = classes;
+    styles = styles;
     eventTrap = eventTrap;
     isModifiedEvent = isModifiedEvent;
     mergeRefs = mergeRefs;

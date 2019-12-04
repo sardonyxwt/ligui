@@ -17,7 +17,7 @@ export declare class ConfigServiceImpl implements ConfigService {
     protected _configUnitLoaders: ConfigUnitDataLoader[];
     private _configUnitPromises;
     constructor(_scope: ConfigScope, _configUnitLoaders?: ConfigUnitDataLoader[]);
-    readonly configUnits: ConfigUnit[];
+    get configUnits(): ConfigUnit[];
     registerConfigUnitDataLoader<T>(loader: ConfigUnitDataLoader): void;
     setConfigUnit(configUnit: ConfigUnit): void;
     getConfigUnitData<T extends ConfigUnitData = ConfigUnitData>(id: ConfigUnitId): T;

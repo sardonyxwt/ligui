@@ -19,10 +19,10 @@ export declare class InternationalizationServiceImpl implements Internationaliza
     protected _translateUnitLoaders: TranslateUnitDataLoader[];
     private _translateUnitPromises;
     constructor(_scope: InternationalizationScope, _translateUnitLoaders?: TranslateUnitDataLoader[]);
-    readonly currentLocale: string;
-    readonly defaultLocale: string;
-    readonly locales: string[];
-    readonly translateUnits: TranslateUnit[];
+    get currentLocale(): string;
+    get defaultLocale(): string;
+    get locales(): string[];
+    get translateUnits(): TranslateUnit[];
     registerTranslateUnitDataLoader<T>(loader: TranslateUnitDataLoader): void;
     setLocale(locale: string): void;
     setTranslateUnit(translateUnit: TranslateUnit): void;

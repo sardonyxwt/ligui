@@ -11,5 +11,5 @@ export interface InternationalizationHookReturnType {
 }
 export declare const createI18nHook: (container: Container) => () => InternationalizationHookReturnType;
 export declare type TranslatorHookReturnType = [Translator, boolean];
-export declare const createTranslatorHook: (container: Container) => (translateUnitKey: string, context?: string) => [Translator, boolean];
+export declare const createTranslatorHook: (container: Container) => (translateUnitKey: string, context?: string) => TranslatorHookReturnType;
 //# sourceMappingURL=internationalization.hook.d.ts.map

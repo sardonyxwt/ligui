@@ -16,17 +16,20 @@ export interface JSXService {
     renderComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
     hydrateComponent<T extends {}>(container: Element, name: string, props?: T, ...children: React.ReactNode[]): void;
     classes(...classes: (string | [string, boolean])[]): string;
+    styles(...styles: (React.CSSProperties | [React.CSSProperties, boolean])[]): React.CSSProperties;
     eventTrap(evt: DOMEvent, includeNative?: boolean): void;
     isModifiedEvent(evt: DOMEvent): boolean;
     mergeRefs<T>(...refs: Array<React.Ref<T>>): (ref: T) => void;
 }
 export declare const classes: (...classes: (string | [string, boolean])[]) => string;
+export declare const styles: (...styles: (React.CSSProperties | [React.CSSProperties, boolean])[]) => React.CSSProperties;
 export declare const eventTrap: (evt: DOMEvent, includeNative?: boolean) => void;
 export declare const isModifiedEvent: (evt: DOMEvent) => boolean;
 export declare const mergeRefs: <T>(...refs: React.Ref<T>[]) => (ref: T) => void;
 export declare class JSXServiceImpl implements JSXService {
     private _factories;
     classes: (...classes: (string | [string, boolean])[]) => string;
+    styles: (...styles: (React.CSSProperties | [React.CSSProperties, boolean])[]) => React.CSSProperties;
     eventTrap: (evt: DOMEvent, includeNative?: boolean) => void;
     isModifiedEvent: (evt: DOMEvent) => boolean;
     mergeRefs: <T>(...refs: React.Ref<T>[]) => (ref: T) => void;

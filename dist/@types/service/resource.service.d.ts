@@ -17,7 +17,7 @@ export declare class ResourceServiceImpl implements ResourceService {
     protected _resourceLoaders: ResourceDataLoader[];
     private _resourcePromises;
     constructor(_scope: ResourceScope, _resourceLoaders?: ResourceDataLoader[]);
-    readonly resources: Resource[];
+    get resources(): Resource[];
     registerResourceDataLoader(loader: ResourceDataLoader): void;
     setResource<T>(resource: Resource<T>): void;
     getResourceData<T>(id: ResourceId): T;
