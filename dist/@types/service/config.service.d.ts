@@ -1,28 +1,22 @@
-import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
-import { ConfigScope, ConfigScopeExtensions, ConfigScopeState, ConfigUnit, ConfigUnitData, ConfigUnitId } from '../scope/config.scope';
-export interface ConfigUnitDataLoader {
+import { Config, ConfigData, ConfigId, ConfigStore } from '../store/config.store';
+export interface ConfigLoader {
     readonly context?: string;
-    readonly loader: (key: string) => Promise<ConfigUnitData>;
+    readonly loader: (key: string) => Promise<ConfigData>;
 }
-export interface ConfigUnitDataPromise<T = any> {
-    readonly id: ConfigUnitId;
-    readonly promise: Promise<T>;
+export interface ConfigPromise {
+    readonly id: ConfigId;
+    readonly promise: Promise<Config>;
 }
-export interface ConfigService extends ConfigScopeExtensions {
-    registerConfigUnitDataLoader<T>(loader: ConfigUnitDataLoader): void;
-    loadConfigUnitData<T extends ConfigUnitData = ConfigUnitData>(id: ConfigUnitId): Promise<T>;
+export interface ConfigService {
+    registerConfigLoader(loader: ConfigLoader): void;
+    loadConfig(id: ConfigId): Promise<Config>;
 }
 export declare class ConfigServiceImpl implements ConfigService {
-    protected _scope: ConfigScope;
-    protected _configUnitLoaders: ConfigUnitDataLoader[];
-    private _configUnitPromises;
-    constructor(_scope: ConfigScope, _configUnitLoaders?: ConfigUnitDataLoader[]);
-    get configUnits(): ConfigUnit[];
-    registerConfigUnitDataLoader<T>(loader: ConfigUnitDataLoader): void;
-    setConfigUnit(configUnit: ConfigUnit): void;
-    getConfigUnitData<T extends ConfigUnitData = ConfigUnitData>(id: ConfigUnitId): T;
-    onSetConfigUnit(listener: ScopeListener<ConfigScopeState>): ScopeListenerUnsubscribeCallback;
-    isConfigUnitLoaded(id: ConfigUnitId): boolean;
-    loadConfigUnitData<T extends ConfigUnitData = ConfigUnitData>(id: ConfigUnitId): Promise<T>;
+    protected _store: ConfigStore;
+    protected _configLoaders: ConfigLoader[];
+    private _configPromises;
+    constructor(_store: ConfigStore, _configLoaders?: ConfigLoader[]);
+    registerConfigLoader(loader: ConfigLoader): void;
+    loadConfig(id: ConfigId): Promise<Config>;
 }
 //# sourceMappingURL=config.service.d.ts.map

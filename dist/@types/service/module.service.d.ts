@@ -1,32 +1,23 @@
-import { Module, ModuleId, ModuleScope, ModuleScopeExtensions, ModuleScopeState } from '../scope/module.scope';
-import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
-export interface ModuleBodyLoader {
+import { Module, ModuleId, ModuleStore } from '../store/module.store';
+export interface ModuleLoader {
     readonly context?: string;
     readonly loader: (key: string) => Promise<any>;
 }
 export interface ModulePromise {
     readonly id: ModuleId;
     readonly resolver?: () => void;
-    readonly promise: Promise<any>;
+    readonly promise: Promise<Module>;
 }
-export interface ModuleService extends ModuleScopeExtensions {
-    registerModuleBodyLoader<T>(loader: ModuleBodyLoader): void;
-    loadModuleBody<T>(id: ModuleId): Promise<T>;
+export interface ModuleService {
+    registerModuleLoader(loader: ModuleLoader): void;
+    loadModule(id: ModuleId): Promise<Module>;
 }
 export declare class ModuleServiceImpl implements ModuleService {
-    protected _scope: ModuleScope;
-    protected _moduleLoaders: ModuleBodyLoader[];
+    protected _store: ModuleStore;
+    protected _moduleLoaders: ModuleLoader[];
     private _modulePromises;
-    constructor(_scope: ModuleScope, _moduleLoaders?: ModuleBodyLoader[]);
-    get modules(): Module[];
-    registerModuleBodyLoader<T>(loader: ModuleBodyLoader): void;
-    setModule<T>(module: Module<T>): void;
-    getModuleBody<T>(id: ModuleId): T;
-    isModuleLoaded(id: ModuleId): boolean;
-    onSetModule(listener: ScopeListener<ModuleScopeState>): ScopeListenerUnsubscribeCallback;
-    loadModuleBody<T>(id: ModuleId): Promise<T>;
-    private getModuleLoader;
-    private getModulePromise;
-    private createModulePromise;
+    constructor(_store: ModuleStore, _moduleLoaders?: ModuleLoader[]);
+    registerModuleLoader(loader: ModuleLoader): void;
+    loadModule(id: ModuleId): Promise<Module>;
 }
 //# sourceMappingURL=module.service.d.ts.map

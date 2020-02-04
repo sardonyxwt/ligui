@@ -1,28 +1,22 @@
-import { Resource, ResourceId, ResourceScope, ResourceScopeExtensions, ResourceScopeState } from '../scope/resource.scope';
-import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
-export interface ResourceDataLoader {
+import { Resource, ResourceId, ResourceStore } from '../store/resource.store';
+export interface ResourceLoader {
     readonly context?: string;
     readonly loader: (key: string) => Promise<any>;
 }
 export interface ResourcePromise {
     readonly id: ResourceId;
-    readonly promise: Promise<any>;
+    readonly promise: Promise<Resource>;
 }
-export interface ResourceService extends ResourceScopeExtensions {
-    registerResourceDataLoader(loader: ResourceDataLoader): void;
-    loadResourceData<T = any>(id: ResourceId): Promise<T>;
+export interface ResourceService {
+    registerResourceLoader(loader: ResourceLoader): void;
+    loadResource(id: ResourceId): Promise<Resource>;
 }
 export declare class ResourceServiceImpl implements ResourceService {
-    protected _scope: ResourceScope;
-    protected _resourceLoaders: ResourceDataLoader[];
+    protected _store: ResourceStore;
+    protected _resourceLoaders: ResourceLoader[];
     private _resourcePromises;
-    constructor(_scope: ResourceScope, _resourceLoaders?: ResourceDataLoader[]);
-    get resources(): Resource[];
-    registerResourceDataLoader(loader: ResourceDataLoader): void;
-    setResource<T>(resource: Resource<T>): void;
-    getResourceData<T>(id: ResourceId): T;
-    isResourceLoaded(id: ResourceId): boolean;
-    onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback;
-    loadResourceData<T>(id: ResourceId): Promise<T>;
+    constructor(_store: ResourceStore, _resourceLoaders?: ResourceLoader[]);
+    registerResourceLoader(loader: ResourceLoader): void;
+    loadResource(id: ResourceId): Promise<Resource>;
 }
 //# sourceMappingURL=resource.service.d.ts.map
