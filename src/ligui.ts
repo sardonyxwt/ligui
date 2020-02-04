@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import * as React from 'react';
 import { Container, interfaces } from 'inversify';
 import {
     createStore,
@@ -24,26 +23,23 @@ import {
 import { LIGUI_TYPES } from './types';
 import { createContext, Context } from './context';
 
-import { createModuleScope, ModuleScopeState } from './scope/module.scope';
-import { createResourceScope, ResourceScopeState } from './scope/resource.scope';
-import { createInternationalizationScope, InternationalizationScopeState } from './scope/internationalization.scope';
-import { createConfigScope, ConfigScopeState } from './scope/config.scope';
+import { Module, ModuleStore, ModuleStoreImpl } from './store/module.store';
+import { Resource, ResourceStore, ResourceStoreImpl } from './store/resource.store';
+import { InternationalizationStore, InternationalizationStoreImpl, TranslateUnit } from './store/internationalization.store';
+import { Config, ConfigStore, ConfigStoreImpl } from './store/config.store';
 
 import { JSXService, JSXServiceImpl } from './service/jsx.service';
-import { ResourceDataLoader, ResourceService, ResourceServiceImpl } from './service/resource.service';
+import { ResourceLoader, ResourceService, ResourceServiceImpl } from './service/resource.service';
 import {
     InternationalizationService,
     InternationalizationServiceImpl,
-    TranslateUnitDataLoader
+    TranslateUnitLoader
 } from './service/internationalization.service';
-import { ConfigService, ConfigServiceImpl, ConfigUnitDataLoader } from './service/config.service';
-import { ModuleBodyLoader, ModuleService, ModuleServiceImpl } from './service/module.service';
+import { ConfigService, ConfigServiceImpl, ConfigLoader } from './service/config.service';
+import { ModuleLoader, ModuleService, ModuleServiceImpl } from './service/module.service';
 
-import { useCurrent } from './hook/current.hook';
 import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';
-import { useRef } from './hook/ref.hook';
-import { usePocket } from './hook/pocket.hook';
 import { createStateHook } from './hook/state.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resource.hook';
@@ -60,16 +56,15 @@ import {
 } from './hook/internationalization.hook';
 import { createConfigHook } from './hook/config.hook';
 
-export * from 'inversify';
 export * from '@sardonyxwt/event-bus';
 export * from '@sardonyxwt/state-store';
 export * from './types';
 export * from './context';
 
-export * from './scope/module.scope';
-export * from './scope/resource.scope';
-export * from './scope/internationalization.scope';
-export * from './scope/config.scope';
+export * from './store/module.store';
+export * from './store/resource.store';
+export * from './store/internationalization.store';
+export * from './store/config.store';
 
 export * from './service/jsx.service';
 export * from './service/internationalization.service';
@@ -77,29 +72,35 @@ export * from './service/config.service';
 export * from './service/resource.service';
 export * from './service/module.service';
 
-export * from './hook/current.hook';
 export * from './hook/data.hook';
 export * from './hook/id.hook';
 export * from './hook/state.hook';
-export * from './hook/pocket.hook';
-export * from './hook/ref.hook';
 export * from './hook/dependency.hook';
 export * from './hook/internationalization.hook';
 export * from './hook/config.hook';
 export * from './hook/module.hook';
 export * from './hook/resource.hook';
 
+export * from './navigation/link.component';
+export * from './navigation/route.component';
+export * from './navigation/router.component';
+export * from './navigation/switch.component';
+export * from './navigation/redirect.component';
+
 export interface LiguiConfig {
     name: string;
     containerOptions?: interfaces.ContainerOptions
-    moduleScopeInitState?: ModuleScopeState;
-    resourceScopeInitState?: ResourceScopeState;
-    internationalizationScopeInitState?: InternationalizationScopeState;
-    configScopeInitState?: ConfigScopeState;
-    moduleLoaders?: ModuleBodyLoader[];
-    resourceLoaders?: ResourceDataLoader[];
-    internationalizationLoaders?: TranslateUnitDataLoader[];
-    configLoaders?: ConfigUnitDataLoader[];
+    modules?: Module[];
+    resources?: Resource[];
+    configs?: Config[];
+    locales?: string[];
+    currentLocale?: string;
+    defaultLocale?: string;
+    translateUnits?: TranslateUnit[];
+    moduleLoaders?: ModuleLoader[];
+    resourceLoaders?: ResourceLoader[];
+    internationalizationLoaders?: TranslateUnitLoader[];
+    configLoaders?: ConfigLoader[];
 }
 
 export interface Ligui {
@@ -123,13 +124,10 @@ export interface Ligui {
     setEventBusDevTool(devTool: Partial<EventBusDevTool>): void;
 
     useId: () => string;
-    useRef: <T>(initialValue?: T | null) => [React.RefObject<T>, T];
     useData: <T>(dataResolver: () => T,
                  dataLoader?: () => Promise<T>,
-                 dataSync?: (cb: (newData: T) => void) => (() => void | void)) => T;
+                 dataSync?: (cb: (newData: T) => void) => (() => void) | void) => T;
     useState: <T = any>(scopeName: string, actions?: string[], retention?: number) => T;
-    usePocket: <T extends {}>(initialValue: T) => T;
-    useCurrent: <T>(value: T) => [T, (newValue: T) => void];
     useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
     useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
     useModule: <T = any>(key: string, context?: string) => T;
@@ -142,39 +140,55 @@ export interface Ligui {
 export function createNewLiguiInstance(config: LiguiConfig): Ligui {
     // Check Ligui instance is present for HMR
     if (!!global[config.name]) {
-        return global[config.name];
+        throw new Error(`Ligui instance present in global object with name: ${config.name}`);
     }
 
     const context = createContext(config.name, config.containerOptions);
 
-    const moduleScope = createModuleScope(context.store, config.moduleScopeInitState);
-    const resourceScope = createResourceScope(context.store, config.resourceScopeInitState);
-    const localizationScope = createInternationalizationScope(context.store, config.internationalizationScopeInitState);
-    const configScope = createConfigScope(context.store, config.configScopeInitState);
-
-    context.container.bind(LIGUI_TYPES.MODULE_SCOPE).toConstantValue(moduleScope);
-    context.container.bind(LIGUI_TYPES.RESOURCE_SCOPE).toConstantValue(resourceScope);
-    context.container.bind(LIGUI_TYPES.INTERNATIONALIZATION_SCOPE).toConstantValue(localizationScope);
-    context.container.bind(LIGUI_TYPES.CONFIG_SCOPE).toConstantValue(configScope);
+    context.container.bind<ModuleStore>(LIGUI_TYPES.MODULE_STORE)
+        .toDynamicValue(() => new ModuleStoreImpl(config.modules))
+        .inSingletonScope();
+    context.container.bind<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE)
+        .toDynamicValue(() => new ResourceStoreImpl(config.resources))
+        .inSingletonScope();
+    context.container.bind<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE)
+        .toDynamicValue(() => new InternationalizationStoreImpl(
+            config.locales,
+            config.currentLocale,
+            config.defaultLocale,
+            config.translateUnits
+        ))
+        .inSingletonScope();
+    context.container.bind<ConfigStore>(LIGUI_TYPES.CONFIG_STORE)
+        .toDynamicValue(() => new ConfigStoreImpl(config.configs))
+        .inSingletonScope();
 
     context.container.bind<JSXService>(LIGUI_TYPES.JSX_SERVICE)
-        .toDynamicValue(() =>
-            new JSXServiceImpl()).inSingletonScope();
+        .toDynamicValue(() => new JSXServiceImpl())
+        .inSingletonScope();
     context.container.bind<ModuleService>(LIGUI_TYPES.MODULE_SERVICE)
-        .toDynamicValue(() =>
-            new ModuleServiceImpl(moduleScope, config.moduleLoaders))
+        .toDynamicValue(context => new ModuleServiceImpl(
+            context.container.get<ModuleStore>(LIGUI_TYPES.MODULE_STORE),
+            config.moduleLoaders
+        ))
         .inSingletonScope();
     context.container.bind<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE)
-        .toDynamicValue(() =>
-            new ResourceServiceImpl(resourceScope, config.resourceLoaders))
+        .toDynamicValue(context => new ResourceServiceImpl(
+            context.container.get<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE),
+            config.resourceLoaders
+        ))
         .inSingletonScope();
     context.container.bind<InternationalizationService>(LIGUI_TYPES.INTERNATIONALIZATION_SERVICE)
-        .toDynamicValue(() =>
-            new InternationalizationServiceImpl(localizationScope, config.internationalizationLoaders))
+        .toDynamicValue(context => new InternationalizationServiceImpl(
+            context.container.get<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE),
+            config.internationalizationLoaders
+        ))
         .inSingletonScope();
     context.container.bind<ConfigService>(LIGUI_TYPES.CONFIG_SERVICE)
-        .toDynamicValue(() =>
-            new ConfigServiceImpl(configScope, config.configLoaders))
+        .toDynamicValue(context => new ConfigServiceImpl(
+            context.container.get<ConfigStore>(LIGUI_TYPES.CONFIG_STORE),
+            config.configLoaders
+        ))
         .inSingletonScope();
 
     const ligui: Ligui = {
@@ -215,10 +229,7 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         setEventBusDevTool: setEventBusDevTool,
 
         useId,
-        useRef,
         useData,
-        usePocket,
-        useCurrent,
         useState: createStateHook(context.store),
         useModule: createModuleHook(context.container),
         useResource: createResourceHook(context.container),
@@ -233,3 +244,21 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
 
     return ligui;
 }
+
+export const defaultStoreDevTool: Partial<StoreDevTool> = {
+    onCreateStore: store => console.log(`Store(${store.name}) created: `, store),
+    onChangeStore: store => console.log(`Store(${store.name}) changed: `, store),
+    onCreateScope: scope => console.log(`Scope(${scope.name}) created: `, scope),
+    onChangeScope: scope => console.log(`Scope(${scope.name}) changed: `, scope),
+    onAction: event =>
+        console.log(`Scope(${event.scopeName}) event(${event.actionName}) dispatched: `, event),
+    onActionError: error =>
+        console.error(`Scope(${error.scopeName}) event(${error.actionName}) dispatched error: `, error),
+    onActionListenerError: error =>
+        console.error(`Scope(${error.scopeName}) event(${error.actionName}) listener error: `, error)
+};
+
+export const defaultEventBusDevTool: Partial<EventBusDevTool> = {
+    onCreate: eventBus => console.log(`EventBus(${eventBus.name}) created: `, eventBus),
+    onEvent: event => console.log(`EventBus(${event.eventBusName}) event(${event.eventName}) published: `, event)
+};

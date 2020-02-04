@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Container } from 'inversify';
 import { ConfigService } from '../service/config.service';
 import { LIGUI_TYPES } from '../types';
-import { ConfigUnitData } from '../scope/config.scope';
+import { ConfigData, ConfigId, ConfigStore } from '../store/config.store';
 
 let ConfigKeyContext: React.Context<string> = null;
 
@@ -14,26 +14,29 @@ export { ConfigKeyContext };
 
 export const createConfigHook = (
     container: Container
-) => <T extends ConfigUnitData = ConfigUnitData>(
-    configUnitKey: string, context?: string
+) => <T extends ConfigData = ConfigData>(
+    key: string, context?: string
 ): T => {
+    const configStore = container.get<ConfigStore>(LIGUI_TYPES.CONFIG_STORE);
     const configService = container.get<ConfigService>(LIGUI_TYPES.CONFIG_SERVICE);
 
     const configContext = context || React.useContext(ConfigKeyContext);
 
-    function prepareConfig() {
-        return configService.getConfigUnitData<T>({key: configUnitKey, context});
-    }
+    const id: ConfigId = {key, context: configContext};
 
-    const [config, setConfig] = React.useState<T>(prepareConfig);
+    const prepareConfigData = () => {
+        if (configStore.isConfigExist(id)) {
+            return configStore.findConfigById(id).data as T;
+        }
+        return null;
+    };
+
+    const [config, setConfig] = React.useState<T>(prepareConfigData);
 
     React.useEffect(() => {
-        if (config) {
-            return;
+        if (!config) {
+            configService.loadConfig(id).then(() => setConfig(prepareConfigData));
         }
-        configService.loadConfigUnitData<T>({
-            key: configUnitKey, context: configContext
-        }).then(() => setConfig(prepareConfig));
     }, []);
 
     return config;

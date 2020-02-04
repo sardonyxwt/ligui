@@ -3,7 +3,7 @@ import * as React from 'react';
 export const useData = <T>(
     dataResolver: () => T,
     dataLoader?: () => Promise<T>,
-    dataSync?: (cb: (newData: T) => void) => (() => void | void)
+    dataSync?: (cb: (newData: T) => void) => (() => void) | void
 ) => {
     const [data, setData] = React.useState<T>(dataResolver);
 

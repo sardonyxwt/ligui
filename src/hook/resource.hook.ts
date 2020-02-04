@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Container } from 'inversify';
 import { ResourceService } from '../service/resource.service';
 import { LIGUI_TYPES } from '../types';
-import { ResourceId } from '../scope/resource.scope';
+import { ResourceId, ResourceStore } from '../store/resource.store';
 
 let ResourceKeyContext: React.Context<string> = null;
 
@@ -15,6 +15,7 @@ export { ResourceKeyContext };
 export const createResourceHook = (
     container: Container
 ) => <T = any>(key: string, context?: string): T => {
+    const resourceStore = container.get<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE);
     const resourceService = container.get<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE);
 
     const resourceKeyContext = React.useContext(ResourceKeyContext);
@@ -23,16 +24,18 @@ export const createResourceHook = (
 
     const id: ResourceId = {key, context: resourceContext};
 
-    const [resource, setResource] = React.useState<T>(() => {
-        if (resourceService.isResourceLoaded(id)) {
-            return resourceService.getResourceData(id);
+    const prepareResourceData = () => {
+        if (resourceStore.isResourceExist(id)) {
+            return resourceStore.findResourceById(id).data;
         }
         return null;
-    });
+    };
+
+    const [resource, setResource] = React.useState<T>(prepareResourceData);
 
     React.useEffect(() => {
         if (!resource) {
-            resourceService.loadResourceData(id).then(resource => setResource(resource));
+            resourceService.loadResource(id).then(() => setResource(prepareResourceData));
         }
     }, []);
 

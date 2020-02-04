@@ -1,101 +1,70 @@
-import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
-import {
-    ConfigScope,
-    ConfigScopeExtensions,
-    ConfigScopeState,
-    ConfigUnit,
-    ConfigUnitData,
-    ConfigUnitId,
-    configUnitIdComparator
-} from '../scope/config.scope';
+import autobind from 'autobind-decorator';
 import { deleteFromArray, saveToArray } from '@sardonyxwt/utils/object';
+import { Config, ConfigData, ConfigId, ConfigStore, isConfigsIdsEqual } from '../store/config.store';
 
-export interface ConfigUnitDataLoader {
+export interface ConfigLoader {
     readonly context?: string;
-    readonly loader: (key: string) => Promise<ConfigUnitData>;
+    readonly loader: (key: string) => Promise<ConfigData>;
 }
 
-export interface ConfigUnitDataPromise<T = any> {
-    readonly id: ConfigUnitId
-    readonly promise: Promise<T>;
+export interface ConfigPromise {
+    readonly id: ConfigId
+    readonly promise: Promise<Config>;
 }
 
-export interface ConfigService extends ConfigScopeExtensions {
-    registerConfigUnitDataLoader<T>(loader: ConfigUnitDataLoader): void;
-
-    loadConfigUnitData<T extends ConfigUnitData = ConfigUnitData>(id: ConfigUnitId): Promise<T>;
+export interface ConfigService {
+    registerConfigLoader(loader: ConfigLoader): void;
+    loadConfig(id: ConfigId): Promise<Config>;
 }
 
+@autobind
 export class ConfigServiceImpl implements ConfigService {
 
-    private _configUnitPromises: ConfigUnitDataPromise[] = [];
+    private _configPromises: ConfigPromise[] = [];
 
-    constructor(protected _scope: ConfigScope,
-                protected _configUnitLoaders: ConfigUnitDataLoader[] = []) {
+    constructor(protected _store: ConfigStore,
+                protected _configLoaders: ConfigLoader[] = []) {
     }
 
-    get configUnits() {
-        return this._scope.configUnits;
-    };
-
-    registerConfigUnitDataLoader<T>(loader: ConfigUnitDataLoader) {
-        deleteFromArray(this._configUnitPromises, modulePromise => modulePromise.id.context === loader.context);
-        saveToArray(this._configUnitLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
+    registerConfigLoader(loader: ConfigLoader) {
+        deleteFromArray(this._configPromises, modulePromise => modulePromise.id.context === loader.context);
+        saveToArray(this._configLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
     }
 
-    setConfigUnit(configUnit: ConfigUnit): void {
-        this._scope.setConfigUnit(configUnit);
-    }
+    loadConfig(id: ConfigId): Promise<Config> {
+        const {_configPromises, _configLoaders, _store} = this;
 
-    getConfigUnitData<T extends ConfigUnitData = ConfigUnitData>(id: ConfigUnitId): T {
-        return this._scope.getConfigUnitData<T>(id);
-    }
+        const configPromise = _configPromises.find(it => isConfigsIdsEqual(id, it.id));
 
-    onSetConfigUnit(listener: ScopeListener<ConfigScopeState>): ScopeListenerUnsubscribeCallback {
-        return this._scope.onSetConfigUnit(listener);
-    }
-
-    isConfigUnitLoaded(id: ConfigUnitId): boolean {
-        return this._scope.isConfigUnitLoaded(id);
-    }
-
-    loadConfigUnitData<T extends ConfigUnitData = ConfigUnitData>(id: ConfigUnitId): Promise<T> {
-        const {_configUnitPromises, _configUnitLoaders, _scope} = this;
-        const {setConfigUnit, getConfigUnitData} = _scope;
-
-        const configUnitPromise = _configUnitPromises.find(it => configUnitIdComparator(id, it.id));
-
-        if (configUnitPromise) {
-            return configUnitPromise.promise;
+        if (configPromise) {
+            return configPromise.promise;
         }
 
-        const configUnitData = getConfigUnitData(id);
-
-        if (configUnitData) {
-            const newConfigUnitDataPromise: ConfigUnitDataPromise = {
-                id, promise: Promise.resolve(configUnitData)
+        if (_store.isConfigExist(id)) {
+            const newConfigDataPromise: ConfigPromise = {
+                id, promise: Promise.resolve(_store.findConfigById(id))
             };
-            _configUnitPromises.push(newConfigUnitDataPromise);
-            return newConfigUnitDataPromise.promise;
+            _configPromises.push(newConfigDataPromise);
+            return newConfigDataPromise.promise;
         }
 
-        const configUnitLoader = _configUnitLoaders.find(it => it.context === id.context);
+        const configLoader = _configLoaders.find(loader => loader.context === id.context);
 
-        if (!configUnitLoader) {
-            throw new Error(`ConfigUnitData loader for key ${JSON.stringify(id)} not found`);
+        if (!configLoader) {
+            throw new Error(`ConfigData loader for key ${JSON.stringify(id)} not found`);
         }
 
-        const newConfigUnitDataPromise: ConfigUnitDataPromise<T> = {
-            id, promise: configUnitLoader.loader(id.key)
-                .then(configUnitData => {
-                    setConfigUnit({id, data: configUnitData});
-                    return configUnitData as T;
-                })
+        const newConfigPromise: ConfigPromise = {
+            id, promise: configLoader.loader(id.key).then(configData => {
+                const config: Config = {id, data: configData};
+                _store.setConfig(config);
+                return config;
+            })
         };
 
-        _configUnitPromises.push(newConfigUnitDataPromise);
+        _configPromises.push(newConfigPromise);
 
-        return newConfigUnitDataPromise.promise;
+        return newConfigPromise.promise;
     }
 
 }

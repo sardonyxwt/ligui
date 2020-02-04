@@ -1,8 +1,8 @@
-import { Module, ModuleId, ModuleScope, ModuleScopeExtensions, ModuleScopeState } from '../scope/module.scope';
+import autobind from 'autobind-decorator';
 import { saveToArray } from '@sardonyxwt/utils/object';
-import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
+import { isModulesIdsEqual, Module, ModuleId, ModuleStore } from '../store/module.store';
 
-export interface ModuleBodyLoader {
+export interface ModuleLoader {
     readonly context?: string;
     readonly loader: (key: string) => Promise<any>;
 }
@@ -10,106 +10,64 @@ export interface ModuleBodyLoader {
 export interface ModulePromise {
     readonly id: ModuleId;
     readonly resolver?: () => void;
-    readonly promise: Promise<any>;
+    readonly promise: Promise<Module>;
 }
 
-export interface ModuleService extends ModuleScopeExtensions {
-    registerModuleBodyLoader<T>(loader: ModuleBodyLoader): void;
-
-    loadModuleBody<T>(id: ModuleId): Promise<T>;
+export interface ModuleService {
+    registerModuleLoader(loader: ModuleLoader): void;
+    loadModule(id: ModuleId): Promise<Module>;
 }
 
+@autobind
 export class ModuleServiceImpl implements ModuleService {
 
     private _modulePromises: ModulePromise[] = [];
 
-    constructor(protected _scope: ModuleScope,
-                protected _moduleLoaders: ModuleBodyLoader[] = []) {
+    constructor(protected _store: ModuleStore,
+                protected _moduleLoaders: ModuleLoader[] = []) {
     }
 
-    get modules(): Module[] {
-        return this._scope.modules;
-    }
-
-    registerModuleBodyLoader<T>(loader: ModuleBodyLoader) {
+    registerModuleLoader(loader: ModuleLoader) {
         saveToArray(this._moduleLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
         this._modulePromises
             .filter(it => it.id.context === loader.context && !!it.resolver)
             .forEach(it => it.resolver())
     }
 
-    setModule<T>(module: Module<T>): void {
-        this._scope.setModule(module);
-    }
+    loadModule(id: ModuleId): Promise<Module> {
+        const {_modulePromises, _store} = this;
 
-    getModuleBody<T>(id: ModuleId): T {
-        return this._scope.getModuleBody(id);
-    }
-
-    isModuleLoaded(id: ModuleId): boolean {
-        return this._scope.isModuleLoaded(id);
-    }
-
-    onSetModule(listener: ScopeListener<ModuleScopeState>): ScopeListenerUnsubscribeCallback {
-        return this._scope.onSetModule(listener);
-    }
-
-    loadModuleBody<T>(id: ModuleId): Promise<T> {
-        const {_modulePromises, _scope} = this;
-
-        const modulePromise = this.getModulePromise(id);
+        const modulePromise = this._modulePromises.find(it => isModulesIdsEqual(it.id, id));
 
         if (modulePromise) {
             return modulePromise.promise;
         }
 
-        const moduleBody = _scope.getModuleBody(id);
-
-        if (moduleBody) {
+        if (_store.isModuleExist(id)) {
             const newModulePromise: ModulePromise = {
-                id, promise: Promise.resolve(moduleBody)
+                id, promise: Promise.resolve(_store.findModuleById(id))
             };
             _modulePromises.push(newModulePromise);
             return newModulePromise.promise;
         }
 
-        let resolver: () => void = null;
-        let promise: Promise<any> = null;
+        const moduleLoader = this._moduleLoaders.find(loader => loader.context === id.context);
 
-        const moduleLoader = this.getModuleLoader(id.context);
-
-        if (moduleLoader) {
-            promise = this.createModulePromise(id, moduleLoader);
-        } else {
-            promise = new Promise(resolve => {
-                resolver = () => {
-                    this.createModulePromise(id, this.getModuleLoader(id.context)).then(resolve);
-                }
-            });
+        if (!moduleLoader) {
+            throw new Error(`ModuleBody loader for key ${JSON.stringify(id)} not found`);
         }
 
-        let newModulePromise: ModulePromise = {
-            id, resolver, promise
+        const newModulePromise: ModulePromise = {
+            id, promise: moduleLoader.loader(id.key).then(moduleBody => {
+                const module: Module = {id, body: moduleBody};
+                _store.setModule(module);
+                return module;
+            })
         };
 
         _modulePromises.push(newModulePromise);
 
         return newModulePromise.promise;
-    }
-
-    private getModuleLoader(context: string) {
-        return this._moduleLoaders.find(it => it.context === context);
-    }
-
-    private getModulePromise(id: ModuleId) {
-        return this._modulePromises.find(it => it.id === id);
-    }
-
-    private createModulePromise(id: ModuleId, loader: ModuleBodyLoader) {
-        return loader.loader(id.key).then(moduleBody => {
-            this.setModule({id, body: moduleBody});
-            return moduleBody;
-        })
     }
 
 }

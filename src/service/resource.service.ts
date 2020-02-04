@@ -1,93 +1,62 @@
-import {
-    Resource,
-    ResourceId,
-    resourceIdComparator,
-    ResourceScope,
-    ResourceScopeExtensions,
-    ResourceScopeState
-} from '../scope/resource.scope';
 import { deleteFromArray, saveToArray } from '@sardonyxwt/utils/object';
-import { ScopeListener, ScopeListenerUnsubscribeCallback } from '@sardonyxwt/state-store';
+import { isResourcesIdsEqual, Resource, ResourceId, ResourceStore } from '../store/resource.store';
 
-export interface ResourceDataLoader {
+export interface ResourceLoader {
     readonly context?: string;
     readonly loader: (key: string) => Promise<any>;
 }
 
 export interface ResourcePromise {
     readonly id: ResourceId;
-    readonly promise: Promise<any>;
+    readonly promise: Promise<Resource>;
 }
 
-export interface ResourceService extends ResourceScopeExtensions {
-    registerResourceDataLoader(loader: ResourceDataLoader): void;
-
-    loadResourceData<T = any>(id: ResourceId): Promise<T>;
+export interface ResourceService {
+    registerResourceLoader(loader: ResourceLoader): void;
+    loadResource(id: ResourceId): Promise<Resource>;
 }
 
 export class ResourceServiceImpl implements ResourceService {
 
     private _resourcePromises: ResourcePromise[] = [];
 
-    constructor(protected _scope: ResourceScope,
-                protected _resourceLoaders: ResourceDataLoader[] = []) {
+    constructor(protected _store: ResourceStore,
+                protected _resourceLoaders: ResourceLoader[] = []) {
     }
 
-    get resources(): Resource[] {
-        return this._scope.resources;
-    }
-
-    registerResourceDataLoader(loader: ResourceDataLoader) {
+    registerResourceLoader(loader: ResourceLoader) {
         deleteFromArray(this._resourcePromises, resourcePromise => resourcePromise.id.context === loader.context);
         saveToArray(this._resourceLoaders, loader, resourceLoader => resourceLoader.context === loader.context);
     }
 
-    setResource<T>(resource: Resource<T>): void {
-        this._scope.setResource(resource);
-    }
+    loadResource(id: ResourceId): Promise<Resource> {
+        const {_resourcePromises, _resourceLoaders, _store} = this;
 
-    getResourceData<T>(id: ResourceId): T {
-        return this._scope.getResourceData(id);
-    }
-
-    isResourceLoaded(id: ResourceId): boolean {
-        return this._scope.isResourceLoaded(id);
-    }
-
-    onSetResource(listener: ScopeListener<ResourceScopeState>): ScopeListenerUnsubscribeCallback {
-        return this._scope.onSetResource(listener);
-    }
-
-    loadResourceData<T>(id: ResourceId): Promise<T> {
-        const {_resourcePromises, _resourceLoaders, _scope} = this;
-        const {setResource, getResourceData} = _scope;
-
-        const resourcePromise = _resourcePromises.find(it => resourceIdComparator(id, it.id));
+        const resourcePromise = _resourcePromises.find(it => isResourcesIdsEqual(id, it.id));
 
         if (resourcePromise) {
             return resourcePromise.promise;
         }
 
-        const resourceData = getResourceData(id);
-
-        if (resourceData) {
+        if (_store.isResourceExist(id)) {
             const newResourcePromise: ResourcePromise = {
-                id, promise: Promise.resolve(resourceData)
+                id, promise: Promise.resolve(_store.findResourceById(id))
             };
             _resourcePromises.push(newResourcePromise);
             return newResourcePromise.promise;
         }
 
-        const resourceLoader = _resourceLoaders.find(it => it.context === id.context);
+        const resourceLoader = _resourceLoaders.find(loader => loader.context === id.context);
 
         if (!resourceLoader) {
-            throw new Error(`Resource loader for key ${JSON.stringify(id)} not found`);
+            throw new Error(`ResourceData loader for key ${JSON.stringify(id)} not found`);
         }
 
         const newResourcePromise: ResourcePromise = {
             id, promise: resourceLoader.loader(id.key).then(resourceData => {
-                setResource({id, data: resourceData});
-                return resourceData;
+                const resource: Resource = {id, data: resourceData};
+                _store.setResource(resource);
+                return resource;
             })
         };
 

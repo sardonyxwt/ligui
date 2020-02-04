@@ -1,4 +1,4 @@
-import { createStore, getStore, isStoreExist, Store } from '@sardonyxwt/state-store';
+import { createStore, isStoreExist, Store } from '@sardonyxwt/state-store';
 import { Container, interfaces } from 'inversify';
 
 export interface Context {
@@ -13,12 +13,14 @@ const defaultContainerOptions: interfaces.ContainerOptions = {
 
 export function createContext(
     name: string,
-    containerOptions = defaultContainerOptions
+    containerOptions: interfaces.ContainerOptions = defaultContainerOptions
 ): Context {
+    if (isStoreExist(name)) {
+        throw new Error(`Ligui store exist with name ${name}`);
+    }
+
     return Object.freeze({
-        store: isStoreExist(name)
-            ? getStore(name)
-            : createStore({name}),
+        store: createStore({name}),
         container: new Container(containerOptions)
     });
 }

@@ -1,7 +1,9 @@
 import * as React from 'react';
+import { reaction } from 'mobx';
 import { Container } from 'inversify';
 import { InternationalizationService, Translator } from '../service/internationalization.service';
 import { LIGUI_TYPES } from '../types';
+import { InternationalizationStore, TranslateUnitId } from '../store/internationalization.store';
 
 let InternationalizationKeyContext: React.Context<string> = null;
 
@@ -21,20 +23,18 @@ export interface InternationalizationHookReturnType {
 export const createI18nHook = (
     container: Container
 ) => (): InternationalizationHookReturnType => {
-    const internationalizationService = container.get<InternationalizationService>(LIGUI_TYPES.INTERNATIONALIZATION_SERVICE);
+    const internationalizationStore = container.get<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE);
 
     const prepareI18nState = (): InternationalizationHookReturnType => ({
-        setLocale: (locale: string) => internationalizationService.setLocale(locale),
-        currentLocale: internationalizationService.currentLocale,
-        defaultLocale: internationalizationService.defaultLocale,
-        locales: internationalizationService.locales
+        setLocale: (locale: string) => internationalizationStore.currentLocale = locale,
+        currentLocale: internationalizationStore.currentLocale,
+        defaultLocale: internationalizationStore.defaultLocale,
+        locales: internationalizationStore.locales
     });
 
     const [i18nState, setI18nState] = React.useState<InternationalizationHookReturnType>(prepareI18nState);
 
-    React.useEffect(() => {
-        return internationalizationService.onSetLocale(() => setI18nState(prepareI18nState));
-    }, []);
+    React.useEffect(() => reaction(prepareI18nState, setI18nState), []);
 
     return i18nState;
 };
@@ -46,27 +46,26 @@ export const createTranslatorHook = (
 ) => (
     translateUnitKey: string, context?: string
 ): TranslatorHookReturnType => {
+    const internationalizationStore = container.get<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE);
     const internationalizationService = container.get<InternationalizationService>(LIGUI_TYPES.INTERNATIONALIZATION_SERVICE);
 
     const internationalizationContext = context || React.useContext(InternationalizationKeyContext);
 
+    const buildId = (): TranslateUnitId => ({
+        key: translateUnitKey, context: internationalizationContext, locale: internationalizationStore.currentLocale
+    });
+
     function getTranslator(): Translator {
         const translator = internationalizationService.getTranslator(
             internationalizationContext,
-            internationalizationService.currentLocale
+            internationalizationStore.currentLocale
         );
 
         return <T = string>(key: string, defaultValue?: T) => translator<T>(`${translateUnitKey}.${key}`, defaultValue);
     }
 
-    function checkIsTranslateUnitLoaded() {
-        return internationalizationService.isTranslateUnitLoaded({
-            key: translateUnitKey, context: internationalizationContext, locale: internationalizationService.currentLocale
-        });
-    }
-
     function prepareTranslator() {
-        return checkIsTranslateUnitLoaded() ? getTranslator() : null;
+        return internationalizationStore.isTranslateUnitExist(buildId()) ? getTranslator() : null;
     }
 
     const [translator, setTranslator] = React.useState<Translator>(prepareTranslator);
@@ -75,16 +74,10 @@ export const createTranslatorHook = (
         if (translator) {
             return;
         }
-        internationalizationService.loadTranslateUnitData({
-            key: translateUnitKey, context: internationalizationContext, locale: internationalizationService.currentLocale
-        }).then(() => setTranslator(getTranslator));
+        internationalizationService.loadTranslateUnit(buildId());
     }, [translator]);
 
-    React.useEffect(() => {
-        return internationalizationService.onSetLocale(
-            () => setTranslator(prepareTranslator)
-        );
-    }, []);
+    React.useEffect(() => reaction(prepareTranslator, setTranslator), []);
 
     return [
         translator || (<T>(id, defaultValue) => defaultValue as T), !!translator
