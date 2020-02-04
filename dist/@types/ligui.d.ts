@@ -3,10 +3,10 @@ import { Container, interfaces } from 'inversify';
 import { Store, StoreConfig, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBus, EventBusConfig, EventBusDevTool } from '@sardonyxwt/event-bus';
 import { Context } from './context';
-import { Module } from './store/module.store';
-import { Resource } from './store/resource.store';
-import { TranslateUnit } from './store/internationalization.store';
-import { Config } from './store/config.store';
+import { Module, ModuleStore } from './store/module.store';
+import { Resource, ResourceStore } from './store/resource.store';
+import { InternationalizationStore, TranslateUnit } from './store/internationalization.store';
+import { Config, ConfigStore } from './store/config.store';
 import { JSXService } from './service/jsx.service';
 import { ResourceLoader, ResourceService } from './service/resource.service';
 import { InternationalizationService, TranslateUnitLoader } from './service/internationalization.service';
@@ -57,10 +57,22 @@ export interface LiguiConfig {
 }
 export interface Ligui {
     readonly jsx: JSXService;
-    readonly resource: ResourceService;
-    readonly internationalization: InternationalizationService;
-    readonly config: ConfigService;
-    readonly module: ModuleService;
+    readonly resource: {
+        store: ResourceStore;
+        service: ResourceService;
+    };
+    readonly internationalization: {
+        store: InternationalizationStore;
+        service: InternationalizationService;
+    };
+    readonly config: {
+        store: ConfigStore;
+        service: ConfigService;
+    };
+    readonly module: {
+        store: ModuleStore;
+        service: ModuleService;
+    };
     readonly context: Context;
     readonly store: Store;
     readonly container: Container;

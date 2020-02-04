@@ -105,10 +105,22 @@ export interface LiguiConfig {
 
 export interface Ligui {
     readonly jsx: JSXService;
-    readonly resource: ResourceService;
-    readonly internationalization: InternationalizationService;
-    readonly config: ConfigService;
-    readonly module: ModuleService;
+    readonly resource: {
+        store: ResourceStore;
+        service: ResourceService;
+    };
+    readonly internationalization: {
+        store: InternationalizationStore;
+        service: InternationalizationService;
+    };
+    readonly config: {
+        store: ConfigStore;
+        service: ConfigService;
+    };
+    readonly module: {
+        store: ModuleStore;
+        service: ModuleService;
+    };
     readonly context: Context;
     readonly store: Store;
     readonly container: Container;
@@ -196,16 +208,28 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
             return context.container.get<JSXService>(LIGUI_TYPES.JSX_SERVICE);
         },
         get resource() {
-            return context.container.get<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE);
+            return {
+                store: context.container.get<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE),
+                service: context.container.get<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE)
+            };
         },
         get internationalization() {
-            return context.container.get<InternationalizationService>(LIGUI_TYPES.INTERNATIONALIZATION_SERVICE);
+            return {
+                store: context.container.get<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE),
+                service: context.container.get<InternationalizationService>(LIGUI_TYPES.INTERNATIONALIZATION_SERVICE)
+            };
         },
         get config() {
-            return context.container.get<ConfigService>(LIGUI_TYPES.CONFIG_SERVICE);
+            return {
+                store: context.container.get<ConfigStore>(LIGUI_TYPES.CONFIG_STORE),
+                service: context.container.get<ConfigService>(LIGUI_TYPES.CONFIG_SERVICE)
+            };
         },
         get module() {
-            return context.container.get<ModuleService>(LIGUI_TYPES.MODULE_SERVICE);
+            return {
+                store: context.container.get<ModuleStore>(LIGUI_TYPES.MODULE_STORE),
+                service: context.container.get<ModuleService>(LIGUI_TYPES.MODULE_SERVICE)
+            }
         },
         get context() {
             return context;
