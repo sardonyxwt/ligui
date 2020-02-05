@@ -5,7 +5,13 @@ import { ChildrenProps } from '../service/jsx.service';
 
 export type RouterType = 'memory' | 'browser';
 
-export const RouterContext = React.createContext<RouterType>(null);
+let RouterContext: React.Context<RouterType> = null;
+
+if (!!React) {
+    RouterContext = React.createContext<RouterType>(null);
+}
+
+export { RouterContext };
 
 export function useRouterType(): RouterType {
     return React.useContext(RouterContext);

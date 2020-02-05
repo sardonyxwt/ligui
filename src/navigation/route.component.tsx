@@ -19,7 +19,13 @@ import {
 } from 'react-router';
 import { useRouterType } from './router.component';
 
-export const RouteContext = React.createContext<RouteComponentProps<any>>(null);
+let RouteContext: React.Context<RouteComponentProps<any>> = null;
+
+if (!!React) {
+    RouteContext = React.createContext<RouteComponentProps<any>>(null);
+}
+
+export { RouteContext };
 
 export function useHistory<HistoryLocationState = History.LocationState>() {
     return useRouterType() === 'browser'
