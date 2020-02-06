@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { ChildrenProps } from '../service/jsx.service';
 export declare type RouterType = 'memory' | 'browser';
-export declare const RouterContext: React.Context<RouterType>;
+declare let RouterContext: React.Context<RouterType>;
+export { RouterContext };
 export declare function useRouterType(): RouterType;
 export declare type RouterProps = ChildrenProps & {
     ssrInitialPath?: string;

@@ -1,5 +1,4 @@
-import autobind from 'autobind-decorator';
-import { observable, action, intercept, computed } from 'mobx';
+import { observable, action, computed } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
 
 export interface TranslateUnitId {
@@ -31,12 +30,12 @@ export interface InternationalizationStore {
     isTranslateUnitExist(id: TranslateUnitId): boolean;
 }
 
-@autobind
 export class InternationalizationStoreImpl implements InternationalizationStore {
+
     @observable private _currentLocale: string = null;
     @observable private _defaultLocale: string = null;
     @observable readonly locales: string[] = [];
-    @observable readonly translateUnits: TranslateUnit[] = [];
+    @observable.shallow readonly translateUnits: TranslateUnit[] = [];
 
     constructor(
         locales: string[] = [],
@@ -48,15 +47,6 @@ export class InternationalizationStoreImpl implements InternationalizationStore 
         this._defaultLocale = defaultLocale;
         this.locales.push(...locales);
         this.translateUnits.push(...translateUnits);
-
-        intercept(this, 'currentLocale', change => {
-            return change;
-        });
-
-        intercept(this, 'defaultLocale', change => {
-            this.checkLocale(change.newValue);
-            return change;
-        })
     }
 
     @action setTranslateUnit(...translateUnits: TranslateUnit[]): void {

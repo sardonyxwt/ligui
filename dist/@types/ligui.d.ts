@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Container, interfaces } from 'inversify';
 import { Store, StoreConfig, StoreDevTool } from '@sardonyxwt/state-store';
 import { EventBus, EventBusConfig, EventBusDevTool } from '@sardonyxwt/event-bus';

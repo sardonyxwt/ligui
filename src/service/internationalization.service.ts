@@ -86,10 +86,16 @@ export class InternationalizationServiceImpl implements InternationalizationServ
 
             const translateUnitId: TranslateUnitId = {key, context, locale: locale || this._store.currentLocale};
 
-            let result = this._store.findTranslateUnitById(translateUnitId);
+            let translateUnit = this._store.findTranslateUnitById(translateUnitId);
+
+            if (translateUnit === undefined) {
+                return defaultValue;
+            }
+
+            let result = translateUnit.data;
 
             for (let i = 0; i < pathParts.length && !!result; i++) {
-                result = result[pathParts[i]] as TranslateUnit;
+                result = result[pathParts[i]] as TranslateUnitData;
             }
 
             if (result === undefined) {

@@ -1,4 +1,3 @@
-import autobind from 'autobind-decorator';
 import { saveToArray } from '@sardonyxwt/utils/object';
 import { isModulesIdsEqual, Module, ModuleId, ModuleStore } from '../store/module.store';
 
@@ -18,7 +17,6 @@ export interface ModuleService {
     loadModule(id: ModuleId): Promise<Module>;
 }
 
-@autobind
 export class ModuleServiceImpl implements ModuleService {
 
     private _modulePromises: ModulePromise[] = [];

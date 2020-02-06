@@ -1,4 +1,3 @@
-import autobind from 'autobind-decorator';
 import { observable, action } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
 
@@ -22,9 +21,9 @@ export interface ResourceStore {
     isResourceExist(id: ResourceId): boolean;
 }
 
-@autobind
 export class ResourceStoreImpl implements ResourceStore {
-    @observable readonly resources: Resource[] = [];
+
+    @observable.shallow readonly resources: Resource[] = [];
 
     constructor(resources: Resource[] = []) {
         this.resources.push(...resources);

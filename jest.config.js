@@ -1,8 +1,8 @@
 module.exports = {
     testURL: 'http://localhost',
-    moduleFileExtensions: ['ts', 'js'],
+    moduleFileExtensions: ['ts', 'tsx', 'js',  'jsx'],
     transform: {
-        '^.+\\.ts$': 'ts-jest'
+        '^.+\\.tsx?$': 'ts-jest'
     },
     testRegex: '/test/.*\\.test\\.ts$',
     reporters: [

@@ -77,7 +77,10 @@ export const createTranslatorHook = (
         internationalizationService.loadTranslateUnit(buildId());
     }, [translator]);
 
-    React.useEffect(() => reaction(prepareTranslator, setTranslator), []);
+    React.useEffect(() => reaction(
+        prepareTranslator,
+        translator => setTranslator(() => translator)
+    ), []);
 
     return [
         translator || (<T>(id, defaultValue) => defaultValue as T), !!translator

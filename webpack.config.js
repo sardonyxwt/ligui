@@ -33,6 +33,8 @@ module.exports = {
     externals: {
         'react': 'react',
         'react-dom': 'react-dom',
+        'react-router': 'react-router',
+        'react-router-dom': 'react-router-dom',
         'mobx': 'mobx',
         'inversify': 'inversify'
     },

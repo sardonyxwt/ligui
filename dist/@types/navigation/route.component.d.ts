@@ -1,7 +1,8 @@
 import * as React from 'react';
 import * as History from 'history';
 import { RouteProps, RouteComponentProps } from 'react-router';
-export declare const RouteContext: React.Context<RouteComponentProps<any, import("react-router").StaticContext, {}>>;
+declare let RouteContext: React.Context<RouteComponentProps<any>>;
+export { RouteContext };
 export declare function useHistory<HistoryLocationState = History.LocationState>(): History.History<HistoryLocationState>;
 export declare function useLocation<LocationState = History.LocationState>(): History.Location<LocationState>;
 export declare function useParams<Params extends {

@@ -1,4 +1,3 @@
-import autobind from 'autobind-decorator';
 import { observable, action } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
 
@@ -22,9 +21,9 @@ export interface ModuleStore {
     isModuleExist(id: ModuleId): boolean;
 }
 
-@autobind
 export class ModuleStoreImpl implements ModuleStore {
-    @observable readonly modules: Module[] = [];
+
+    @observable.shallow readonly modules: Module[] = [];
 
     constructor(modules: Module[] = []) {
         this.modules.push(...modules);

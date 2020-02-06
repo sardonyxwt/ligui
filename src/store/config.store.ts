@@ -1,4 +1,3 @@
-import autobind from 'autobind-decorator';
 import { observable, action } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
 
@@ -26,9 +25,9 @@ export interface ConfigStore {
     isConfigExist(id: ConfigId): boolean;
 }
 
-@autobind
 export class ConfigStoreImpl implements ConfigStore {
-    @observable readonly configs: Config[] = [];
+
+    @observable.shallow readonly configs: Config[] = [];
 
     constructor(configs: Config[] = []) {
         this.configs.push(...configs);

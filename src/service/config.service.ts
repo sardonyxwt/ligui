@@ -1,4 +1,3 @@
-import autobind from 'autobind-decorator';
 import { deleteFromArray, saveToArray } from '@sardonyxwt/utils/object';
 import { Config, ConfigData, ConfigId, ConfigStore, isConfigsIdsEqual } from '../store/config.store';
 
@@ -17,7 +16,6 @@ export interface ConfigService {
     loadConfig(id: ConfigId): Promise<Config>;
 }
 
-@autobind
 export class ConfigServiceImpl implements ConfigService {
 
     private _configPromises: ConfigPromise[] = [];
