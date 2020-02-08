@@ -14,6 +14,7 @@ export interface ConfigStore {
     setConfig(...configs: Config[]): void;
     findConfigById(id: ConfigId): Config;
     isConfigExist(id: ConfigId): boolean;
+    reset(): void;
 }
 export declare class ConfigStoreImpl implements ConfigStore {
     readonly configs: Config[];
@@ -21,6 +22,7 @@ export declare class ConfigStoreImpl implements ConfigStore {
     setConfig(...configs: Config[]): void;
     findConfigById(id: ConfigId): Config;
     isConfigExist(id: ConfigId): boolean;
+    reset(): void;
 }
 export declare function isConfigsIdsEqual(configId1: ConfigId, configId2: ConfigId): boolean;
 //# sourceMappingURL=config.store.d.ts.map

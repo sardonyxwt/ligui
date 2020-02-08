@@ -11,6 +11,7 @@ export interface ResourceStore {
     setResource(...resources: Resource[]): void;
     findResourceById(id: ResourceId): Resource;
     isResourceExist(id: ResourceId): boolean;
+    reset(): void;
 }
 export declare class ResourceStoreImpl implements ResourceStore {
     readonly resources: Resource[];
@@ -18,6 +19,7 @@ export declare class ResourceStoreImpl implements ResourceStore {
     setResource(...resources: Resource[]): void;
     findResourceById(id: ResourceId): Resource;
     isResourceExist(id: ResourceId): boolean;
+    reset(): void;
 }
 export declare function isResourcesIdsEqual(resourceId1: ResourceId, resourceId2: ResourceId): boolean;
 //# sourceMappingURL=resource.store.d.ts.map

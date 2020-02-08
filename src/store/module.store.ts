@@ -19,6 +19,8 @@ export interface ModuleStore {
     findModuleById(id: ModuleId): Module;
 
     isModuleExist(id: ModuleId): boolean;
+
+    reset(): void;
 }
 
 export class ModuleStoreImpl implements ModuleStore {
@@ -42,6 +44,10 @@ export class ModuleStoreImpl implements ModuleStore {
 
     isModuleExist(id: ModuleId): boolean {
         return !!this.findModuleById(id);
+    }
+
+    reset(): void {
+        this.modules.splice(0, this.modules.length);
     }
 
 }

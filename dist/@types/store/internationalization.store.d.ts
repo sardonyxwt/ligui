@@ -19,6 +19,7 @@ export interface InternationalizationStore {
     findTranslateUnitById(id: TranslateUnitId): TranslateUnit;
     isLocaleExist(locale: string): boolean;
     isTranslateUnitExist(id: TranslateUnitId): boolean;
+    reset(): void;
 }
 export declare class InternationalizationStoreImpl implements InternationalizationStore {
     private _currentLocale;
@@ -34,6 +35,7 @@ export declare class InternationalizationStoreImpl implements Internationalizati
     findTranslateUnitById(id: TranslateUnitId): TranslateUnit;
     isLocaleExist(locale: string): boolean;
     isTranslateUnitExist(id: TranslateUnitId): boolean;
+    reset(): void;
     private checkLocale;
 }
 export declare function isTranslateUnitsIdsEqual(translateUnitId1: TranslateUnitId, translateUnitId2: TranslateUnitId): boolean;

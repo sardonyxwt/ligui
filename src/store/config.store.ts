@@ -23,6 +23,8 @@ export interface ConfigStore {
     findConfigById(id: ConfigId): Config;
 
     isConfigExist(id: ConfigId): boolean;
+
+    reset(): void;
 }
 
 export class ConfigStoreImpl implements ConfigStore {
@@ -46,6 +48,10 @@ export class ConfigStoreImpl implements ConfigStore {
 
     isConfigExist(id: ConfigId): boolean {
         return !!this.findConfigById(id);
+    }
+
+    reset(): void {
+        this.configs.splice(0, this.configs.length);
     }
 
 }

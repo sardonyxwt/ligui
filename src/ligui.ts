@@ -88,7 +88,7 @@ export * from './navigation/redirect.component';
 
 export interface LiguiConfig {
     name: string;
-    containerOptions?: interfaces.ContainerOptions
+    container?: Container;
     modules?: Module[];
     resources?: Resource[];
     configs?: Config[];
@@ -133,6 +133,7 @@ export interface Ligui {
     isEventBusExist(storeName: string): boolean;
     getEventBus(scopeName: string): EventBus;
     setEventBusDevTool(devTool: Partial<EventBusDevTool>): void;
+    reset(): void;
 
     useId: () => string;
     useData: <T>(dataResolver: () => T,
@@ -154,7 +155,7 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         throw new Error(`Ligui instance present in global object with name: ${config.name}`);
     }
 
-    const context = createContext(config.name, config.containerOptions);
+    const context = createContext(config.name, config.container);
 
     context.container.bind<ModuleStore>(LIGUI_TYPES.MODULE_STORE)
         .toDynamicValue(() => new ModuleStoreImpl(config.modules))
@@ -201,6 +202,14 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
             config.configLoaders
         ))
         .inSingletonScope();
+
+    const reset = () => {
+        context.store.reset();
+        context.container.get<ConfigStore>(LIGUI_TYPES.CONFIG_STORE).reset();
+        context.container.get<ModuleStore>(LIGUI_TYPES.MODULE_STORE).reset();
+        context.container.get<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE).reset();
+        context.container.get<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE).reset();
+    };
 
     const ligui: Ligui = {
         get jsx() {
@@ -250,6 +259,7 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         isEventBusExist: isEventBusExist,
         getEventBus: getEventBus,
         setEventBusDevTool: setEventBusDevTool,
+        reset,
 
         useId,
         useData,

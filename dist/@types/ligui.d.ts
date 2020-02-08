@@ -41,7 +41,7 @@ export * from './navigation/switch.component';
 export * from './navigation/redirect.component';
 export interface LiguiConfig {
     name: string;
-    containerOptions?: interfaces.ContainerOptions;
+    container?: Container;
     modules?: Module[];
     resources?: Resource[];
     configs?: Config[];
@@ -84,6 +84,7 @@ export interface Ligui {
     isEventBusExist(storeName: string): boolean;
     getEventBus(scopeName: string): EventBus;
     setEventBusDevTool(devTool: Partial<EventBusDevTool>): void;
+    reset(): void;
     useId: () => string;
     useData: <T>(dataResolver: () => T, dataLoader?: () => Promise<T>, dataSync?: (cb: (newData: T) => void) => (() => void) | void) => T;
     useState: <T = any>(scopeName: string, actions?: string[], retention?: number) => T;

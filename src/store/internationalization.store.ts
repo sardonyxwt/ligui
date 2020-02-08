@@ -28,6 +28,8 @@ export interface InternationalizationStore {
 
     isLocaleExist(locale: string): boolean;
     isTranslateUnitExist(id: TranslateUnitId): boolean;
+
+    reset(): void;
 }
 
 export class InternationalizationStoreImpl implements InternationalizationStore {
@@ -84,6 +86,10 @@ export class InternationalizationStoreImpl implements InternationalizationStore 
 
     isTranslateUnitExist(id: TranslateUnitId): boolean {
         return !!this.findTranslateUnitById(id);
+    }
+
+    reset(): void {
+        this.translateUnits.splice(0, this.translateUnits.length);
     }
 
     private checkLocale(locale: string) {

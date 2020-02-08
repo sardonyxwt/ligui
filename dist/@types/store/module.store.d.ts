@@ -11,6 +11,7 @@ export interface ModuleStore {
     setModule(...modules: Module[]): void;
     findModuleById(id: ModuleId): Module;
     isModuleExist(id: ModuleId): boolean;
+    reset(): void;
 }
 export declare class ModuleStoreImpl implements ModuleStore {
     readonly modules: Module[];
@@ -18,6 +19,7 @@ export declare class ModuleStoreImpl implements ModuleStore {
     setModule(...modules: Module[]): void;
     findModuleById(id: ModuleId): Module;
     isModuleExist(id: ModuleId): boolean;
+    reset(): void;
 }
 export declare function isModulesIdsEqual(moduleId1: ModuleId, moduleId2: ModuleId): boolean;
 //# sourceMappingURL=module.store.d.ts.map

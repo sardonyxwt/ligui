@@ -35,6 +35,7 @@ module.exports = {
         'react-dom': 'react-dom',
         'react-router': 'react-router',
         'react-router-dom': 'react-router-dom',
+        'history': 'history',
         'mobx': 'mobx',
         'inversify': 'inversify'
     },

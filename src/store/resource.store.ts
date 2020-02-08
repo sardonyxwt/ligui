@@ -19,6 +19,8 @@ export interface ResourceStore {
     findResourceById(id: ResourceId): Resource;
 
     isResourceExist(id: ResourceId): boolean;
+
+    reset(): void;
 }
 
 export class ResourceStoreImpl implements ResourceStore {
@@ -42,6 +44,10 @@ export class ResourceStoreImpl implements ResourceStore {
 
     isResourceExist(id: ResourceId): boolean {
         return !!this.findResourceById(id);
+    }
+
+    reset(): void {
+        this.resources.splice(0, this.resources.length);
     }
 
 }

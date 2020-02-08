@@ -13,7 +13,7 @@ const defaultContainerOptions: interfaces.ContainerOptions = {
 
 export function createContext(
     name: string,
-    containerOptions: interfaces.ContainerOptions = defaultContainerOptions
+    container: Container = new Container(defaultContainerOptions)
 ): Context {
     if (isStoreExist(name)) {
         throw new Error(`Ligui store exist with name ${name}`);
@@ -21,6 +21,6 @@ export function createContext(
 
     return Object.freeze({
         store: createStore({name}),
-        container: new Container(containerOptions)
+        container
     });
 }
