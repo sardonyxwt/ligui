@@ -16,7 +16,7 @@ export interface ModuleStore {
 
     setModule(...modules: Module[]): void;
 
-    findModuleById(id: ModuleId): Module;
+    findModuleById<T>(id: ModuleId): Module<T>;
 
     isModuleExist(id: ModuleId): boolean;
 
