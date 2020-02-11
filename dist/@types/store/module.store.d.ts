@@ -9,7 +9,7 @@ export interface Module<T = any> {
 export interface ModuleStore {
     readonly modules: Module[];
     setModule(...modules: Module[]): void;
-    findModuleById(id: ModuleId): Module;
+    findModuleById<T>(id: ModuleId): Module<T>;
     isModuleExist(id: ModuleId): boolean;
     reset(): void;
 }
@@ -17,7 +17,7 @@ export declare class ModuleStoreImpl implements ModuleStore {
     readonly modules: Module[];
     constructor(modules?: Module[]);
     setModule(...modules: Module[]): void;
-    findModuleById(id: ModuleId): Module;
+    findModuleById<T>(id: ModuleId): Module<T>;
     isModuleExist(id: ModuleId): boolean;
     reset(): void;
 }

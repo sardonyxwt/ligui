@@ -38,7 +38,7 @@ export class ResourceStoreImpl implements ResourceStore {
         ));
     }
 
-    findResourceById(id: ResourceId): Resource {
+    findResourceById<T>(id: ResourceId): Resource<T> {
         return this.resources.find(resource => isResourcesIdsEqual(resource.id, id));
     }
 

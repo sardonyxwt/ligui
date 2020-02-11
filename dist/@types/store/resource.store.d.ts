@@ -9,7 +9,7 @@ export interface Resource<T = any> {
 export interface ResourceStore {
     readonly resources: Resource[];
     setResource(...resources: Resource[]): void;
-    findResourceById(id: ResourceId): Resource;
+    findResourceById<T>(id: ResourceId): Resource<T>;
     isResourceExist(id: ResourceId): boolean;
     reset(): void;
 }
@@ -17,7 +17,7 @@ export declare class ResourceStoreImpl implements ResourceStore {
     readonly resources: Resource[];
     constructor(resources?: Resource[]);
     setResource(...resources: Resource[]): void;
-    findResourceById(id: ResourceId): Resource;
+    findResourceById<T>(id: ResourceId): Resource<T>;
     isResourceExist(id: ResourceId): boolean;
     reset(): void;
 }
