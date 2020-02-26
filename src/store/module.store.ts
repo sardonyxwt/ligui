@@ -16,7 +16,7 @@ export interface ModuleStore {
 
     setModule(...modules: Module[]): void;
 
-    findModuleById(id: ModuleId): Module;
+    findModuleById<T>(id: ModuleId): Module<T>;
 
     isModuleExist(id: ModuleId): boolean;
 
@@ -38,7 +38,7 @@ export class ModuleStoreImpl implements ModuleStore {
         ));
     }
 
-    findModuleById(id: ModuleId): Module {
+    findModuleById<T>(id: ModuleId): Module<T> {
         return this.modules.find(module => isModulesIdsEqual(module.id, id));
     }
 

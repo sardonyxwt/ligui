@@ -24,9 +24,9 @@ export const createResourceHook = (
 
     const id: ResourceId = {key, context: resourceContext};
 
-    const prepareResourceData = () => {
+    const prepareResourceData = <T>() => {
         if (resourceStore.isResourceExist(id)) {
-            return resourceStore.findResourceById(id).data;
+            return resourceStore.findResourceById<T>(id).data;
         }
         return null;
     };

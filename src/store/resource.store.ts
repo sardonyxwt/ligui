@@ -16,7 +16,7 @@ export interface ResourceStore {
 
     setResource(...resources: Resource[]): void;
 
-    findResourceById(id: ResourceId): Resource;
+    findResourceById<T>(id: ResourceId): Resource<T>;
 
     isResourceExist(id: ResourceId): boolean;
 
@@ -38,7 +38,7 @@ export class ResourceStoreImpl implements ResourceStore {
         ));
     }
 
-    findResourceById(id: ResourceId): Resource {
+    findResourceById<T>(id: ResourceId): Resource<T> {
         return this.resources.find(resource => isResourcesIdsEqual(resource.id, id));
     }
 

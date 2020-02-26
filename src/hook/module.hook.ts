@@ -24,9 +24,9 @@ export const createModuleHook = (
 
     const id: ModuleId = {key, context: moduleContext};
 
-    const prepareModuleBody = () => {
+    const prepareModuleBody = <T>() => {
         if (moduleStore.isModuleExist(id)) {
-            return moduleStore.findModuleById(id).body;
+            return moduleStore.findModuleById<T>(id).body;
         }
         return null;
     };
