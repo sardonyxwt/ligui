@@ -80,12 +80,6 @@ export * from './hook/config.hook';
 export * from './hook/module.hook';
 export * from './hook/resource.hook';
 
-export * from './navigation/link.component';
-export * from './navigation/route.component';
-export * from './navigation/router.component';
-export * from './navigation/switch.component';
-export * from './navigation/redirect.component';
-
 export interface LiguiConfig {
     name: string;
     container?: Container;
