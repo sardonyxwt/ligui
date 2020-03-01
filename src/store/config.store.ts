@@ -1,5 +1,6 @@
 import { observable, action } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
+import { Repository } from '../service/repository.service';
 
 export interface ConfigId {
     readonly key: string;
@@ -15,19 +16,19 @@ export interface Config {
     readonly data: ConfigData;
 }
 
-export interface ConfigStore {
+export interface ConfigStoreState {
     readonly configs: Config[];
+}
 
+export interface ConfigStore extends ConfigStoreState {
     setConfig(...configs: Config[]): void;
 
     findConfigById(id: ConfigId): Config;
 
     isConfigExist(id: ConfigId): boolean;
-
-    reset(): void;
 }
 
-export class ConfigStoreImpl implements ConfigStore {
+export class ConfigStoreImpl implements ConfigStore, Repository<ConfigStoreState> {
 
     @observable.shallow readonly configs: Config[] = [];
 
@@ -48,6 +49,17 @@ export class ConfigStoreImpl implements ConfigStore {
 
     isConfigExist(id: ConfigId): boolean {
         return !!this.findConfigById(id);
+    }
+
+    collect(): ConfigStoreState {
+        return {
+            configs: this.configs
+        };
+    }
+
+    restore(state: ConfigStoreState): void {
+        this.configs.splice(0, this.configs.length);
+        this.configs.push(...state.configs);
     }
 
     reset(): void {

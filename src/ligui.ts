@@ -36,6 +36,7 @@ import {
 } from './service/internationalization.service';
 import { ConfigService, ConfigServiceImpl, ConfigLoader } from './service/config.service';
 import { ModuleLoader, ModuleService, ModuleServiceImpl } from './service/module.service';
+import { RepositoryService, RepositoryServiceImpl } from './service/repository.service';
 
 import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';
@@ -70,6 +71,7 @@ export * from './service/internationalization.service';
 export * from './service/config.service';
 export * from './service/resource.service';
 export * from './service/module.service';
+export * from './service/repository.service';
 
 export * from './hook/data.hook';
 export * from './hook/id.hook';
@@ -114,6 +116,7 @@ export interface Ligui {
         store: ModuleStore;
         service: ModuleService;
     };
+    readonly repository: RepositoryService;
     readonly context: Context;
     readonly store: Store;
     readonly container: Container;
@@ -127,7 +130,6 @@ export interface Ligui {
     isEventBusExist(storeName: string): boolean;
     getEventBus(scopeName: string): EventBus;
     setEventBusDevTool(devTool: Partial<EventBusDevTool>): void;
-    reset(): void;
 
     useId: () => string;
     useData: <T>(dataResolver: () => T,
@@ -151,22 +153,48 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
 
     const context = createContext(config.name, config.container);
 
+    context.container.bind<Store>(LIGUI_TYPES.STORE).toConstantValue(context.store);
+
     context.container.bind<ModuleStore>(LIGUI_TYPES.MODULE_STORE)
-        .toDynamicValue(() => new ModuleStoreImpl(config.modules))
+        .toDynamicValue(() => {
+            const store = new ModuleStoreImpl(config.modules);
+            context.container.get<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE).subscribe(
+                LIGUI_TYPES.MODULE_STORE, store
+            );
+            return store;
+        })
         .inSingletonScope();
     context.container.bind<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE)
-        .toDynamicValue(() => new ResourceStoreImpl(config.resources))
+        .toDynamicValue(() => {
+            const store = new ResourceStoreImpl(config.resources);
+            context.container.get<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE).subscribe(
+                LIGUI_TYPES.RESOURCE_STORE, store
+            );
+            return store;
+        })
         .inSingletonScope();
     context.container.bind<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE)
-        .toDynamicValue(() => new InternationalizationStoreImpl(
-            config.locales,
-            config.currentLocale,
-            config.defaultLocale,
-            config.translateUnits
-        ))
+        .toDynamicValue(() => {
+            const store = new InternationalizationStoreImpl(
+                config.locales,
+                config.currentLocale,
+                config.defaultLocale,
+                config.translateUnits
+            );
+            context.container.get<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE).subscribe(
+                LIGUI_TYPES.INTERNATIONALIZATION_STORE, store
+            );
+            return store;
+        })
         .inSingletonScope();
     context.container.bind<ConfigStore>(LIGUI_TYPES.CONFIG_STORE)
-        .toDynamicValue(() => new ConfigStoreImpl(config.configs))
+        .toDynamicValue(() => {
+            const store = new ConfigStoreImpl(config.configs);
+            context.container.get<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE).subscribe(
+                LIGUI_TYPES.CONFIG_STORE, store
+            );
+            return store;
+        })
         .inSingletonScope();
 
     context.container.bind<JSXService>(LIGUI_TYPES.JSX_SERVICE)
@@ -196,14 +224,9 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
             config.configLoaders
         ))
         .inSingletonScope();
-
-    const reset = () => {
-        context.store.reset();
-        context.container.get<ConfigStore>(LIGUI_TYPES.CONFIG_STORE).reset();
-        context.container.get<ModuleStore>(LIGUI_TYPES.MODULE_STORE).reset();
-        context.container.get<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE).reset();
-        context.container.get<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE).reset();
-    };
+    context.container.bind<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE)
+        .toDynamicValue(() => new RepositoryServiceImpl())
+        .inSingletonScope();
 
     const ligui: Ligui = {
         get jsx() {
@@ -233,6 +256,9 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
                 service: context.container.get<ModuleService>(LIGUI_TYPES.MODULE_SERVICE)
             }
         },
+        get repository() {
+            return context.container.get<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE);
+        },
         get context() {
             return context;
         },
@@ -253,7 +279,6 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         isEventBusExist: isEventBusExist,
         getEventBus: getEventBus,
         setEventBusDevTool: setEventBusDevTool,
-        reset,
 
         useId,
         useData,

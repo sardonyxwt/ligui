@@ -1,5 +1,6 @@
 import { observable, action, computed } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
+import { Repository } from '../service/repository.service';
 
 export interface TranslateUnitId {
     readonly key: string;
@@ -16,23 +17,23 @@ export interface TranslateUnit {
     readonly data: TranslateUnitData;
 }
 
-export interface InternationalizationStore {
+export interface InternationalizationStoreState {
     currentLocale: string;
     defaultLocale: string;
     readonly locales: string[];
     readonly translateUnits: TranslateUnit[];
+}
 
+export interface InternationalizationStore extends InternationalizationStoreState, Repository<InternationalizationStoreState> {
     setTranslateUnit(...translateUnits: TranslateUnit[]): void;
 
     findTranslateUnitById(id: TranslateUnitId): TranslateUnit;
 
     isLocaleExist(locale: string): boolean;
     isTranslateUnitExist(id: TranslateUnitId): boolean;
-
-    reset(): void;
 }
 
-export class InternationalizationStoreImpl implements InternationalizationStore {
+export class InternationalizationStoreImpl implements InternationalizationStore, Repository<InternationalizationStoreState> {
 
     @observable private _currentLocale: string = null;
     @observable private _defaultLocale: string = null;
@@ -43,7 +44,7 @@ export class InternationalizationStoreImpl implements InternationalizationStore 
         locales: string[] = [],
         currentLocale: string = (locales.length > 0 ? locales[0] : null),
         defaultLocale: string = currentLocale,
-        translateUnits: TranslateUnit[] = [],
+        translateUnits: TranslateUnit[] = []
     ) {
         this._currentLocale = currentLocale;
         this._defaultLocale = defaultLocale;
@@ -86,6 +87,24 @@ export class InternationalizationStoreImpl implements InternationalizationStore 
 
     isTranslateUnitExist(id: TranslateUnitId): boolean {
         return !!this.findTranslateUnitById(id);
+    }
+
+    collect(): InternationalizationStoreState {
+        return {
+            locales: this.locales,
+            currentLocale: this._currentLocale,
+            defaultLocale: this._defaultLocale,
+            translateUnits: this.translateUnits
+        }
+    }
+
+    restore(state: InternationalizationStoreState): void {
+        this._currentLocale = state.currentLocale;
+        this._defaultLocale = state.defaultLocale;
+        this.locales.splice(0, this.locales.length);
+        this.locales.push(...state.locales);
+        this.translateUnits.push(...state.translateUnits);
+        this.translateUnits.splice(0, this.translateUnits.length);
     }
 
     reset(): void {

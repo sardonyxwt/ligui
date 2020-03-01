@@ -1,11 +1,13 @@
 export const LIGUI_TYPES = {
-    MODULE_STORE: 'moduleStore',
-    RESOURCE_STORE: 'resourceStore',
-    INTERNATIONALIZATION_STORE: 'InternationalizationStore',
-    CONFIG_STORE: 'ConfigStore',
-    MODULE_SERVICE: 'ModuleService',
-    RESOURCE_SERVICE: 'ResourceService',
-    INTERNATIONALIZATION_SERVICE: 'InternationalizationService',
-    CONFIG_SERVICE: 'ConfigService',
-    JSX_SERVICE: 'JsxService'
+    STORE: '$store',
+    MODULE_STORE: '$moduleStore',
+    RESOURCE_STORE: '$resourceStore',
+    INTERNATIONALIZATION_STORE: '$internationalizationStore',
+    CONFIG_STORE: '$configStore',
+    MODULE_SERVICE: '$moduleService',
+    RESOURCE_SERVICE: '$resourceService',
+    INTERNATIONALIZATION_SERVICE: '$internationalizationService',
+    CONFIG_SERVICE: '$configService',
+    JSX_SERVICE: '$jsxService',
+    REPOSITORY_SERVICE: '$repositoryService'
 };

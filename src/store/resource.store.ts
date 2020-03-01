@@ -1,5 +1,6 @@
 import { observable, action } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
+import { Repository } from '../service/repository.service';
 
 export interface ResourceId {
     readonly key: string;
@@ -11,19 +12,19 @@ export interface Resource<T = any> {
     readonly data: T;
 }
 
-export interface ResourceStore {
+export interface ResourceStoreState {
     readonly resources: Resource[];
+}
 
+export interface ResourceStore extends ResourceStoreState {
     setResource(...resources: Resource[]): void;
 
     findResourceById<T>(id: ResourceId): Resource<T>;
 
     isResourceExist(id: ResourceId): boolean;
-
-    reset(): void;
 }
 
-export class ResourceStoreImpl implements ResourceStore {
+export class ResourceStoreImpl implements ResourceStore, Repository<ResourceStoreState> {
 
     @observable.shallow readonly resources: Resource[] = [];
 
@@ -44,6 +45,17 @@ export class ResourceStoreImpl implements ResourceStore {
 
     isResourceExist(id: ResourceId): boolean {
         return !!this.findResourceById(id);
+    }
+
+    collect(): ResourceStoreState {
+        return {
+            resources: this.resources
+        };
+    }
+
+    restore(state: ResourceStoreState): void {
+        this.resources.splice(0, this.resources.length);
+        this.resources.push(...state.resources);
     }
 
     reset(): void {

@@ -1,3 +1,4 @@
+import { Repository } from '../service/repository.service';
 export interface ConfigId {
     readonly key: string;
     readonly context?: string;
@@ -9,19 +10,22 @@ export interface Config {
     readonly id: ConfigId;
     readonly data: ConfigData;
 }
-export interface ConfigStore {
+export interface ConfigStoreState {
     readonly configs: Config[];
+}
+export interface ConfigStore extends ConfigStoreState {
     setConfig(...configs: Config[]): void;
     findConfigById(id: ConfigId): Config;
     isConfigExist(id: ConfigId): boolean;
-    reset(): void;
 }
-export declare class ConfigStoreImpl implements ConfigStore {
+export declare class ConfigStoreImpl implements ConfigStore, Repository<ConfigStoreState> {
     readonly configs: Config[];
     constructor(configs?: Config[]);
     setConfig(...configs: Config[]): void;
     findConfigById(id: ConfigId): Config;
     isConfigExist(id: ConfigId): boolean;
+    collect(): ConfigStoreState;
+    restore(state: ConfigStoreState): void;
     reset(): void;
 }
 export declare function isConfigsIdsEqual(configId1: ConfigId, configId2: ConfigId): boolean;

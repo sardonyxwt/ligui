@@ -1,5 +1,6 @@
 import { observable, action } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
+import { Repository } from '../service/repository.service';
 
 export interface ModuleId {
     readonly key: string;
@@ -11,19 +12,19 @@ export interface Module<T = any> {
     readonly body: T;
 }
 
-export interface ModuleStore {
+export interface ModuleStoreState {
     readonly modules: Module[];
+}
 
+export interface ModuleStore extends ModuleStoreState {
     setModule(...modules: Module[]): void;
 
     findModuleById<T>(id: ModuleId): Module<T>;
 
     isModuleExist(id: ModuleId): boolean;
-
-    reset(): void;
 }
 
-export class ModuleStoreImpl implements ModuleStore {
+export class ModuleStoreImpl implements ModuleStore, Repository<ModuleStoreState> {
 
     @observable.shallow readonly modules: Module[] = [];
 
@@ -44,6 +45,17 @@ export class ModuleStoreImpl implements ModuleStore {
 
     isModuleExist(id: ModuleId): boolean {
         return !!this.findModuleById(id);
+    }
+
+    collect(): ModuleStoreState {
+        return {
+            modules: this.modules
+        };
+    }
+
+    restore(state: ModuleStoreState): void {
+        this.modules.splice(0, this.modules.length);
+        this.modules.push(...state.modules);
     }
 
     reset(): void {
