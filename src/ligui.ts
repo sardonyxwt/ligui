@@ -36,7 +36,7 @@ import {
 } from './service/internationalization.service';
 import { ConfigService, ConfigServiceImpl, ConfigLoader } from './service/config.service';
 import { ModuleLoader, ModuleService, ModuleServiceImpl } from './service/module.service';
-import { RepositoryService, RepositoryServiceImpl } from './service/repository.service';
+import { Repository, RepositoryService, RepositoryServiceImpl } from './service/repository.service';
 
 import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';
@@ -156,45 +156,21 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
     context.container.bind<Store>(LIGUI_TYPES.STORE).toConstantValue(context.store);
 
     context.container.bind<ModuleStore>(LIGUI_TYPES.MODULE_STORE)
-        .toDynamicValue(() => {
-            const store = new ModuleStoreImpl(config.modules);
-            context.container.get<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE).subscribe(
-                LIGUI_TYPES.MODULE_STORE, store
-            );
-            return store;
-        })
+        .toDynamicValue(() => new ModuleStoreImpl(config.modules))
         .inSingletonScope();
     context.container.bind<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE)
-        .toDynamicValue(() => {
-            const store = new ResourceStoreImpl(config.resources);
-            context.container.get<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE).subscribe(
-                LIGUI_TYPES.RESOURCE_STORE, store
-            );
-            return store;
-        })
+        .toDynamicValue(() => new ResourceStoreImpl(config.resources))
         .inSingletonScope();
     context.container.bind<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE)
-        .toDynamicValue(() => {
-            const store = new InternationalizationStoreImpl(
-                config.locales,
-                config.currentLocale,
-                config.defaultLocale,
-                config.translateUnits
-            );
-            context.container.get<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE).subscribe(
-                LIGUI_TYPES.INTERNATIONALIZATION_STORE, store
-            );
-            return store;
-        })
+        .toDynamicValue(() => new InternationalizationStoreImpl(
+            config.locales,
+            config.currentLocale,
+            config.defaultLocale,
+            config.translateUnits
+        ))
         .inSingletonScope();
     context.container.bind<ConfigStore>(LIGUI_TYPES.CONFIG_STORE)
-        .toDynamicValue(() => {
-            const store = new ConfigStoreImpl(config.configs);
-            context.container.get<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE).subscribe(
-                LIGUI_TYPES.CONFIG_STORE, store
-            );
-            return store;
-        })
+        .toDynamicValue(() => new ConfigStoreImpl(config.configs))
         .inSingletonScope();
 
     context.container.bind<JSXService>(LIGUI_TYPES.JSX_SERVICE)
@@ -225,7 +201,26 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         ))
         .inSingletonScope();
     context.container.bind<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE)
-        .toDynamicValue(() => new RepositoryServiceImpl())
+        .toDynamicValue(() => {
+            const repository = new RepositoryServiceImpl();
+            repository.subscribe(
+                LIGUI_TYPES.CONFIG_STORE,
+                context.container.get<ConfigStore>(LIGUI_TYPES.CONFIG_STORE) as Repository
+            );
+            repository.subscribe(
+                LIGUI_TYPES.INTERNATIONALIZATION_STORE,
+                context.container.get<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE) as Repository
+            );
+            repository.subscribe(
+                LIGUI_TYPES.MODULE_STORE,
+                context.container.get<ModuleStore>(LIGUI_TYPES.MODULE_STORE) as Repository
+            );
+            repository.subscribe(
+                LIGUI_TYPES.RESOURCE_STORE,
+                context.container.get<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE) as Repository
+            );
+            return repository;
+        })
         .inSingletonScope();
 
     const ligui: Ligui = {
