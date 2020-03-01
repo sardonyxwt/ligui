@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx';
+import { observable, action, toJS } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
 import { Repository } from '../service/repository.service';
 
@@ -53,7 +53,7 @@ export class ConfigStoreImpl implements ConfigStore {
 
     collect(): ConfigStoreState {
         return {
-            configs: this.configs
+            configs: toJS(this.configs)
         };
     }
 

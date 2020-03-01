@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx';
+import { observable, action, toJS } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
 import { Repository } from '../service/repository.service';
 
@@ -49,7 +49,7 @@ export class ModuleStoreImpl implements ModuleStore {
 
     collect(): ModuleStoreState {
         return {
-            modules: this.modules
+            modules: toJS(this.modules)
         };
     }
 

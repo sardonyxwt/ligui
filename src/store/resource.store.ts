@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx';
+import { observable, action, toJS } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
 import { Repository } from '../service/repository.service';
 
@@ -49,7 +49,7 @@ export class ResourceStoreImpl implements ResourceStore {
 
     collect(): ResourceStoreState {
         return {
-            resources: this.resources
+            resources: toJS(this.resources)
         };
     }
 

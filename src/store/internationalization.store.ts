@@ -1,4 +1,4 @@
-import { observable, action, computed } from 'mobx';
+import { observable, action, computed, toJS } from 'mobx';
 import { saveToArray } from '@sardonyxwt/utils/object';
 import { Repository } from '../service/repository.service';
 
@@ -91,10 +91,10 @@ export class InternationalizationStoreImpl implements InternationalizationStore 
 
     collect(): InternationalizationStoreState {
         return {
-            locales: this.locales,
-            currentLocale: this._currentLocale,
-            defaultLocale: this._defaultLocale,
-            translateUnits: this.translateUnits
+            locales: toJS(this.locales),
+            currentLocale: toJS(this._currentLocale),
+            defaultLocale: toJS(this._defaultLocale),
+            translateUnits: toJS(this.translateUnits)
         }
     }
 
