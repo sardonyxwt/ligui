@@ -16,7 +16,7 @@ export interface ModuleStoreState {
     readonly modules: Module[];
 }
 
-export interface ModuleStore extends ModuleStoreState {
+export interface ModuleStore extends ModuleStoreState, Repository<ModuleStoreState> {
     setModule(...modules: Module[]): void;
 
     findModuleById<T>(id: ModuleId): Module<T>;
@@ -24,7 +24,7 @@ export interface ModuleStore extends ModuleStoreState {
     isModuleExist(id: ModuleId): boolean;
 }
 
-export class ModuleStoreImpl implements ModuleStore, Repository<ModuleStoreState> {
+export class ModuleStoreImpl implements ModuleStore {
 
     @observable.shallow readonly modules: Module[] = [];
 

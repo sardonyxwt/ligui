@@ -201,26 +201,7 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         ))
         .inSingletonScope();
     context.container.bind<RepositoryService>(LIGUI_TYPES.REPOSITORY_SERVICE)
-        .toDynamicValue(() => {
-            const repository = new RepositoryServiceImpl();
-            repository.subscribe(
-                LIGUI_TYPES.CONFIG_STORE,
-                context.container.get<ConfigStore>(LIGUI_TYPES.CONFIG_STORE) as Repository
-            );
-            repository.subscribe(
-                LIGUI_TYPES.INTERNATIONALIZATION_STORE,
-                context.container.get<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE) as Repository
-            );
-            repository.subscribe(
-                LIGUI_TYPES.MODULE_STORE,
-                context.container.get<ModuleStore>(LIGUI_TYPES.MODULE_STORE) as Repository
-            );
-            repository.subscribe(
-                LIGUI_TYPES.RESOURCE_STORE,
-                context.container.get<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE) as Repository
-            );
-            return repository;
-        })
+        .toDynamicValue(() => new RepositoryServiceImpl())
         .inSingletonScope();
 
     const ligui: Ligui = {

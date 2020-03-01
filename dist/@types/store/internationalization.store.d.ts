@@ -23,7 +23,7 @@ export interface InternationalizationStore extends InternationalizationStoreStat
     isLocaleExist(locale: string): boolean;
     isTranslateUnitExist(id: TranslateUnitId): boolean;
 }
-export declare class InternationalizationStoreImpl implements InternationalizationStore, Repository<InternationalizationStoreState> {
+export declare class InternationalizationStoreImpl implements InternationalizationStore {
     private _currentLocale;
     private _defaultLocale;
     readonly locales: string[];

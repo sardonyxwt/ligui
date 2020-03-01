@@ -33,7 +33,7 @@ export interface InternationalizationStore extends InternationalizationStoreStat
     isTranslateUnitExist(id: TranslateUnitId): boolean;
 }
 
-export class InternationalizationStoreImpl implements InternationalizationStore, Repository<InternationalizationStoreState> {
+export class InternationalizationStoreImpl implements InternationalizationStore {
 
     @observable private _currentLocale: string = null;
     @observable private _defaultLocale: string = null;

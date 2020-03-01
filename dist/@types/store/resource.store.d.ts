@@ -10,12 +10,12 @@ export interface Resource<T = any> {
 export interface ResourceStoreState {
     readonly resources: Resource[];
 }
-export interface ResourceStore extends ResourceStoreState {
+export interface ResourceStore extends ResourceStoreState, Repository<ResourceStoreState> {
     setResource(...resources: Resource[]): void;
     findResourceById<T>(id: ResourceId): Resource<T>;
     isResourceExist(id: ResourceId): boolean;
 }
-export declare class ResourceStoreImpl implements ResourceStore, Repository<ResourceStoreState> {
+export declare class ResourceStoreImpl implements ResourceStore {
     readonly resources: Resource[];
     constructor(resources?: Resource[]);
     setResource(...resources: Resource[]): void;

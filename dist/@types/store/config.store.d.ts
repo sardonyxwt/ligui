@@ -13,12 +13,12 @@ export interface Config {
 export interface ConfigStoreState {
     readonly configs: Config[];
 }
-export interface ConfigStore extends ConfigStoreState {
+export interface ConfigStore extends ConfigStoreState, Repository<ConfigStoreState> {
     setConfig(...configs: Config[]): void;
     findConfigById(id: ConfigId): Config;
     isConfigExist(id: ConfigId): boolean;
 }
-export declare class ConfigStoreImpl implements ConfigStore, Repository<ConfigStoreState> {
+export declare class ConfigStoreImpl implements ConfigStore {
     readonly configs: Config[];
     constructor(configs?: Config[]);
     setConfig(...configs: Config[]): void;

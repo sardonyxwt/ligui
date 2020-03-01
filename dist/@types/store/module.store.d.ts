@@ -10,12 +10,12 @@ export interface Module<T = any> {
 export interface ModuleStoreState {
     readonly modules: Module[];
 }
-export interface ModuleStore extends ModuleStoreState {
+export interface ModuleStore extends ModuleStoreState, Repository<ModuleStoreState> {
     setModule(...modules: Module[]): void;
     findModuleById<T>(id: ModuleId): Module<T>;
     isModuleExist(id: ModuleId): boolean;
 }
-export declare class ModuleStoreImpl implements ModuleStore, Repository<ModuleStoreState> {
+export declare class ModuleStoreImpl implements ModuleStore {
     readonly modules: Module[];
     constructor(modules?: Module[]);
     setModule(...modules: Module[]): void;

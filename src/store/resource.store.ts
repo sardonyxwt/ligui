@@ -16,7 +16,7 @@ export interface ResourceStoreState {
     readonly resources: Resource[];
 }
 
-export interface ResourceStore extends ResourceStoreState {
+export interface ResourceStore extends ResourceStoreState, Repository<ResourceStoreState> {
     setResource(...resources: Resource[]): void;
 
     findResourceById<T>(id: ResourceId): Resource<T>;
@@ -24,7 +24,7 @@ export interface ResourceStore extends ResourceStoreState {
     isResourceExist(id: ResourceId): boolean;
 }
 
-export class ResourceStoreImpl implements ResourceStore, Repository<ResourceStoreState> {
+export class ResourceStoreImpl implements ResourceStore {
 
     @observable.shallow readonly resources: Resource[] = [];
 

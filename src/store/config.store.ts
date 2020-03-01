@@ -20,7 +20,7 @@ export interface ConfigStoreState {
     readonly configs: Config[];
 }
 
-export interface ConfigStore extends ConfigStoreState {
+export interface ConfigStore extends ConfigStoreState, Repository<ConfigStoreState> {
     setConfig(...configs: Config[]): void;
 
     findConfigById(id: ConfigId): Config;
@@ -28,7 +28,7 @@ export interface ConfigStore extends ConfigStoreState {
     isConfigExist(id: ConfigId): boolean;
 }
 
-export class ConfigStoreImpl implements ConfigStore, Repository<ConfigStoreState> {
+export class ConfigStoreImpl implements ConfigStore {
 
     @observable.shallow readonly configs: Config[] = [];
 
