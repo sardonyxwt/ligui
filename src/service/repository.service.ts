@@ -34,7 +34,7 @@ export class RepositoryServiceImpl implements RepositoryService {
     collect(): {[id: string]: any} {
         const result = {};
         this._repository.forEach((subscriber, id) => {
-            const state = subscriber?.collect();
+            const state = subscriber.collect?.();
             if (state) {
                 result[id] = state;
             }
@@ -43,20 +43,23 @@ export class RepositoryServiceImpl implements RepositoryService {
     }
 
     reset(): void {
-        this._repository.forEach(subscriber => subscriber?.reset())
+        this._repository.forEach(subscriber => subscriber.reset?.())
     }
 
     restore(restoredStates: {[id: string]: any}): void {
         Object.getOwnPropertyNames(restoredStates).forEach(id => {
             const restoredState = restoredStates[id];
-            if (this._repository.has(id)) {
-                this._repository.get(id).restore(restoredState);
-            }
+            this._repository.has(id)
+                ? this._repository.get(id).restore?.(restoredState)
+                : this._states.set(id, restoredState);
         });
     }
 
     subscribe(id: string, subscriber: Repository): void {
         this._repository.set(id, subscriber);
+        if (this._states.has(id)) {
+            subscriber.restore?.(this._states.get(id));
+        }
     }
 
 }
