@@ -36,7 +36,7 @@ import {
 } from './service/internationalization.service';
 import { ConfigService, ConfigServiceImpl, ConfigLoader } from './service/config.service';
 import { ModuleLoader, ModuleService, ModuleServiceImpl } from './service/module.service';
-import { Repository, RepositoryService, RepositoryServiceImpl } from './service/repository.service';
+import { RepositoryService, RepositoryServiceImpl } from './service/repository.service';
 
 import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';

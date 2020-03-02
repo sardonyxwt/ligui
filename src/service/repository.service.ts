@@ -8,8 +8,8 @@ export interface RepositoryService {
     get<T>(id: string): T;
     set<T>(id: string, state: T);
     delete(id: string): void;
-    collect(): Map<string, any>;
-    restore(states: Map<string, any>): void;
+    collect(): {[id: string]: any};
+    restore(restoredStates: {[id: string]: any}): void;
     reset(): void;
     subscribe<T>(id: string, subscriber: Repository<T>): void;
 }
@@ -31,12 +31,12 @@ export class RepositoryServiceImpl implements RepositoryService {
         this._states.delete(id);
     }
 
-    collect(): Map<string, any> {
-        const result = new Map<string, any>();
+    collect(): {[id: string]: any} {
+        const result = {};
         this._repository.forEach((subscriber, id) => {
             const state = subscriber?.collect();
             if (state) {
-                result.set(id, state);
+                result[id] = state;
             }
         });
         return result;
@@ -46,10 +46,11 @@ export class RepositoryServiceImpl implements RepositoryService {
         this._repository.forEach(subscriber => subscriber?.reset())
     }
 
-    restore(states: Map<string, any>): void {
-        states.forEach((state, id) => {
+    restore(restoredStates: {[id: string]: any}): void {
+        Object.getOwnPropertyNames(restoredStates).forEach(id => {
+            const restoredState = restoredStates[id];
             if (this._repository.has(id)) {
-                this._repository.get(id)?.restore(state);
+                this._repository.get(id).restore(restoredState);
             }
         });
     }
