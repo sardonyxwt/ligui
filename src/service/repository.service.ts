@@ -11,7 +11,7 @@ export interface RepositoryService {
     collect(): {[id: string]: any};
     restore(restoredStates: {[id: string]: any}): void;
     reset(): void;
-    subscribe<T>(id: string, subscriber: Repository<T>): void;
+    registerRepository<T>(id: string, repository: Repository<T>): void;
 }
 
 export class RepositoryServiceImpl implements RepositoryService {
@@ -33,8 +33,8 @@ export class RepositoryServiceImpl implements RepositoryService {
 
     collect(): {[id: string]: any} {
         const result = {};
-        this._repository.forEach((subscriber, id) => {
-            const state = subscriber.collect?.();
+        this._repository.forEach((repository, id) => {
+            const state = repository.collect?.();
             if (state) {
                 result[id] = state;
             }
@@ -43,7 +43,7 @@ export class RepositoryServiceImpl implements RepositoryService {
     }
 
     reset(): void {
-        this._repository.forEach(subscriber => subscriber.reset?.())
+        this._repository.forEach(repository => repository.reset?.())
     }
 
     restore(restoredStates: {[id: string]: any}): void {
@@ -55,10 +55,10 @@ export class RepositoryServiceImpl implements RepositoryService {
         });
     }
 
-    subscribe(id: string, subscriber: Repository): void {
-        this._repository.set(id, subscriber);
+    registerRepository(id: string, repository: Repository): void {
+        this._repository.set(id, repository);
         if (this._states.has(id)) {
-            subscriber.restore?.(this._states.get(id));
+            repository.restore?.(this._states.get(id));
         }
     }
 
