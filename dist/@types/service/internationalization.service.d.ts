@@ -2,7 +2,7 @@ import { InternationalizationStore, TranslateUnit, TranslateUnitData, TranslateU
 export declare type Translator = <T = string>(key: string, defaultValue?: T) => T;
 export interface TranslateUnitLoader {
     readonly context?: string;
-    readonly loader: (key: string, locale: string) => Promise<TranslateUnitData>;
+    readonly loader: (key: string, locale: string) => TranslateUnitData | Promise<TranslateUnitData>;
 }
 export interface TranslateUnitPromise {
     readonly id: TranslateUnitId;
@@ -10,7 +10,7 @@ export interface TranslateUnitPromise {
 }
 export interface InternationalizationService {
     registerTranslateUnitLoader(loader: TranslateUnitLoader): void;
-    loadTranslateUnit(id: TranslateUnitId): Promise<TranslateUnit>;
+    loadTranslateUnit(id: TranslateUnitId): TranslateUnit | Promise<TranslateUnit>;
     getTranslator(context: string, locale?: string): Translator;
 }
 export declare class InternationalizationServiceImpl implements InternationalizationService {
@@ -19,7 +19,7 @@ export declare class InternationalizationServiceImpl implements Internationaliza
     private _translateUnitPromises;
     constructor(_store: InternationalizationStore, _translateUnitLoaders?: TranslateUnitLoader[]);
     registerTranslateUnitLoader(loader: TranslateUnitLoader): void;
-    loadTranslateUnit(id: TranslateUnitId): Promise<TranslateUnit>;
+    loadTranslateUnit(id: TranslateUnitId): TranslateUnit | Promise<TranslateUnit>;
     getTranslator(context: string, locale?: string): Translator;
 }
 //# sourceMappingURL=internationalization.service.d.ts.map
