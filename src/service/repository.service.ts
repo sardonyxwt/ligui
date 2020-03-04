@@ -69,13 +69,13 @@ export class RepositoryServiceImpl implements RepositoryService {
         } = config;
         const repositoryProxy: Repository = {};
         if (activeCollect) {
-            repositoryProxy.collect = () => repository.collect();
+            repositoryProxy.collect = () => repository.collect?.();
         }
         if (activeRestore) {
-            repositoryProxy.restore = (state) => repository.restore(state);
+            repositoryProxy.restore = (state) => repository.restore?.(state);
         }
         if (activeReset) {
-            repositoryProxy.reset = () => repository.reset();
+            repositoryProxy.reset = () => repository.reset?.();
         }
         this._repositories.set(id, repositoryProxy);
         if (this._states.has(id)) {
