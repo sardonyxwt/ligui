@@ -3,7 +3,7 @@ import { Config, ConfigData, ConfigId, ConfigStore, isConfigsIdsEqual } from '..
 
 export interface ConfigLoader {
     readonly context?: string;
-    readonly loader: (key: string) => Promise<ConfigData>;
+    readonly loader: (key: string) => ConfigData | Promise<ConfigData>;
 }
 
 export interface ConfigPromise {
@@ -13,7 +13,7 @@ export interface ConfigPromise {
 
 export interface ConfigService {
     registerConfigLoader(loader: ConfigLoader): void;
-    loadConfig(id: ConfigId): Promise<Config>;
+    loadConfig(id: ConfigId): Config | Promise<Config>;
 }
 
 export class ConfigServiceImpl implements ConfigService {
@@ -25,12 +25,16 @@ export class ConfigServiceImpl implements ConfigService {
     }
 
     registerConfigLoader(loader: ConfigLoader) {
-        deleteFromArray(this._configPromises, modulePromise => modulePromise.id.context === loader.context);
-        saveToArray(this._configLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
+        deleteFromArray(this._configPromises, configPromise => configPromise.id.context === loader.context);
+        saveToArray(this._configLoaders, loader, configLoader => configLoader.context === loader.context);
     }
 
-    loadConfig(id: ConfigId): Promise<Config> {
+    loadConfig(id: ConfigId): Config | Promise<Config> {
         const {_configPromises, _configLoaders, _store} = this;
+
+        if (_store.isConfigExist(id)) {
+            return _store.findConfigById(id);
+        }
 
         const configPromise = _configPromises.find(it => isConfigsIdsEqual(id, it.id));
 
@@ -38,31 +42,35 @@ export class ConfigServiceImpl implements ConfigService {
             return configPromise.promise;
         }
 
-        if (_store.isConfigExist(id)) {
-            const newConfigDataPromise: ConfigPromise = {
-                id, promise: Promise.resolve(_store.findConfigById(id))
-            };
-            _configPromises.push(newConfigDataPromise);
-            return newConfigDataPromise.promise;
-        }
-
         const configLoader = _configLoaders.find(loader => loader.context === id.context);
 
         if (!configLoader) {
-            throw new Error(`ConfigData loader for key ${JSON.stringify(id)} not found`);
+            throw new Error(`Config loader for key ${JSON.stringify(id)} not found`);
         }
 
-        const newConfigPromise: ConfigPromise = {
-            id, promise: configLoader.loader(id.key).then(configData => {
-                const config: Config = {id, data: configData};
-                _store.setConfig(config);
-                return config;
-            })
+        const configData = configLoader.loader(id.key);
+
+        const resolveConfig = (configData: ConfigData): Config => {
+            const config: Config = {id, data: configData};
+            _store.setConfig(config);
+            return config;
         };
 
-        _configPromises.push(newConfigPromise);
+        if (configData instanceof Promise) {
+            const newConfigPromise: ConfigPromise = {
+                id, promise: configData.then(resolveConfig)
+            };
 
-        return newConfigPromise.promise;
+            newConfigPromise.promise.then(() => deleteFromArray(
+                this._configPromises,
+                configPromise => isConfigsIdsEqual(configPromise.id, id)
+            ));
+
+            _configPromises.push(newConfigPromise);
+            return newConfigPromise.promise;
+        }
+
+        return resolveConfig(configData);
     }
 
 }

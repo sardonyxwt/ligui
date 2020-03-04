@@ -51,22 +51,24 @@ export const createTranslatorHook = (
 
     const internationalizationContext = context || React.useContext(InternationalizationKeyContext);
 
-    const buildId = (): TranslateUnitId => ({
-        key: translateUnitKey, context: internationalizationContext, locale: internationalizationStore.currentLocale
-    });
+    const id: TranslateUnitId = {
+        key: translateUnitKey,
+        context: internationalizationContext,
+        locale: internationalizationStore.currentLocale
+    };
 
-    function getTranslator(): Translator {
-        const translator = internationalizationService.getTranslator(
-            internationalizationContext,
-            internationalizationStore.currentLocale
-        );
-
+    const getTranslator = (): Translator =>  {
+        const translator = internationalizationService.getTranslator(internationalizationContext);
         return <T = string>(key: string, defaultValue?: T) => translator<T>(`${translateUnitKey}.${key}`, defaultValue);
-    }
+    };
 
-    function prepareTranslator() {
-        return internationalizationStore.isTranslateUnitExist(buildId()) ? getTranslator() : null;
-    }
+    const prepareTranslator = () => {
+        if (internationalizationStore.isTranslateUnitExist(id)) {
+            return getTranslator();
+        }
+        const translateUnit = internationalizationService.loadTranslateUnit(id);
+        return translateUnit instanceof Promise ? null : getTranslator();
+    };
 
     const [translator, setTranslator] = React.useState<Translator>(prepareTranslator);
 
@@ -74,7 +76,7 @@ export const createTranslatorHook = (
         if (translator) {
             return;
         }
-        internationalizationService.loadTranslateUnit(buildId());
+        internationalizationService.loadTranslateUnit(id);
     }, [translator]);
 
     React.useEffect(() => reaction(

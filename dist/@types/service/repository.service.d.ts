@@ -3,6 +3,11 @@ export interface Repository<T = any> {
     restore?(state: T): void;
     reset?(): void;
 }
+export interface RepositoryConfig {
+    activeCollect?: boolean;
+    activeRestore?: boolean;
+    activeReset?: boolean;
+}
 export interface RepositoryService {
     get<T>(id: string): T;
     set<T>(id: string, state: T): any;
@@ -14,11 +19,11 @@ export interface RepositoryService {
         [id: string]: any;
     }): void;
     reset(): void;
-    subscribe<T>(id: string, subscriber: Repository<T>): void;
+    registerRepository<T>(id: string, repository: Repository<T>, config?: RepositoryConfig): void;
 }
 export declare class RepositoryServiceImpl implements RepositoryService {
     private readonly _states;
-    private readonly _repository;
+    private readonly _repositories;
     get<T>(id: string): T;
     set<T>(id: string, state: T): void;
     delete(id: string): void;
@@ -29,6 +34,6 @@ export declare class RepositoryServiceImpl implements RepositoryService {
     restore(restoredStates: {
         [id: string]: any;
     }): void;
-    subscribe(id: string, subscriber: Repository): void;
+    registerRepository(id: string, repository: Repository, config?: RepositoryConfig): void;
 }
 //# sourceMappingURL=repository.service.d.ts.map

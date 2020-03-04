@@ -4,6 +4,12 @@ export interface Repository<T = any> {
     reset?(): void;
 }
 
+export interface RepositoryConfig {
+    activeCollect?: boolean;
+    activeRestore?: boolean;
+    activeReset?: boolean;
+}
+
 export interface RepositoryService {
     get<T>(id: string): T;
     set<T>(id: string, state: T);
@@ -11,13 +17,13 @@ export interface RepositoryService {
     collect(): {[id: string]: any};
     restore(restoredStates: {[id: string]: any}): void;
     reset(): void;
-    registerRepository<T>(id: string, repository: Repository<T>): void;
+    registerRepository<T>(id: string, repository: Repository<T>, config?: RepositoryConfig): void;
 }
 
 export class RepositoryServiceImpl implements RepositoryService {
 
     private readonly _states = new Map<string, any>();
-    private readonly _repository = new Map<string, Repository>();
+    private readonly _repositories = new Map<string, Repository>();
 
     get<T>(id: string): T {
         return this._states.get(id);
@@ -33,7 +39,7 @@ export class RepositoryServiceImpl implements RepositoryService {
 
     collect(): {[id: string]: any} {
         const result = {};
-        this._repository.forEach((repository, id) => {
+        this._repositories.forEach((repository, id) => {
             const state = repository.collect?.();
             if (state) {
                 result[id] = state;
@@ -43,22 +49,37 @@ export class RepositoryServiceImpl implements RepositoryService {
     }
 
     reset(): void {
-        this._repository.forEach(repository => repository.reset?.())
+        this._repositories.forEach(repository => repository.reset?.())
     }
 
     restore(restoredStates: {[id: string]: any}): void {
         Object.getOwnPropertyNames(restoredStates).forEach(id => {
             const restoredState = restoredStates[id];
-            this._repository.has(id)
-                ? this._repository.get(id).restore?.(restoredState)
+            this._repositories.has(id)
+                ? this._repositories.get(id).restore?.(restoredState)
                 : this._states.set(id, restoredState);
         });
     }
 
-    registerRepository(id: string, repository: Repository): void {
-        this._repository.set(id, repository);
+    registerRepository(id: string, repository: Repository, config: RepositoryConfig = {}): void {
+        const {
+            activeCollect = true,
+            activeRestore = true,
+            activeReset = true
+        } = config;
+        const repositoryProxy: Repository = {};
+        if (activeCollect) {
+            repositoryProxy.collect = repository.collect;
+        }
+        if (activeRestore) {
+            repositoryProxy.restore = repository.restore;
+        }
+        if (activeReset) {
+            repositoryProxy.reset = repository.reset;
+        }
+        this._repositories.set(id, repositoryProxy);
         if (this._states.has(id)) {
-            repository.restore?.(this._states.get(id));
+            repositoryProxy.restore?.(this._states.get(id));
         }
     }
 

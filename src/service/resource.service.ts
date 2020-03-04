@@ -3,7 +3,7 @@ import { isResourcesIdsEqual, Resource, ResourceId, ResourceStore } from '../sto
 
 export interface ResourceLoader {
     readonly context?: string;
-    readonly loader: (key: string) => Promise<any>;
+    readonly loader: (key: string) => Resource | Promise<any>;
 }
 
 export interface ResourcePromise {
@@ -13,7 +13,7 @@ export interface ResourcePromise {
 
 export interface ResourceService {
     registerResourceLoader(loader: ResourceLoader): void;
-    loadResource(id: ResourceId): Promise<Resource>;
+    loadResource(id: ResourceId): Resource | Promise<Resource>;
 }
 
 export class ResourceServiceImpl implements ResourceService {
@@ -29,8 +29,12 @@ export class ResourceServiceImpl implements ResourceService {
         saveToArray(this._resourceLoaders, loader, resourceLoader => resourceLoader.context === loader.context);
     }
 
-    loadResource(id: ResourceId): Promise<Resource> {
+    loadResource(id: ResourceId): Resource | Promise<Resource> {
         const {_resourcePromises, _resourceLoaders, _store} = this;
+
+        if (_store.isResourceExist(id)) {
+            return _store.findResourceById(id);
+        }
 
         const resourcePromise = _resourcePromises.find(it => isResourcesIdsEqual(id, it.id));
 
@@ -38,31 +42,35 @@ export class ResourceServiceImpl implements ResourceService {
             return resourcePromise.promise;
         }
 
-        if (_store.isResourceExist(id)) {
+        const resourceLoader = _resourceLoaders.find(loader => loader.context === id.context);
+
+        if (!resourceLoader) {
+            throw new Error(`Resource loader for key ${JSON.stringify(id)} not found`);
+        }
+
+        const resourceData = resourceLoader.loader(id.key);
+
+        const resolveResource = (resourceData: any): Resource => {
+            const resource: Resource = {id, data: resourceData};
+            _store.setResource(resource);
+            return resource;
+        };
+
+        if (resourceData instanceof Promise) {
             const newResourcePromise: ResourcePromise = {
-                id, promise: Promise.resolve(_store.findResourceById(id))
+                id, promise: resourceData.then(resolveResource)
             };
+
+            newResourcePromise.promise.then(() => deleteFromArray(
+                this._resourcePromises,
+                resourcePromise => isResourcesIdsEqual(resourcePromise.id, id)
+            ));
+
             _resourcePromises.push(newResourcePromise);
             return newResourcePromise.promise;
         }
 
-        const resourceLoader = _resourceLoaders.find(loader => loader.context === id.context);
-
-        if (!resourceLoader) {
-            throw new Error(`ResourceData loader for key ${JSON.stringify(id)} not found`);
-        }
-
-        const newResourcePromise: ResourcePromise = {
-            id, promise: resourceLoader.loader(id.key).then(resourceData => {
-                const resource: Resource = {id, data: resourceData};
-                _store.setResource(resource);
-                return resource;
-            })
-        };
-
-        _resourcePromises.push(newResourcePromise);
-
-        return newResourcePromise.promise;
+        return resolveResource(resourceData);
     }
 
 }

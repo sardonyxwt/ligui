@@ -14,13 +14,13 @@ export { ModuleKeyContext };
 
 export const createModuleHook = (
     container: Container
-) => <T = any>(key: string, context?: string): T => {
+) => <T = any>(
+    key: string, context?: string
+): T => {
     const moduleStore = container.get<ModuleStore>(LIGUI_TYPES.MODULE_STORE);
     const moduleService = container.get<ModuleService>(LIGUI_TYPES.MODULE_SERVICE);
 
-    const moduleKeyContext = React.useContext(ModuleKeyContext);
-
-    const moduleContext = context || moduleKeyContext;
+    const moduleContext = context || React.useContext(ModuleKeyContext);
 
     const id: ModuleId = {key, context: moduleContext};
 
@@ -28,16 +28,20 @@ export const createModuleHook = (
         if (moduleStore.isModuleExist(id)) {
             return moduleStore.findModuleById<T>(id).body;
         }
-        return null;
+        const module = moduleService.loadModule(id);
+        return module instanceof Promise ? null : module.body as T;
     };
 
     const [module, setModule] = React.useState<T>(prepareModuleBody);
 
     React.useEffect(() => {
-        if (!module) {
-            moduleService.loadModule(id).then(() => setModule(prepareModuleBody));
+        if (module) {
+            return;
         }
-    }, []);
+        Promise.resolve(moduleService.loadModule(id)).then(
+            module => setModule(() => module.body)
+        );
+    }, [module]);
 
     return module;
 };

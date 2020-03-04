@@ -1,7 +1,7 @@
 import { Resource, ResourceId, ResourceStore } from '../store/resource.store';
 export interface ResourceLoader {
     readonly context?: string;
-    readonly loader: (key: string) => Promise<any>;
+    readonly loader: (key: string) => Resource | Promise<any>;
 }
 export interface ResourcePromise {
     readonly id: ResourceId;
@@ -9,7 +9,7 @@ export interface ResourcePromise {
 }
 export interface ResourceService {
     registerResourceLoader(loader: ResourceLoader): void;
-    loadResource(id: ResourceId): Promise<Resource>;
+    loadResource(id: ResourceId): Resource | Promise<Resource>;
 }
 export declare class ResourceServiceImpl implements ResourceService {
     protected _store: ResourceStore;
@@ -17,6 +17,6 @@ export declare class ResourceServiceImpl implements ResourceService {
     private _resourcePromises;
     constructor(_store: ResourceStore, _resourceLoaders?: ResourceLoader[]);
     registerResourceLoader(loader: ResourceLoader): void;
-    loadResource(id: ResourceId): Promise<Resource>;
+    loadResource(id: ResourceId): Resource | Promise<Resource>;
 }
 //# sourceMappingURL=resource.service.d.ts.map

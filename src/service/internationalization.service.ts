@@ -11,7 +11,7 @@ export type Translator = <T = string>(key: string, defaultValue?: T) => T;
 
 export interface TranslateUnitLoader {
     readonly context?: string;
-    readonly loader: (key: string, locale: string) => Promise<TranslateUnitData>;
+    readonly loader: (key: string, locale: string) => TranslateUnitData | Promise<TranslateUnitData>;
 }
 
 export interface TranslateUnitPromise {
@@ -21,7 +21,7 @@ export interface TranslateUnitPromise {
 
 export interface InternationalizationService {
     registerTranslateUnitLoader(loader: TranslateUnitLoader): void;
-    loadTranslateUnit(id: TranslateUnitId): Promise<TranslateUnit>;
+    loadTranslateUnit(id: TranslateUnitId): TranslateUnit | Promise<TranslateUnit>;
     getTranslator(context: string, locale?: string): Translator;
 }
 
@@ -34,25 +34,21 @@ export class InternationalizationServiceImpl implements InternationalizationServ
     }
 
     registerTranslateUnitLoader(loader: TranslateUnitLoader) {
-        deleteFromArray(this._translateUnitPromises, modulePromise => modulePromise.id.context === loader.context);
-        saveToArray(this._translateUnitLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
+        deleteFromArray(this._translateUnitPromises, translateUnitPromise => translateUnitPromise.id.context === loader.context);
+        saveToArray(this._translateUnitLoaders, loader, translateUnitLoader => translateUnitLoader.context === loader.context);
     }
 
-    loadTranslateUnit(id: TranslateUnitId): Promise<TranslateUnit> {
+    loadTranslateUnit(id: TranslateUnitId): TranslateUnit | Promise<TranslateUnit> {
         const {_translateUnitPromises, _translateUnitLoaders, _store} = this;
+
+        if (_store.isTranslateUnitExist(id)) {
+            return _store.findTranslateUnitById(id);
+        }
 
         const translateUnitPromise = _translateUnitPromises.find(it => isTranslateUnitsIdsEqual(id, it.id));
 
         if (translateUnitPromise) {
             return translateUnitPromise.promise;
-        }
-
-        if (_store.isTranslateUnitExist(id)) {
-            const newTranslateUnitPromise: TranslateUnitPromise = {
-                id, promise: Promise.resolve(_store.findTranslateUnitById(id))
-            };
-            _translateUnitPromises.push(newTranslateUnitPromise);
-            return newTranslateUnitPromise.promise;
         }
 
         const translateUnitLoader = _translateUnitLoaders.find(loader => loader.context === id.context);
@@ -61,19 +57,29 @@ export class InternationalizationServiceImpl implements InternationalizationServ
             throw new Error(`TranslateUnit loader for key ${JSON.stringify(id)} not found`);
         }
 
-        const newTranslateUnitPromise: TranslateUnitPromise = {
-            id, promise: translateUnitLoader.loader(id.key, id.locale)
-                .then(null, () => translateUnitLoader.loader(id.key, _store.defaultLocale))
-                .then(translateUnitData => {
-                    const translateUnit: TranslateUnit = {id, data: translateUnitData};
-                    _store.setTranslateUnit(translateUnit);
-                    return translateUnit;
-                })
+        const translateUnitData = translateUnitLoader.loader(id.key, id.locale) ?? translateUnitLoader.loader(id.key, _store.defaultLocale);
+
+        const resolveTranslateUnit = (translateUnitData: TranslateUnitData): TranslateUnit => {
+            const translateUnit: TranslateUnit = {id, data: translateUnitData};
+            _store.setTranslateUnit(translateUnit);
+            return translateUnit;
         };
 
-        _translateUnitPromises.push(newTranslateUnitPromise);
+        if (translateUnitData instanceof Promise) {
+            const newTranslateUnitPromise: TranslateUnitPromise = {
+                id, promise: translateUnitData.then(resolveTranslateUnit)
+            };
 
-        return newTranslateUnitPromise.promise;
+            newTranslateUnitPromise.promise.then(() => deleteFromArray(
+                this._translateUnitPromises,
+                translateUnitPromise => isTranslateUnitsIdsEqual(translateUnitPromise.id, id)
+            ));
+
+            _translateUnitPromises.push(newTranslateUnitPromise);
+            return newTranslateUnitPromise.promise;
+        }
+
+        return resolveTranslateUnit(translateUnitData);
     }
 
     getTranslator(context: string, locale?: string): Translator {
@@ -85,8 +91,10 @@ export class InternationalizationServiceImpl implements InternationalizationServ
             const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
 
             const translateUnitId: TranslateUnitId = {key, context, locale: locale || this._store.currentLocale};
+            const defaultTranslateUnitId: TranslateUnitId = {key, context, locale: this._store.defaultLocale};
 
-            let translateUnit = this._store.findTranslateUnitById(translateUnitId);
+            let translateUnit = this._store.findTranslateUnitById(translateUnitId)
+                ?? this._store.findTranslateUnitById(defaultTranslateUnitId);
 
             if (translateUnit === undefined) {
                 return defaultValue;

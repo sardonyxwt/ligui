@@ -28,16 +28,20 @@ export const createConfigHook = (
         if (configStore.isConfigExist(id)) {
             return configStore.findConfigById(id).data as T;
         }
-        return null;
+        const config = configService.loadConfig(id);
+        return config instanceof Promise ? null : config.data as T;
     };
 
     const [config, setConfig] = React.useState<T>(prepareConfigData);
 
     React.useEffect(() => {
-        if (!config) {
-            configService.loadConfig(id).then(() => setConfig(prepareConfigData));
+        if (config) {
+            return;
         }
-    }, []);
+        Promise.resolve(configService.loadConfig(id)).then(
+            config => setConfig(() => config.data as T)
+        );
+    }, [config]);
 
     return config;
 };
