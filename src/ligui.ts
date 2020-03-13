@@ -1,4 +1,4 @@
-import { Container, interfaces } from 'inversify';
+import { Container } from 'inversify';
 import {
     createStore,
     getState,
@@ -6,17 +6,14 @@ import {
     isStoreExist,
     setStoreDevTool,
     Store,
-    StoreConfig,
     StoreDevTool
 } from '@sardonyxwt/state-store';
 import {
     createEventBus,
-    EventBus,
-    EventBusConfig,
-    EventBusDevTool,
     getEventBus,
     isEventBusExist,
-    setEventBusDevTool
+    setEventBusDevTool,
+    EventBusDevTool, EventBus
 } from '@sardonyxwt/event-bus';
 
 import { LIGUI_TYPES } from './types';
@@ -40,19 +37,17 @@ import { RepositoryService, RepositoryServiceImpl } from './service/repository.s
 
 import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';
+import { useRef } from './hook/ref.hook';
 import { createStateHook } from './hook/state.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resource.hook';
 import {
     createDependenciesHook,
-    createDependencyHook,
-    ContainerKey
+    createDependencyHook
 } from './hook/dependency.hook';
 import {
     createI18nHook,
-    createTranslatorHook,
-    InternationalizationHookReturnType,
-    TranslatorHookReturnType
+    createTranslatorHook
 } from './hook/internationalization.hook';
 import { createConfigHook } from './hook/config.hook';
 
@@ -75,6 +70,7 @@ export * from './service/repository.service';
 
 export * from './hook/data.hook';
 export * from './hook/id.hook';
+export * from './hook/ref.hook';
 export * from './hook/state.hook';
 export * from './hook/dependency.hook';
 export * from './hook/internationalization.hook';
@@ -119,30 +115,31 @@ export interface Ligui {
     readonly repository: RepositoryService;
     readonly context: Context;
     readonly store: Store;
+    readonly eventBus: EventBus;
     readonly container: Container;
 
-    createStore(config: StoreConfig): Store;
-    isStoreExist(storeName: string): boolean;
-    getStore(storeName: string): Store;
-    getState(): {};
-    setStoreDevTool(devTool: Partial<StoreDevTool>): void;
-    createEventBus(config?: EventBusConfig): EventBus;
-    isEventBusExist(storeName: string): boolean;
-    getEventBus(scopeName: string): EventBus;
-    setEventBusDevTool(devTool: Partial<EventBusDevTool>): void;
+    createStore: typeof createStore;
+    isStoreExist: typeof isStoreExist;
+    getStore: typeof getStore;
+    getState: typeof getState;
+    setStoreDevTool: typeof setStoreDevTool;
 
-    useId: () => string;
-    useData: <T>(dataResolver: () => T,
-                 dataLoader?: () => Promise<T>,
-                 dataSync?: (cb: (newData: T) => void) => (() => void) | void) => T;
-    useState: <T = any>(scopeName: string, actions?: string[], retention?: number) => T;
-    useDependency: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T;
-    useDependencies: <T = any>(id: interfaces.ServiceIdentifier<T>, keyOrName?: ContainerKey, value?: any) => T[];
-    useModule: <T = any>(key: string, context?: string) => T;
-    useResource: <T = any>(key: string, context?: string) => T;
-    useI18n: () => InternationalizationHookReturnType;
-    useTranslator: (key: string, context?: string) => TranslatorHookReturnType;
-    useConfig: <T extends {}>(key: string, context?: string) => T;
+    createEventBus: typeof createEventBus;
+    isEventBusExist: typeof isEventBusExist;
+    getEventBus: typeof getEventBus;
+    setEventBusDevTool: typeof setEventBusDevTool;
+
+    useId: typeof useId;
+    useRef: typeof useRef;
+    useData: typeof useData;
+    useState: ReturnType<typeof createStateHook>;
+    useDependency: ReturnType<typeof createDependencyHook>;
+    useDependencies: ReturnType<typeof createDependenciesHook>;
+    useModule: ReturnType<typeof createModuleHook>;
+    useResource: ReturnType<typeof createResourceHook>;
+    useI18n: ReturnType<typeof createI18nHook>;
+    useTranslator: ReturnType<typeof createTranslatorHook>;
+    useConfig: ReturnType<typeof createConfigHook>;
 }
 
 export function createNewLiguiInstance(config: LiguiConfig): Ligui {
@@ -241,6 +238,9 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         get store() {
             return context.store;
         },
+        get eventBus() {
+            return context.eventBus;
+        },
         get container() {
             return context.container;
         },
@@ -257,6 +257,7 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         setEventBusDevTool: setEventBusDevTool,
 
         useId,
+        useRef,
         useData,
         useState: createStateHook(context.store),
         useModule: createModuleHook(context.container),
