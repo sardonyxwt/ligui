@@ -26,10 +26,10 @@ export const createConfigHook = (
 
     const prepareConfigData = () => {
         if (configStore.isConfigExist(id)) {
-            return configStore.findConfigById(id).data as T;
+            return configStore.findConfigById<T>(id).data;
         }
-        const config = configService.loadConfig(id);
-        return config instanceof Promise ? null : config.data as T;
+        const config = configService.loadConfig<T>(id);
+        return config instanceof Promise ? null : config.data;
     };
 
     const [config, setConfig] = React.useState<T>(prepareConfigData);
@@ -38,8 +38,8 @@ export const createConfigHook = (
         if (config) {
             return;
         }
-        Promise.resolve(configService.loadConfig(id)).then(
-            config => setConfig(() => config.data as T)
+        Promise.resolve(configService.loadConfig<T>(id)).then(
+            config => setConfig(() => config.data)
         );
     }, [config]);
 

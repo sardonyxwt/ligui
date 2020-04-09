@@ -13,7 +13,7 @@ export interface ConfigPromise {
 
 export interface ConfigService {
     registerConfigLoader(loader: ConfigLoader): void;
-    loadConfig(id: ConfigId): Config | Promise<Config>;
+    loadConfig<T extends ConfigData>(id: ConfigId): Config<T> | Promise<Config<T>>;
 }
 
 export class ConfigServiceImpl implements ConfigService {
@@ -29,7 +29,7 @@ export class ConfigServiceImpl implements ConfigService {
         saveToArray(this._configLoaders, loader, configLoader => configLoader.context === loader.context);
     }
 
-    loadConfig(id: ConfigId): Config | Promise<Config> {
+    loadConfig<T extends ConfigData>(id: ConfigId): Config<T> | Promise<Config<T>> {
         const {_configPromises, _configLoaders, _store} = this;
 
         if (_store.isConfigExist(id)) {
@@ -39,7 +39,7 @@ export class ConfigServiceImpl implements ConfigService {
         const configPromise = _configPromises.find(it => isConfigsIdsEqual(id, it.id));
 
         if (configPromise) {
-            return configPromise.promise;
+            return configPromise.promise as Promise<Config<T>>;
         }
 
         const configLoader = _configLoaders.find(loader => loader.context === id.context);
@@ -48,10 +48,10 @@ export class ConfigServiceImpl implements ConfigService {
             throw new Error(`Config loader for key ${JSON.stringify(id)} not found`);
         }
 
-        const configData = configLoader.loader(id.key);
+        const configData = configLoader.loader(id.key) as T;
 
-        const resolveConfig = (configData: ConfigData): Config => {
-            const config: Config = {id, data: configData};
+        const resolveConfig = (configData: T): Config<T> => {
+            const config: Config<T> = {id, data: configData};
             _store.setConfig(config);
             return config;
         };
@@ -67,7 +67,7 @@ export class ConfigServiceImpl implements ConfigService {
             ));
 
             _configPromises.push(newConfigPromise);
-            return newConfigPromise.promise;
+            return newConfigPromise.promise as Promise<Config<T>>;
         }
 
         return resolveConfig(configData);

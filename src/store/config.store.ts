@@ -11,9 +11,9 @@ export interface ConfigData {
     readonly [key: string]: string | number | boolean | string[] | number[] | boolean[] | ConfigData | ConfigData[];
 }
 
-export interface Config {
+export interface Config<T extends ConfigData = ConfigData> {
     readonly id: ConfigId;
-    readonly data: ConfigData;
+    readonly data: T;
 }
 
 export interface ConfigStoreState {
@@ -23,7 +23,7 @@ export interface ConfigStoreState {
 export interface ConfigStore extends ConfigStoreState, Repository<ConfigStoreState> {
     setConfig(...configs: Config[]): void;
 
-    findConfigById(id: ConfigId): Config;
+    findConfigById<T extends ConfigData = ConfigData>(id: ConfigId): Config<T>;
 
     isConfigExist(id: ConfigId): boolean;
 }
@@ -43,8 +43,8 @@ export class ConfigStoreImpl implements ConfigStore {
         ));
     }
 
-    findConfigById(id: ConfigId): Config {
-        return this.configs.find(config => isConfigsIdsEqual(config.id, id));
+    findConfigById<T extends ConfigData = ConfigData>(id: ConfigId): Config<T> {
+        return this.configs.find(config => isConfigsIdsEqual(config.id, id)) as Config<T>;
     }
 
     isConfigExist(id: ConfigId): boolean {

@@ -28,8 +28,8 @@ export const createModuleHook = (
         if (moduleStore.isModuleExist(id)) {
             return moduleStore.findModuleById<T>(id).body;
         }
-        const module = moduleService.loadModule(id);
-        return module instanceof Promise ? null : module.body as T;
+        const module = moduleService.loadModule<T>(id);
+        return module instanceof Promise ? null : module.body;
     };
 
     const [module, setModule] = React.useState<T>(prepareModuleBody);
@@ -38,7 +38,7 @@ export const createModuleHook = (
         if (module) {
             return;
         }
-        Promise.resolve(moduleService.loadModule(id)).then(
+        Promise.resolve(moduleService.loadModule<T>(id)).then(
             module => setModule(() => module.body)
         );
     }, [module]);

@@ -28,8 +28,8 @@ export const createResourceHook = (
         if (resourceStore.isResourceExist(id)) {
             return resourceStore.findResourceById<T>(id).data;
         }
-        const resource = resourceService.loadResource(id);
-        return resource instanceof Promise ? null : resource.data as T;
+        const resource = resourceService.loadResource<T>(id);
+        return resource instanceof Promise ? null : resource.data;
     };
 
     const [resource, setResource] = React.useState<T>(prepareResourceData);
@@ -38,8 +38,8 @@ export const createResourceHook = (
         if (resource) {
             return;
         }
-        Promise.resolve(resourceService.loadResource(id)).then(
-            resource => setResource(() => resource.data as T)
+        Promise.resolve(resourceService.loadResource<T>(id)).then(
+            resource => setResource(() => resource.data)
         );
     }, [resource]);
 

@@ -13,7 +13,7 @@ export interface ResourcePromise {
 
 export interface ResourceService {
     registerResourceLoader(loader: ResourceLoader): void;
-    loadResource(id: ResourceId): Resource | Promise<Resource>;
+    loadResource<T = any>(id: ResourceId): Resource<T> | Promise<Resource<T>>;
 }
 
 export class ResourceServiceImpl implements ResourceService {
@@ -29,7 +29,7 @@ export class ResourceServiceImpl implements ResourceService {
         saveToArray(this._resourceLoaders, loader, resourceLoader => resourceLoader.context === loader.context);
     }
 
-    loadResource(id: ResourceId): Resource | Promise<Resource> {
+    loadResource<T = any>(id: ResourceId): Resource<T> | Promise<Resource<T>> {
         const {_resourcePromises, _resourceLoaders, _store} = this;
 
         if (_store.isResourceExist(id)) {

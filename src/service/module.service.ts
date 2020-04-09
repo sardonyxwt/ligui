@@ -13,7 +13,7 @@ export interface ModulePromise {
 
 export interface ModuleService {
     registerModuleLoader(loader: ModuleLoader): void;
-    loadModule(id: ModuleId): Module | Promise<Module>;
+    loadModule<T>(id: ModuleId): Module<T> | Promise<Module<T>>;
 }
 
 export class ModuleServiceImpl implements ModuleService {
@@ -29,7 +29,7 @@ export class ModuleServiceImpl implements ModuleService {
         saveToArray(this._moduleLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
     }
 
-    loadModule(id: ModuleId): Module | Promise<Module> {
+    loadModule<T>(id: ModuleId): Module<T> | Promise<Module<T>> {
         const {_modulePromises, _moduleLoaders, _store} = this;
 
         if (_store.isModuleExist(id)) {
