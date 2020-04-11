@@ -12,7 +12,9 @@ export interface ModulePromise {
 }
 
 export interface ModuleService {
-    registerModuleLoader(loader: ModuleLoader): void;
+    setModuleLoader(loader: ModuleLoader): void;
+    getModuleLoader(context?: string): ModuleLoader;
+
     loadModule<T>(id: ModuleId): Module<T> | Promise<Module<T>>;
 }
 
@@ -24,9 +26,13 @@ export class ModuleServiceImpl implements ModuleService {
                 protected _moduleLoaders: ModuleLoader[] = []) {
     }
 
-    registerModuleLoader(loader: ModuleLoader) {
+    setModuleLoader(loader: ModuleLoader): void {
         deleteFromArray(this._modulePromises, modulePromise => modulePromise.id.context === loader.context);
         saveToArray(this._moduleLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
+    }
+
+    getModuleLoader(context?: string): ModuleLoader {
+        return this._moduleLoaders.find(loader => loader.context === context);
     }
 
     loadModule<T>(id: ModuleId): Module<T> | Promise<Module<T>> {

@@ -12,7 +12,9 @@ export interface ConfigPromise {
 }
 
 export interface ConfigService {
-    registerConfigLoader(loader: ConfigLoader): void;
+    setConfigLoader(loader: ConfigLoader): void;
+    getConfigLoader(context?: string): ConfigLoader;
+
     loadConfig<T extends ConfigData>(id: ConfigId): Config<T> | Promise<Config<T>>;
 }
 
@@ -24,9 +26,13 @@ export class ConfigServiceImpl implements ConfigService {
                 protected _configLoaders: ConfigLoader[] = []) {
     }
 
-    registerConfigLoader(loader: ConfigLoader) {
+    setConfigLoader(loader: ConfigLoader): void {
         deleteFromArray(this._configPromises, configPromise => configPromise.id.context === loader.context);
         saveToArray(this._configLoaders, loader, configLoader => configLoader.context === loader.context);
+    }
+
+    getConfigLoader(context?: string): ConfigLoader {
+        return this._configLoaders.find(loader => loader.context === context);
     }
 
     loadConfig<T extends ConfigData>(id: ConfigId): Config<T> | Promise<Config<T>> {

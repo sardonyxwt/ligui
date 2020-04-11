@@ -8,15 +8,17 @@ export interface ModulePromise {
     readonly promise: Promise<Module>;
 }
 export interface ModuleService {
-    registerModuleLoader(loader: ModuleLoader): void;
-    loadModule(id: ModuleId): Module | Promise<Module>;
+    setModuleLoader(loader: ModuleLoader): void;
+    getModuleLoader(context?: string): ModuleLoader;
+    loadModule<T>(id: ModuleId): Module<T> | Promise<Module<T>>;
 }
 export declare class ModuleServiceImpl implements ModuleService {
     protected _store: ModuleStore;
     protected _moduleLoaders: ModuleLoader[];
     private _modulePromises;
     constructor(_store: ModuleStore, _moduleLoaders?: ModuleLoader[]);
-    registerModuleLoader(loader: ModuleLoader): void;
-    loadModule(id: ModuleId): Module | Promise<Module>;
+    setModuleLoader(loader: ModuleLoader): void;
+    getModuleLoader(context?: string): ModuleLoader;
+    loadModule<T>(id: ModuleId): Module<T> | Promise<Module<T>>;
 }
 //# sourceMappingURL=module.service.d.ts.map

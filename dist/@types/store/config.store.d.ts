@@ -6,23 +6,23 @@ export interface ConfigId {
 export interface ConfigData {
     readonly [key: string]: string | number | boolean | string[] | number[] | boolean[] | ConfigData | ConfigData[];
 }
-export interface Config {
+export interface Config<T extends ConfigData = ConfigData> {
     readonly id: ConfigId;
-    readonly data: ConfigData;
+    readonly data: T;
 }
 export interface ConfigStoreState {
     readonly configs: Config[];
 }
 export interface ConfigStore extends ConfigStoreState, Repository<ConfigStoreState> {
     setConfig(...configs: Config[]): void;
-    findConfigById(id: ConfigId): Config;
+    findConfigById<T extends ConfigData = ConfigData>(id: ConfigId): Config<T>;
     isConfigExist(id: ConfigId): boolean;
 }
 export declare class ConfigStoreImpl implements ConfigStore {
     readonly configs: Config[];
     constructor(configs?: Config[]);
     setConfig(...configs: Config[]): void;
-    findConfigById(id: ConfigId): Config;
+    findConfigById<T extends ConfigData = ConfigData>(id: ConfigId): Config<T>;
     isConfigExist(id: ConfigId): boolean;
     collect(): ConfigStoreState;
     restore(state: ConfigStoreState): void;

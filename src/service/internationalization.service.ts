@@ -20,7 +20,9 @@ export interface TranslateUnitPromise {
 }
 
 export interface InternationalizationService {
-    registerTranslateUnitLoader(loader: TranslateUnitLoader): void;
+    setTranslateUnitLoader(loader: TranslateUnitLoader): void;
+    getTranslateUnitLoader(context?: string): TranslateUnitLoader;
+
     loadTranslateUnit(id: TranslateUnitId): TranslateUnit | Promise<TranslateUnit>;
     getTranslator(context: string, locale?: string): Translator;
 }
@@ -33,9 +35,13 @@ export class InternationalizationServiceImpl implements InternationalizationServ
                 protected _translateUnitLoaders: TranslateUnitLoader[] = []) {
     }
 
-    registerTranslateUnitLoader(loader: TranslateUnitLoader) {
+    setTranslateUnitLoader(loader: TranslateUnitLoader): void {
         deleteFromArray(this._translateUnitPromises, translateUnitPromise => translateUnitPromise.id.context === loader.context);
         saveToArray(this._translateUnitLoaders, loader, translateUnitLoader => translateUnitLoader.context === loader.context);
+    }
+
+    getTranslateUnitLoader(context?: string): TranslateUnitLoader {
+        return this._translateUnitLoaders.find(loader => loader.context === context);
     }
 
     loadTranslateUnit(id: TranslateUnitId): TranslateUnit | Promise<TranslateUnit> {

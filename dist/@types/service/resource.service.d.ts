@@ -8,7 +8,8 @@ export interface ResourcePromise {
     readonly promise: Promise<Resource>;
 }
 export interface ResourceService {
-    registerResourceLoader(loader: ResourceLoader): void;
+    setResourceLoader(loader: ResourceLoader): void;
+    getResourceLoader(context?: string): ResourceLoader;
     loadResource<T = any>(id: ResourceId): Resource<T> | Promise<Resource<T>>;
 }
 export declare class ResourceServiceImpl implements ResourceService {
@@ -16,7 +17,8 @@ export declare class ResourceServiceImpl implements ResourceService {
     protected _resourceLoaders: ResourceLoader[];
     private _resourcePromises;
     constructor(_store: ResourceStore, _resourceLoaders?: ResourceLoader[]);
-    registerResourceLoader(loader: ResourceLoader): void;
+    setResourceLoader(loader: ResourceLoader): void;
+    getResourceLoader(context?: string): ResourceLoader;
     loadResource<T = any>(id: ResourceId): Resource<T> | Promise<Resource<T>>;
 }
 //# sourceMappingURL=resource.service.d.ts.map

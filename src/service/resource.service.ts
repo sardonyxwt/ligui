@@ -12,7 +12,9 @@ export interface ResourcePromise {
 }
 
 export interface ResourceService {
-    registerResourceLoader(loader: ResourceLoader): void;
+    setResourceLoader(loader: ResourceLoader): void;
+    getResourceLoader(context?: string): ResourceLoader;
+
     loadResource<T = any>(id: ResourceId): Resource<T> | Promise<Resource<T>>;
 }
 
@@ -24,9 +26,13 @@ export class ResourceServiceImpl implements ResourceService {
                 protected _resourceLoaders: ResourceLoader[] = []) {
     }
 
-    registerResourceLoader(loader: ResourceLoader) {
+    setResourceLoader(loader: ResourceLoader): void {
         deleteFromArray(this._resourcePromises, resourcePromise => resourcePromise.id.context === loader.context);
         saveToArray(this._resourceLoaders, loader, resourceLoader => resourceLoader.context === loader.context);
+    }
+
+    getResourceLoader(context?: string): ResourceLoader {
+        return this._resourceLoaders.find(loader => loader.context === context);
     }
 
     loadResource<T = any>(id: ResourceId): Resource<T> | Promise<Resource<T>> {

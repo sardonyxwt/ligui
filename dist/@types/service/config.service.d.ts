@@ -8,15 +8,17 @@ export interface ConfigPromise {
     readonly promise: Promise<Config>;
 }
 export interface ConfigService {
-    registerConfigLoader(loader: ConfigLoader): void;
-    loadConfig(id: ConfigId): Config | Promise<Config>;
+    setConfigLoader(loader: ConfigLoader): void;
+    getConfigLoader(context?: string): ConfigLoader;
+    loadConfig<T extends ConfigData>(id: ConfigId): Config<T> | Promise<Config<T>>;
 }
 export declare class ConfigServiceImpl implements ConfigService {
     protected _store: ConfigStore;
     protected _configLoaders: ConfigLoader[];
     private _configPromises;
     constructor(_store: ConfigStore, _configLoaders?: ConfigLoader[]);
-    registerConfigLoader(loader: ConfigLoader): void;
-    loadConfig(id: ConfigId): Config | Promise<Config>;
+    setConfigLoader(loader: ConfigLoader): void;
+    getConfigLoader(context?: string): ConfigLoader;
+    loadConfig<T extends ConfigData>(id: ConfigId): Config<T> | Promise<Config<T>>;
 }
 //# sourceMappingURL=config.service.d.ts.map
