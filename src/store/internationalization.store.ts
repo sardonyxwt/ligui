@@ -103,8 +103,8 @@ export class InternationalizationStoreImpl implements InternationalizationStore 
         this._defaultLocale = state.defaultLocale;
         this.locales.splice(0, this.locales.length);
         this.locales.push(...state.locales);
-        this.translateUnits.push(...state.translateUnits);
         this.translateUnits.splice(0, this.translateUnits.length);
+        this.translateUnits.push(...state.translateUnits);
     }
 
     reset(): void {
