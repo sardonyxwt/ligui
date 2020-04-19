@@ -9,7 +9,8 @@ export interface TranslateUnitPromise {
     readonly promise: Promise<TranslateUnit>;
 }
 export interface InternationalizationService {
-    registerTranslateUnitLoader(loader: TranslateUnitLoader): void;
+    setTranslateUnitLoader(loader: TranslateUnitLoader): void;
+    getTranslateUnitLoader(context?: string): TranslateUnitLoader;
     loadTranslateUnit(id: TranslateUnitId): TranslateUnit | Promise<TranslateUnit>;
     getTranslator(context: string, locale?: string): Translator;
 }
@@ -18,7 +19,8 @@ export declare class InternationalizationServiceImpl implements Internationaliza
     protected _translateUnitLoaders: TranslateUnitLoader[];
     private _translateUnitPromises;
     constructor(_store: InternationalizationStore, _translateUnitLoaders?: TranslateUnitLoader[]);
-    registerTranslateUnitLoader(loader: TranslateUnitLoader): void;
+    setTranslateUnitLoader(loader: TranslateUnitLoader): void;
+    getTranslateUnitLoader(context?: string): TranslateUnitLoader;
     loadTranslateUnit(id: TranslateUnitId): TranslateUnit | Promise<TranslateUnit>;
     getTranslator(context: string, locale?: string): Translator;
 }

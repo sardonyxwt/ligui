@@ -112,6 +112,13 @@ export class InternationalizationServiceImpl implements InternationalizationServ
                 result = result[pathParts[i]] as TranslateUnitData;
             }
 
+            // Support JSON.parse \n and \t
+            if (typeof result === 'string') {
+                return (result as string)
+                    .replace('$\\n', '\n')
+                    .replace('$\\t', '\t') as unknown as T;
+            }
+
             if (result === undefined) {
                 return defaultValue;
             }
