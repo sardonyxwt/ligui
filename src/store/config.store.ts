@@ -8,7 +8,7 @@ export interface ConfigId {
 }
 
 export interface ConfigData {
-    readonly [key: string]: string | number | boolean | string[] | number[] | boolean[] | ConfigData | ConfigData[];
+    readonly [key: string]: ConfigData | ConfigData[] | any;
 }
 
 export interface Config<T extends ConfigData = ConfigData> {
