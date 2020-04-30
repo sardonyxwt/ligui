@@ -82,7 +82,7 @@ export class InternationalizationStoreImpl implements InternationalizationStore 
     }
 
     isLocaleExist(locale: string): boolean {
-        return !!this.locales.find(locale => locale === locale);
+        return !!this.locales.find(it => it === locale);
     }
 
     isTranslateUnitExist(id: TranslateUnitId): boolean {
