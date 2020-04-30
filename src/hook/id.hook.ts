@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
 
-const idHookListenerIdGenerator = createUniqueIdGenerator('ResourcesHook');
+const idHookListenerIdGenerator = createUniqueIdGenerator('IdHook');
 
 export const useId = (): string => React.useMemo(() => idHookListenerIdGenerator(), []);
