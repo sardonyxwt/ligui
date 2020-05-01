@@ -70,7 +70,7 @@ export const createTranslatorHook = (
             return getTranslator();
         }
         const translateUnit = internationalizationService.loadTranslateUnit(id);
-        return translateUnit instanceof Promise ? translator : getTranslator();
+        return translateUnit instanceof Promise ? null : getTranslator();
     };
 
     React.useEffect(() => {
@@ -82,7 +82,7 @@ export const createTranslatorHook = (
 
     React.useEffect(() => reaction(
         prepareTranslator,
-        translator => setTranslator(() => translator)
+        translator => translator && setTranslator(() => translator)
     ), []);
 
     return [
