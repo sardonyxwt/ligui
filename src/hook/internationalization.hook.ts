@@ -51,8 +51,6 @@ export const createTranslatorHook = (
 
     const internationalizationContext = context || React.useContext(InternationalizationKeyContext);
 
-    const [translator, setTranslator] = React.useState<Translator>(() => prepareTranslator());
-
     const getId = () => ({
         key: translateUnitKey,
         context: internationalizationContext,
@@ -72,6 +70,8 @@ export const createTranslatorHook = (
         const translateUnit = internationalizationService.loadTranslateUnit(id);
         return translateUnit instanceof Promise ? null : getTranslator();
     };
+
+    const [translator, setTranslator] = React.useState<Translator>(prepareTranslator);
 
     React.useEffect(() => {
         if (translator) {
