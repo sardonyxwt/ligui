@@ -88,16 +88,21 @@ export const createTranslatorHook = (
 
     React.useEffect(() => {
         return internationalizationStore.subscribe(event => {
-            const translateUnitId = getId();
-            const updatedTranslateUnits = event.props as TranslateUnit[];
-            const isTranslateUnitUpdated = updatedTranslateUnits.findIndex(
-                it => isTranslateUnitsIdsEqual(it.id, translateUnitId)
-            ) >= 0;
-            if (isTranslateUnitUpdated) {
-                const translator = prepareTranslator();
-                if (translator) {
-                    setTranslator(() => translator);
+            if (event.actionName === InternationalizationStoreActions.UpdateTranslateUnits) {
+                const translateUnitId = getId();
+                const updatedTranslateUnits = event.props as TranslateUnit[];
+                const isTranslateUnitUpdated = updatedTranslateUnits.findIndex(
+                    it => isTranslateUnitsIdsEqual(it.id, translateUnitId)
+                ) >= 0;
+
+                if (!isTranslateUnitUpdated) {
+                    return;
                 }
+            }
+
+            const translator = prepareTranslator();
+            if (translator) {
+                setTranslator(() => translator);
             }
         }, [
             InternationalizationStoreActions.ChangeLocale,

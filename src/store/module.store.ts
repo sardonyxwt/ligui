@@ -31,7 +31,9 @@ export enum ModuleStoreActions {
 export const createModuleStore = (store: Store, initState: ModuleStoreState) => {
     const moduleStore = store.createScope({
         name: LIGUI_TYPES.MODULE_STORE,
-        initState,
+        initState: {
+            modules: initState.modules || []
+        },
         isSubscribedMacroAutoCreateEnabled: true,
     }, true) as ModuleStore;
 

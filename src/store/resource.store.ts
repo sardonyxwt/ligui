@@ -31,7 +31,9 @@ export enum ResourceStoreActions {
 export const createResourceStore = (store: Store, initState: ResourceStoreState) => {
     const resourceStore = store.createScope({
         name: LIGUI_TYPES.RESOURCE_STORE,
-        initState,
+        initState: {
+            resources: initState.resources || []
+        },
         isSubscribedMacroAutoCreateEnabled: true,
     }, true) as ResourceStore;
 

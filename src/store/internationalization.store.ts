@@ -42,7 +42,12 @@ export enum InternationalizationStoreActions {
 export const createInternationalizationStore = (store: Store, initState: InternationalizationStoreState) => {
     const internationalizationStore = store.createScope({
         name: LIGUI_TYPES.INTERNATIONALIZATION_STORE,
-        initState,
+        initState: {
+            currentLocale: initState.currentLocale || null,
+            defaultLocale: initState.defaultLocale || null,
+            locales: initState.locales || [],
+            translateUnits: initState.translateUnits || []
+        },
         isSubscribedMacroAutoCreateEnabled: true,
     }, true) as InternationalizationStore;
 

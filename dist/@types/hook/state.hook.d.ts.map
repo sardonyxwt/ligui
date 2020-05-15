@@ -1,1 +1,1 @@
-{"version":3,"file":"state.hook.d.ts","sourceRoot":"","sources":["../../../src/hook/state.hook.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,KAAK,EAAE,MAAM,yBAAyB,CAAC;AAEhD,eAAO,MAAM,eAAe,UACjB,KAAK,2CAED,MAAM,YACR,MAAM,EAAE,oGAE6C,OAAO,gBAsBxE,CAAC"}
+{"version":3,"file":"state.hook.d.ts","sourceRoot":"","sources":["../../../src/hook/state.hook.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,KAAK,EAAE,KAAK,EAAE,MAAM,yBAAyB,CAAC;AAEvD,eAAO,MAAM,eAAe,UACjB,KAAK,uCAEL,MAAM,GAAG,KAAK,YACZ,MAAM,EAAE,oGAE6C,OAAO,gBAuBxE,CAAC"}

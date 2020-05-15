@@ -35,7 +35,9 @@ export enum ConfigStoreActions {
 export const createConfigStore = (store: Store, initState: ConfigStoreState) => {
     const configStore = store.createScope({
         name: LIGUI_TYPES.CONFIG_STORE,
-        initState,
+        initState: {
+            configs: initState.configs || []
+        },
         isSubscribedMacroAutoCreateEnabled: true,
     }, true) as ConfigStore;
 
