@@ -3,25 +3,30 @@ import { Store } from '@sardonyxwt/state-store';
 
 export const createStateHook = (
     store: Store
-) => <T = any>(
+) => <T = any, MappedState = T>(
     scopeName: string,
     actions: string[] = null,
-    retention = 0
-): T => {
-    const [state, setState] = React.useState(() => store.getScope(scopeName).state);
+    mapper?: (state: T) => MappedState,
+    optimizer?: (oldState: MappedState, newState: MappedState) => boolean
+): MappedState => {
+    const resolvedMapper = mapper ?? ((state: T) => state as unknown as MappedState);
+    const stateRef = React.useRef<MappedState>(null);
+    const [state, setState] = React.useState(
+        () => resolvedMapper(store.getScope(scopeName).state)
+    );
+
+    stateRef.current = state;
 
     React.useEffect(() => {
-        let timeoutId: number;
-
         return store.getScope(scopeName).subscribe(evt => {
-            if (retention && retention > 0) {
-                clearTimeout(timeoutId);
-                timeoutId = global.setTimeout(() => setState(evt.newState), retention) as any as number;
+            const newState = resolvedMapper(evt.newState);
+            if (optimizer && !optimizer(stateRef.current, newState)) {
                 return;
             }
-            setState(evt.newState);
+            stateRef.current = newState;
+            setState(() => newState);
         }, actions);
-    });
+    }, []);
 
     return state;
 };

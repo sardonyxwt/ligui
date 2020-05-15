@@ -5,24 +5,23 @@ import {
     getStore,
     isStoreExist,
     setStoreDevTool,
-    Store,
-    StoreDevTool
+    Store
 } from '@sardonyxwt/state-store';
 import {
     createEventBus,
     getEventBus,
     isEventBusExist,
     setEventBusDevTool,
-    EventBusDevTool, EventBus
+    EventBus
 } from '@sardonyxwt/event-bus';
 
 import { LIGUI_TYPES } from './types';
 import { createContext, Context } from './context';
 
-import { Module, ModuleStore, ModuleStoreImpl } from './store/module.store';
-import { Resource, ResourceStore, ResourceStoreImpl } from './store/resource.store';
-import { InternationalizationStore, InternationalizationStoreImpl, TranslateUnit } from './store/internationalization.store';
-import { Config, ConfigStore, ConfigStoreImpl } from './store/config.store';
+import { Module, ModuleStore, createModuleStore } from './store/module.store';
+import { Resource, ResourceStore, createResourceStore } from './store/resource.store';
+import { InternationalizationStore, createInternationalizationStore, TranslateUnit } from './store/internationalization.store';
+import { Config, ConfigStore, createConfigStore } from './store/config.store';
 
 import { JSXService, JSXServiceImpl } from './service/jsx.service';
 import { ResourceLoader, ResourceService, ResourceServiceImpl } from './service/resource.service';
@@ -153,21 +152,27 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
     context.container.bind<Store>(LIGUI_TYPES.STORE).toConstantValue(context.store);
 
     context.container.bind<ModuleStore>(LIGUI_TYPES.MODULE_STORE)
-        .toDynamicValue(() => new ModuleStoreImpl(config.modules))
+        .toDynamicValue(() => createModuleStore(context.store, {
+            modules: config.modules
+        }))
         .inSingletonScope();
     context.container.bind<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE)
-        .toDynamicValue(() => new ResourceStoreImpl(config.resources))
+        .toDynamicValue(() => createResourceStore(context.store, {
+            resources: config.resources
+        }))
         .inSingletonScope();
     context.container.bind<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE)
-        .toDynamicValue(() => new InternationalizationStoreImpl(
-            config.locales,
-            config.currentLocale,
-            config.defaultLocale,
-            config.translateUnits
-        ))
+        .toDynamicValue(() => createInternationalizationStore(context.store, {
+            locales: config.locales,
+            currentLocale: config.currentLocale,
+            defaultLocale: config.defaultLocale,
+            translateUnits: config.translateUnits
+        }))
         .inSingletonScope();
     context.container.bind<ConfigStore>(LIGUI_TYPES.CONFIG_STORE)
-        .toDynamicValue(() => new ConfigStoreImpl(config.configs))
+        .toDynamicValue(() => createConfigStore(context.store, {
+            configs: config.configs
+        }))
         .inSingletonScope();
 
     context.container.bind<JSXService>(LIGUI_TYPES.JSX_SERVICE)
@@ -273,21 +278,3 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
 
     return ligui;
 }
-
-export const defaultStoreDevTool: Partial<StoreDevTool> = {
-    onCreateStore: store => console.log(`Store(${store.name}) created: `, store),
-    onChangeStore: store => console.log(`Store(${store.name}) changed: `, store),
-    onCreateScope: scope => console.log(`Scope(${scope.name}) created: `, scope),
-    onChangeScope: scope => console.log(`Scope(${scope.name}) changed: `, scope),
-    onAction: event =>
-        console.log(`Scope(${event.scopeName}) event(${event.actionName}) dispatched: `, event),
-    onActionError: error =>
-        console.error(`Scope(${error.scopeName}) event(${error.actionName}) dispatched error: `, error),
-    onActionListenerError: error =>
-        console.error(`Scope(${error.scopeName}) event(${error.actionName}) listener error: `, error)
-};
-
-export const defaultEventBusDevTool: Partial<EventBusDevTool> = {
-    onCreate: eventBus => console.log(`EventBus(${eventBus.name}) created: `, eventBus),
-    onEvent: event => console.log(`EventBus(${event.eventBusName}) event(${event.eventName}) published: `, event)
-};

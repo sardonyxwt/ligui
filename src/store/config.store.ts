@@ -1,6 +1,6 @@
-import { observable, action, toJS } from 'mobx';
-import { saveToArray } from '@sardonyxwt/utils/object';
-import { Repository } from '../service/repository.service';
+import { Scope, Store } from '@sardonyxwt/state-store';
+import { saveToArray, copyArray } from '@sardonyxwt/utils/object';
+import { LIGUI_TYPES } from '../types';
 
 export interface ConfigId {
     readonly key: string;
@@ -20,52 +20,48 @@ export interface ConfigStoreState {
     readonly configs: Config[];
 }
 
-export interface ConfigStore extends ConfigStoreState, Repository<ConfigStoreState> {
-    setConfig(...configs: Config[]): void;
+export interface ConfigStore extends Scope<ConfigStoreState> {
+    setConfigs(configs: Config[]): void;
 
     findConfigById<T extends ConfigData = ConfigData>(id: ConfigId): Config<T>;
 
     isConfigExist(id: ConfigId): boolean;
 }
 
-export class ConfigStoreImpl implements ConfigStore {
+export enum ConfigStoreActions {
+    UpdateConfigs = 'CONFIGS_UPDATE'
+}
 
-    @observable.shallow readonly configs: Config[] = [];
+export const createConfigStore = (store: Store, initState: ConfigStoreState) => {
+    const configStore = store.createScope({
+        name: LIGUI_TYPES.CONFIG_STORE,
+        initState,
+        isSubscribedMacroAutoCreateEnabled: true,
+    }, true) as ConfigStore;
 
-    constructor(configs: Config[] = []) {
-        this.configs.push(...configs);
-    }
+    configStore.setConfigs = configStore.registerAction(
+        ConfigStoreActions.UpdateConfigs,
+        (state, configs: Config[]) => {
+            const updatedConfigs = copyArray(state.configs);
+            configs.forEach(config => saveToArray(
+                updatedConfigs, config,
+                existConfig => isConfigsIdsEqual(config.id, existConfig.id)
+            ));
+            return {
+                configs: updatedConfigs
+            }
+        }
+    );
 
-    @action setConfig(...configs: Config[]): void {
-        configs.forEach(config => saveToArray(
-            this.configs, config,
-            existConfig => isConfigsIdsEqual(config.id, existConfig.id)
-        ));
-    }
+    configStore.findConfigById = <T>(id: ConfigId) => {
+        return configStore.state.configs.find(config => isConfigsIdsEqual(config.id, id)) as Config<T>;
+    };
 
-    findConfigById<T extends ConfigData = ConfigData>(id: ConfigId): Config<T> {
-        return this.configs.find(config => isConfigsIdsEqual(config.id, id)) as Config<T>;
-    }
+    configStore.isConfigExist = (id: ConfigId) => {
+        return !!configStore.findConfigById(id);
+    };
 
-    isConfigExist(id: ConfigId): boolean {
-        return !!this.findConfigById(id);
-    }
-
-    collect(): ConfigStoreState {
-        return {
-            configs: toJS(this.configs)
-        };
-    }
-
-    restore(state: ConfigStoreState): void {
-        this.configs.splice(0, this.configs.length);
-        this.configs.push(...state.configs);
-    }
-
-    reset(): void {
-        this.configs.splice(0, this.configs.length);
-    }
-
+    return configStore;
 }
 
 export function isConfigsIdsEqual(configId1: ConfigId, configId2: ConfigId) {

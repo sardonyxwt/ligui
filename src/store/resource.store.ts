@@ -1,6 +1,6 @@
-import { observable, action, toJS } from 'mobx';
-import { saveToArray } from '@sardonyxwt/utils/object';
-import { Repository } from '../service/repository.service';
+import { Scope, Store } from '@sardonyxwt/state-store';
+import { saveToArray, copyArray } from '@sardonyxwt/utils/object';
+import { LIGUI_TYPES } from '../types';
 
 export interface ResourceId {
     readonly key: string;
@@ -16,52 +16,50 @@ export interface ResourceStoreState {
     readonly resources: Resource[];
 }
 
-export interface ResourceStore extends ResourceStoreState, Repository<ResourceStoreState> {
-    setResource(...resources: Resource[]): void;
+export interface ResourceStore extends Scope<ResourceStoreState> {
+    setResources(resources: Resource[]): void;
 
     findResourceById<T>(id: ResourceId): Resource<T>;
 
     isResourceExist(id: ResourceId): boolean;
 }
 
-export class ResourceStoreImpl implements ResourceStore {
+export enum ResourceStoreActions {
+    UpdateResources = 'UPDATE_RESOURCES'
+}
 
-    @observable.shallow readonly resources: Resource[] = [];
+export const createResourceStore = (store: Store, initState: ResourceStoreState) => {
+    const resourceStore = store.createScope({
+        name: LIGUI_TYPES.RESOURCE_STORE,
+        initState,
+        isSubscribedMacroAutoCreateEnabled: true,
+    }, true) as ResourceStore;
 
-    constructor(resources: Resource[] = []) {
-        this.resources.push(...resources);
-    }
+    resourceStore.registerAction(
+        ResourceStoreActions.UpdateResources,
+        (state, resources: Resource[]) => {
+            const updatedResources = copyArray(state.resources);
+            resources.forEach(resource => saveToArray(
+                updatedResources, resource,
+                existResource => isResourcesIdsEqual(resource.id, existResource.id)
+            ));
+            return {
+                resources: updatedResources
+            }
+        }
+    );
 
-    @action setResource(...resources: Resource[]): void {
-        resources.forEach(resource => saveToArray(
-            this.resources, resource,
-            existResource => isResourcesIdsEqual(resource.id, existResource.id)
-        ));
-    }
+    resourceStore.findResourceById = (id: ResourceId) => {
+        return resourceStore.state.resources.find(
+            resource => isResourcesIdsEqual(resource.id, id)
+        );
+    };
 
-    findResourceById<T>(id: ResourceId): Resource<T> {
-        return this.resources.find(resource => isResourcesIdsEqual(resource.id, id));
-    }
+    resourceStore.isResourceExist = (id: ResourceId) => {
+        return !!resourceStore.findResourceById(id);
+    };
 
-    isResourceExist(id: ResourceId): boolean {
-        return !!this.findResourceById(id);
-    }
-
-    collect(): ResourceStoreState {
-        return {
-            resources: toJS(this.resources)
-        };
-    }
-
-    restore(state: ResourceStoreState): void {
-        this.resources.splice(0, this.resources.length);
-        this.resources.push(...state.resources);
-    }
-
-    reset(): void {
-        this.resources.splice(0, this.resources.length);
-    }
-
+    return resourceStore;
 }
 
 export function isResourcesIdsEqual(resourceId1: ResourceId, resourceId2: ResourceId) {

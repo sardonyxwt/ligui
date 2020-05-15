@@ -63,11 +63,12 @@ export class InternationalizationServiceImpl implements InternationalizationServ
             throw new Error(`TranslateUnit loader for key ${JSON.stringify(id)} not found`);
         }
 
-        const translateUnitData = translateUnitLoader.loader(id.key, id.locale) ?? translateUnitLoader.loader(id.key, _store.defaultLocale);
+        const translateUnitData = translateUnitLoader.loader(id.key, id.locale)
+            ?? translateUnitLoader.loader(id.key, _store.state.defaultLocale);
 
         const resolveTranslateUnit = (translateUnitData: TranslateUnitData): TranslateUnit => {
             const translateUnit: TranslateUnit = {id, data: translateUnitData};
-            _store.setTranslateUnit(translateUnit);
+            _store.setTranslateUnits([translateUnit]);
             return translateUnit;
         };
 
@@ -96,8 +97,8 @@ export class InternationalizationServiceImpl implements InternationalizationServ
 
             const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
 
-            const translateUnitId: TranslateUnitId = {key, context, locale: locale || this._store.currentLocale};
-            const defaultTranslateUnitId: TranslateUnitId = {key, context, locale: this._store.defaultLocale};
+            const translateUnitId: TranslateUnitId = {key, context, locale: locale || this._store.state.currentLocale};
+            const defaultTranslateUnitId: TranslateUnitId = {key, context, locale: this._store.state.defaultLocale};
 
             let translateUnit = this._store.findTranslateUnitById(translateUnitId)
                 ?? this._store.findTranslateUnitById(defaultTranslateUnitId);

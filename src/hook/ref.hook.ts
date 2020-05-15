@@ -7,7 +7,7 @@ export const useRef = <T>(
 
     return ({
         set current(el) {
-            setCurrent(el);
+            setCurrent(() => el);
         },
         get current() {
             return current;

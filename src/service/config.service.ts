@@ -58,7 +58,7 @@ export class ConfigServiceImpl implements ConfigService {
 
         const resolveConfig = (configData: T): Config<T> => {
             const config: Config<T> = {id, data: configData};
-            _store.setConfig(config);
+            _store.setConfigs([config]);
             return config;
         };
 

@@ -9,13 +9,13 @@ export const useData = <T>(
 
     React.useEffect(() => {
         if (!data && dataLoader) {
-            Promise.resolve(dataLoader()).then(setData);
+            Promise.resolve(dataLoader()).then(data => setData(() => data));
         }
     }, []);
 
     React.useEffect(() => {
         if (dataSync) {
-            const unsubscribeCallback = dataSync(() => setData(dataResolver()));
+            const unsubscribeCallback = dataSync(() => setData(() => dataResolver()));
             if (typeof unsubscribeCallback === 'function') {
                 return unsubscribeCallback;
             }

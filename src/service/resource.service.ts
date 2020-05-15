@@ -58,7 +58,7 @@ export class ResourceServiceImpl implements ResourceService {
 
         const resolveResource = (resourceData: any): Resource => {
             const resource: Resource = {id, data: resourceData};
-            _store.setResource(resource);
+            _store.setResources([resource]);
             return resource;
         };
 

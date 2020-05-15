@@ -1,6 +1,6 @@
-import { observable, action, toJS } from 'mobx';
-import { saveToArray } from '@sardonyxwt/utils/object';
-import { Repository } from '../service/repository.service';
+import { Scope, Store } from '@sardonyxwt/state-store';
+import { saveToArray, copyArray } from '@sardonyxwt/utils/object';
+import { LIGUI_TYPES } from '../types';
 
 export interface ModuleId {
     readonly key: string;
@@ -16,52 +16,48 @@ export interface ModuleStoreState {
     readonly modules: Module[];
 }
 
-export interface ModuleStore extends ModuleStoreState, Repository<ModuleStoreState> {
-    setModule(...modules: Module[]): void;
+export interface ModuleStore extends Scope<ModuleStoreState> {
+    setModules(modules: Module[]): void;
 
     findModuleById<T>(id: ModuleId): Module<T>;
 
     isModuleExist(id: ModuleId): boolean;
 }
 
-export class ModuleStoreImpl implements ModuleStore {
+export enum ModuleStoreActions {
+    UpdateModules = 'UPDATE_MODULES',
+}
 
-    @observable.shallow readonly modules: Module[] = [];
+export const createModuleStore = (store: Store, initState: ModuleStoreState) => {
+    const moduleStore = store.createScope({
+        name: LIGUI_TYPES.MODULE_STORE,
+        initState,
+        isSubscribedMacroAutoCreateEnabled: true,
+    }, true) as ModuleStore;
 
-    constructor(modules: Module[] = []) {
-        this.modules.push(...modules);
-    }
+    moduleStore.setModules = moduleStore.registerAction(
+        ModuleStoreActions.UpdateModules,
+        (state, modules: Module[]) => {
+            const updatedModules = copyArray(state.modules);
+            modules.forEach(module => saveToArray(
+                updatedModules, module,
+                existModule => isModulesIdsEqual(module.id, existModule.id)
+            ));
+            return {
+                modules: updatedModules
+            }
+        }
+    );
 
-    @action setModule(...modules: Module[]): void {
-        modules.forEach(module => saveToArray(
-            this.modules, module,
-            existModule => isModulesIdsEqual(module.id, existModule.id)
-        ));
-    }
+    moduleStore.findModuleById = (id: ModuleId) => {
+        return moduleStore.state.modules.find(module => isModulesIdsEqual(module.id, id));
+    };
 
-    findModuleById<T>(id: ModuleId): Module<T> {
-        return this.modules.find(module => isModulesIdsEqual(module.id, id));
-    }
+    moduleStore.isModuleExist = (id: ModuleId) => {
+        return !!moduleStore.findModuleById(id);
+    };
 
-    isModuleExist(id: ModuleId): boolean {
-        return !!this.findModuleById(id);
-    }
-
-    collect(): ModuleStoreState {
-        return {
-            modules: toJS(this.modules)
-        };
-    }
-
-    restore(state: ModuleStoreState): void {
-        this.modules.splice(0, this.modules.length);
-        this.modules.push(...state.modules);
-    }
-
-    reset(): void {
-        this.modules.splice(0, this.modules.length);
-    }
-
+    return moduleStore;
 }
 
 export function isModulesIdsEqual(moduleId1: ModuleId, moduleId2: ModuleId) {

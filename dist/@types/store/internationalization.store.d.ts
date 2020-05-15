@@ -1,4 +1,4 @@
-import { Repository } from '../service/repository.service';
+import { Scope, Store } from '@sardonyxwt/state-store';
 export interface TranslateUnitId {
     readonly key: string;
     readonly locale: string;
@@ -17,30 +17,17 @@ export interface InternationalizationStoreState {
     readonly locales: string[];
     readonly translateUnits: TranslateUnit[];
 }
-export interface InternationalizationStore extends InternationalizationStoreState, Repository<InternationalizationStoreState> {
-    setTranslateUnit(...translateUnits: TranslateUnit[]): void;
+export interface InternationalizationStore extends Scope<InternationalizationStoreState> {
+    setLocale(locale: string): void;
+    setTranslateUnits(translateUnits: TranslateUnit[]): void;
     findTranslateUnitById(id: TranslateUnitId): TranslateUnit;
     isLocaleExist(locale: string): boolean;
     isTranslateUnitExist(id: TranslateUnitId): boolean;
 }
-export declare class InternationalizationStoreImpl implements InternationalizationStore {
-    private _currentLocale;
-    private _defaultLocale;
-    readonly locales: string[];
-    readonly translateUnits: TranslateUnit[];
-    constructor(locales?: string[], currentLocale?: string, defaultLocale?: string, translateUnits?: TranslateUnit[]);
-    setTranslateUnit(...translateUnits: TranslateUnit[]): void;
-    set currentLocale(locale: string);
-    set defaultLocale(locale: string);
-    get currentLocale(): string;
-    get defaultLocale(): string;
-    findTranslateUnitById(id: TranslateUnitId): TranslateUnit;
-    isLocaleExist(locale: string): boolean;
-    isTranslateUnitExist(id: TranslateUnitId): boolean;
-    collect(): InternationalizationStoreState;
-    restore(state: InternationalizationStoreState): void;
-    reset(): void;
-    private checkLocale;
+export declare enum InternationalizationStoreActions {
+    ChangeLocale = "CHANGE_LOCALE",
+    UpdateTranslateUnits = "UPDATE_TRANSLATE_UNITS"
 }
+export declare const createInternationalizationStore: (store: Store, initState: InternationalizationStoreState) => InternationalizationStore;
 export declare function isTranslateUnitsIdsEqual(translateUnitId1: TranslateUnitId, translateUnitId2: TranslateUnitId): boolean;
 //# sourceMappingURL=internationalization.store.d.ts.map

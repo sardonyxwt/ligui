@@ -1,6 +1,6 @@
 import { Container } from 'inversify';
-import { createStore, getState, getStore, isStoreExist, setStoreDevTool, Store, StoreDevTool } from '@sardonyxwt/state-store';
-import { createEventBus, getEventBus, isEventBusExist, setEventBusDevTool, EventBusDevTool, EventBus } from '@sardonyxwt/event-bus';
+import { createStore, getState, getStore, isStoreExist, setStoreDevTool, Store } from '@sardonyxwt/state-store';
+import { createEventBus, getEventBus, isEventBusExist, setEventBusDevTool, EventBus } from '@sardonyxwt/event-bus';
 import { Context } from './context';
 import { Module, ModuleStore } from './store/module.store';
 import { Resource, ResourceStore } from './store/resource.store';
@@ -104,6 +104,4 @@ export interface Ligui {
     useConfig: ReturnType<typeof createConfigHook>;
 }
 export declare function createNewLiguiInstance(config: LiguiConfig): Ligui;
-export declare const defaultStoreDevTool: Partial<StoreDevTool>;
-export declare const defaultEventBusDevTool: Partial<EventBusDevTool>;
 //# sourceMappingURL=ligui.d.ts.map

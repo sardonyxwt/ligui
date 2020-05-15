@@ -1,6 +1,6 @@
-import { observable, action, computed, toJS } from 'mobx';
-import { saveToArray } from '@sardonyxwt/utils/object';
-import { Repository } from '../service/repository.service';
+import { Scope, Store } from '@sardonyxwt/state-store';
+import { saveToArray, copyArray } from '@sardonyxwt/utils/object';
+import { LIGUI_TYPES } from '../types';
 
 export interface TranslateUnitId {
     readonly key: string;
@@ -24,8 +24,9 @@ export interface InternationalizationStoreState {
     readonly translateUnits: TranslateUnit[];
 }
 
-export interface InternationalizationStore extends InternationalizationStoreState, Repository<InternationalizationStoreState> {
-    setTranslateUnit(...translateUnits: TranslateUnit[]): void;
+export interface InternationalizationStore extends Scope<InternationalizationStoreState> {
+    setLocale(locale: string): void;
+    setTranslateUnits(translateUnits: TranslateUnit[]): void;
 
     findTranslateUnitById(id: TranslateUnitId): TranslateUnit;
 
@@ -33,92 +34,62 @@ export interface InternationalizationStore extends InternationalizationStoreStat
     isTranslateUnitExist(id: TranslateUnitId): boolean;
 }
 
-export class InternationalizationStoreImpl implements InternationalizationStore {
+export enum InternationalizationStoreActions {
+    ChangeLocale = 'CHANGE_LOCALE',
+    UpdateTranslateUnits = 'UPDATE_TRANSLATE_UNITS'
+}
 
-    @observable private _currentLocale: string = null;
-    @observable private _defaultLocale: string = null;
-    @observable readonly locales: string[] = [];
-    @observable.shallow readonly translateUnits: TranslateUnit[] = [];
+export const createInternationalizationStore = (store: Store, initState: InternationalizationStoreState) => {
+    const internationalizationStore = store.createScope({
+        name: LIGUI_TYPES.INTERNATIONALIZATION_STORE,
+        initState,
+        isSubscribedMacroAutoCreateEnabled: true,
+    }, true) as InternationalizationStore;
 
-    constructor(
-        locales: string[] = [],
-        currentLocale: string = (locales.length > 0 ? locales[0] : null),
-        defaultLocale: string = currentLocale,
-        translateUnits: TranslateUnit[] = []
-    ) {
-        this._currentLocale = currentLocale;
-        this._defaultLocale = defaultLocale;
-        this.locales.push(...locales);
-        this.translateUnits.push(...translateUnits);
-    }
+    internationalizationStore.setLocale = internationalizationStore.registerAction(
+        InternationalizationStoreActions.ChangeLocale,
+        (state, locale: string) => {
+            if (!internationalizationStore.isLocaleExist(locale)) {
+                throw new Error('Locale not present in locales.');
+            }
 
-    @action setTranslateUnit(...translateUnits: TranslateUnit[]): void {
-        translateUnits.forEach(translateUnit => saveToArray(
-            this.translateUnits, translateUnit,
-            existTranslateUnit => isTranslateUnitsIdsEqual(translateUnit.id, existTranslateUnit.id)
-        ));
-    }
-
-    set currentLocale(locale: string) {
-        this.checkLocale(locale);
-        this._currentLocale = locale;
-    }
-
-    set defaultLocale(locale: string) {
-        this.checkLocale(locale);
-        this._defaultLocale = locale;
-    }
-
-    @computed get currentLocale() {
-        return this._currentLocale;
-    }
-
-    @computed get defaultLocale() {
-        return this._defaultLocale;
-    }
-
-    findTranslateUnitById(id: TranslateUnitId): TranslateUnit {
-        return this.translateUnits.find(translateUnit => isTranslateUnitsIdsEqual(translateUnit.id, id))
-    }
-
-    isLocaleExist(locale: string): boolean {
-        return !!this.locales.find(it => it === locale);
-    }
-
-    isTranslateUnitExist(id: TranslateUnitId): boolean {
-        return !!this.findTranslateUnitById(id);
-    }
-
-    collect(): InternationalizationStoreState {
-        return {
-            locales: toJS(this.locales),
-            currentLocale: toJS(this._currentLocale),
-            defaultLocale: toJS(this._defaultLocale),
-            translateUnits: toJS(this.translateUnits)
+            return {
+                ...state,
+                currentLocale: locale
+            }
         }
-    }
+    );
 
-    restore(state: InternationalizationStoreState): void {
-        this._currentLocale = state.currentLocale;
-        this._defaultLocale = state.defaultLocale;
-        this.locales.splice(0, this.locales.length);
-        this.locales.push(...state.locales);
-        this.translateUnits.splice(0, this.translateUnits.length);
-        this.translateUnits.push(...state.translateUnits);
-    }
-
-    reset(): void {
-        this.translateUnits.splice(0, this.translateUnits.length);
-    }
-
-    private checkLocale(locale: string) {
-        const isLocalNotAvailable = !this.locales.find(it => it === locale);
-
-        if (isLocalNotAvailable) {
-            throw new Error('Locale not present in locales.');
+    internationalizationStore.setTranslateUnits = internationalizationStore.registerAction(
+        InternationalizationStoreActions.UpdateTranslateUnits,
+        (state, translateUnits: TranslateUnit[]) => {
+            const updatedTranslateUnits = copyArray(state.translateUnits);
+            translateUnits.forEach(translateUnit => saveToArray(
+                updatedTranslateUnits, translateUnit,
+                existTranslateUnit => isTranslateUnitsIdsEqual(translateUnit.id, existTranslateUnit.id)
+            ));
+            return {
+                ...state,
+                translateUnits: updatedTranslateUnits
+            }
         }
-    }
+    );
 
+    internationalizationStore.findTranslateUnitById = (id: TranslateUnitId) => {
+        return internationalizationStore.state.translateUnits.find(
+            translateUnit => isTranslateUnitsIdsEqual(translateUnit.id, id)
+        );
+    };
+
+    internationalizationStore.isLocaleExist = (locale: string) => {
+        return !!internationalizationStore.state.locales.find(it => it === locale);
+    };
+
+    internationalizationStore.isTranslateUnitExist = (id: TranslateUnitId) => {
+        return !!internationalizationStore.findTranslateUnitById(id);
+    };
+
+    return internationalizationStore;
 }
 
 export function isTranslateUnitsIdsEqual(translateUnitId1: TranslateUnitId, translateUnitId2: TranslateUnitId) {

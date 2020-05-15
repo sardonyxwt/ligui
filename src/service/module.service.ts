@@ -58,7 +58,7 @@ export class ModuleServiceImpl implements ModuleService {
 
         const resolveModule = (moduleBody: any): Module => {
             const module: Module = {id, body: moduleBody};
-            _store.setModule(module);
+            _store.setModules([module]);
             return module;
         };
 
