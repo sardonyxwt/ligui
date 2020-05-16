@@ -235,34 +235,34 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
 
     const ligui: Ligui = {
         get jsx() {
-            return context.bottle[LIGUI_TYPES.JSX_SERVICE] as JSXService;
+            return context.bottle.container[LIGUI_TYPES.JSX_SERVICE] as JSXService;
         },
         get resource() {
             return {
-                store: context.bottle[LIGUI_TYPES.RESOURCE_STORE] as ResourceStore,
-                service: context.bottle[LIGUI_TYPES.RESOURCE_SERVICE] as ResourceService
+                store: context.bottle.container[LIGUI_TYPES.RESOURCE_STORE] as ResourceStore,
+                service: context.bottle.container[LIGUI_TYPES.RESOURCE_SERVICE] as ResourceService
             };
         },
         get internationalization() {
             return {
-                store: context.bottle[LIGUI_TYPES.INTERNATIONALIZATION_STORE] as InternationalizationStore,
-                service: context.bottle[LIGUI_TYPES.INTERNATIONALIZATION_SERVICE] as InternationalizationService
+                store: context.bottle.container[LIGUI_TYPES.INTERNATIONALIZATION_STORE] as InternationalizationStore,
+                service: context.bottle.container[LIGUI_TYPES.INTERNATIONALIZATION_SERVICE] as InternationalizationService
             };
         },
         get config() {
             return {
-                store: context.bottle[LIGUI_TYPES.CONFIG_STORE] as ConfigStore,
-                service: context.bottle[LIGUI_TYPES.CONFIG_SERVICE] as ConfigService
+                store: context.bottle.container[LIGUI_TYPES.CONFIG_STORE] as ConfigStore,
+                service: context.bottle.container[LIGUI_TYPES.CONFIG_SERVICE] as ConfigService
             };
         },
         get module() {
             return {
-                store: context.bottle[LIGUI_TYPES.MODULE_STORE] as ModuleStore,
-                service: context.bottle[LIGUI_TYPES.MODULE_SERVICE] as ModuleService
+                store: context.bottle.container[LIGUI_TYPES.MODULE_STORE] as ModuleStore,
+                service: context.bottle.container[LIGUI_TYPES.MODULE_SERVICE] as ModuleService
             }
         },
         get repository() {
-            return context.bottle[LIGUI_TYPES.REPOSITORY_SERVICE] as RepositoryService;
+            return context.bottle.container[LIGUI_TYPES.REPOSITORY_SERVICE] as RepositoryService;
         },
         get context() {
             return context;
