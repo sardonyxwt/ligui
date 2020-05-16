@@ -80,7 +80,7 @@ export { Container };
 
 export interface LiguiConfig {
     name: string;
-    container?: Container;
+    bottle?: Container;
     modules?: Module[];
     resources?: Resource[];
     configs?: Config[];
@@ -116,7 +116,8 @@ export interface Ligui {
     readonly context: Context;
     readonly store: Store;
     readonly eventBus: EventBus;
-    readonly container: Container;
+    readonly bottle: Container;
+    readonly container: Container.IContainer;
 
     createStore: typeof createStore;
     isStoreExist: typeof isStoreExist;
@@ -147,7 +148,7 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         throw new Error(`Ligui instance present in global object with name: ${config.name}`);
     }
 
-    const context = createContext(config.name, config.container);
+    const context = createContext(config.name, config.bottle);
 
     context.bottle.constant(LIGUI_TYPES.STORE, context.store);
 
@@ -272,8 +273,11 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         get eventBus() {
             return context.eventBus;
         },
-        get container() {
+        get bottle() {
             return context.bottle;
+        },
+        get container() {
+            return context.bottle.container;
         },
 
         createStore: createStore,

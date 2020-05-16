@@ -47,7 +47,7 @@ export * from './hook/resource.hook';
 export { Container };
 export interface LiguiConfig {
     name: string;
-    container?: Container;
+    bottle?: Container;
     modules?: Module[];
     resources?: Resource[];
     configs?: Config[];
@@ -82,7 +82,8 @@ export interface Ligui {
     readonly context: Context;
     readonly store: Store;
     readonly eventBus: EventBus;
-    readonly container: Container;
+    readonly bottle: Container;
+    readonly container: Container.IContainer;
     createStore: typeof createStore;
     isStoreExist: typeof isStoreExist;
     getStore: typeof getStore;
