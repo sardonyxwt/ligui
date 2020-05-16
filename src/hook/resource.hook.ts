@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container } from 'inversify';
+import * as Container from 'bottlejs';
 import { ResourceService } from '../service/resource.service';
 import { LIGUI_TYPES } from '../types';
 import { ResourceId, ResourceStore } from '../store/resource.store';
@@ -13,12 +13,12 @@ if (!!React) {
 export { ResourceKeyContext };
 
 export const createResourceHook = (
-    container: Container
+    container: Container.IContainer
 ) => <T = any>(
     key: string, context?: string
 ): T => {
-    const resourceStore = container.get<ResourceStore>(LIGUI_TYPES.RESOURCE_STORE);
-    const resourceService = container.get<ResourceService>(LIGUI_TYPES.RESOURCE_SERVICE);
+    const resourceStore = container[LIGUI_TYPES.RESOURCE_STORE] as ResourceStore;
+    const resourceService = container[LIGUI_TYPES.RESOURCE_SERVICE] as ResourceService;
 
     const resourceContext = context || React.useContext(ResourceKeyContext);
 

@@ -1,4 +1,4 @@
-import { Container } from 'inversify';
+import * as Container from 'bottlejs';
 import { createStore, getState, getStore, isStoreExist, setStoreDevTool, Store } from '@sardonyxwt/state-store';
 import { createEventBus, getEventBus, isEventBusExist, setEventBusDevTool, EventBus } from '@sardonyxwt/event-bus';
 import { Context } from './context';
@@ -18,7 +18,7 @@ import { useRef } from './hook/ref.hook';
 import { createStateHook } from './hook/state.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resource.hook';
-import { createDependenciesHook, createDependencyHook } from './hook/dependency.hook';
+import { createDependencyHook } from './hook/dependency.hook';
 import { createI18nHook, createTranslatorHook } from './hook/internationalization.hook';
 import { createConfigHook } from './hook/config.hook';
 export * from '@sardonyxwt/event-bus';
@@ -44,6 +44,7 @@ export * from './hook/internationalization.hook';
 export * from './hook/config.hook';
 export * from './hook/module.hook';
 export * from './hook/resource.hook';
+export { Container };
 export interface LiguiConfig {
     name: string;
     container?: Container;
@@ -96,7 +97,6 @@ export interface Ligui {
     useData: typeof useData;
     useState: ReturnType<typeof createStateHook>;
     useDependency: ReturnType<typeof createDependencyHook>;
-    useDependencies: ReturnType<typeof createDependenciesHook>;
     useModule: ReturnType<typeof createModuleHook>;
     useResource: ReturnType<typeof createResourceHook>;
     useI18n: ReturnType<typeof createI18nHook>;

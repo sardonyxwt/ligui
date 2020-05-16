@@ -1,5 +1,5 @@
+import * as Container from 'bottlejs';
 import * as React from 'react';
-import { Container } from 'inversify';
 import { ConfigService } from '../service/config.service';
 import { LIGUI_TYPES } from '../types';
 import { ConfigData, ConfigId, ConfigStore } from '../store/config.store';
@@ -13,12 +13,12 @@ if (!!React) {
 export { ConfigKeyContext };
 
 export const createConfigHook = (
-    container: Container
+    container: Container.IContainer
 ) => <T extends ConfigData = ConfigData>(
     key: string, context?: string
 ): T => {
-    const configStore = container.get<ConfigStore>(LIGUI_TYPES.CONFIG_STORE);
-    const configService = container.get<ConfigService>(LIGUI_TYPES.CONFIG_SERVICE);
+    const configStore = container[LIGUI_TYPES.CONFIG_STORE] as ConfigStore;
+    const configService = container[LIGUI_TYPES.CONFIG_SERVICE] as ConfigService;
 
     const configContext = context || React.useContext(ConfigKeyContext);
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container } from 'inversify';
+import * as Container from 'bottlejs';
 import { RESET_SCOPE_ACTION, RESTORE_SCOPE_ACTION } from '@sardonyxwt/state-store';
 import { InternationalizationService, Translator } from '../service/internationalization.service';
 import { LIGUI_TYPES } from '../types';
@@ -26,9 +26,9 @@ export interface InternationalizationHookReturnType {
 }
 
 export const createI18nHook = (
-    container: Container
+    container: Container.IContainer
 ) => (): InternationalizationHookReturnType => {
-    const internationalizationStore = container.get<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE);
+    const internationalizationStore = container[LIGUI_TYPES.INTERNATIONALIZATION_STORE] as InternationalizationStore;
 
     const prepareI18nState = (): InternationalizationHookReturnType => ({
         setLocale: (locale: string) => internationalizationStore.setLocale(locale),
@@ -55,12 +55,12 @@ export const createI18nHook = (
 export type TranslatorHookReturnType = [Translator, boolean];
 
 export const createTranslatorHook = (
-    container: Container
+    container: Container.IContainer
 ) => (
     translateUnitKey: string, context?: string
 ): TranslatorHookReturnType => {
-    const internationalizationStore = container.get<InternationalizationStore>(LIGUI_TYPES.INTERNATIONALIZATION_STORE);
-    const internationalizationService = container.get<InternationalizationService>(LIGUI_TYPES.INTERNATIONALIZATION_SERVICE);
+    const internationalizationStore = container[LIGUI_TYPES.INTERNATIONALIZATION_STORE] as InternationalizationStore;
+    const internationalizationService = container[LIGUI_TYPES.INTERNATIONALIZATION_SERVICE] as InternationalizationService;
 
     const internationalizationContext = context || React.useContext(InternationalizationKeyContext);
 

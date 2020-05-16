@@ -1,6 +1,6 @@
 {
     "name": "@sardonyxwt/ligui",
-    "version": "15.3.4",
+    "version": "16.0.0",
     "description": "Ligui",
     "main": "./dist/ligui.min.js",
     "typings": "./dist/@types/ligui.d.ts",
@@ -35,7 +35,7 @@
         "@sardonyxwt/event-bus": "1.4.4",
         "@sardonyxwt/state-store": "5.6.1",
         "@sardonyxwt/utils": "3.3.1",
-        "inversify": "^5.0.1",
+        "bottlejs": "^1.7.2",
         "react": "^16.13.1",
         "react-dom": "^16.13.1"
     },

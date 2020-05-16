@@ -1,21 +1,16 @@
-import { Container, interfaces } from 'inversify';
+import * as Container from 'bottlejs';
 import { createStore, isStoreExist, Store } from '@sardonyxwt/state-store';
 import { createEventBus, isEventBusExist, EventBus } from '@sardonyxwt/event-bus';
 
 export interface Context {
     readonly store: Store;
-    readonly container: Container;
+    readonly bottle: Container;
     readonly eventBus: EventBus;
 }
 
-const defaultContainerOptions: interfaces.ContainerOptions = {
-    autoBindInjectable: true,
-    skipBaseClassChecks: true
-};
-
 export function createContext(
     name: string,
-    container: Container = new Container(defaultContainerOptions)
+    bottle: Container = new Container(name)
 ): Context {
     if (isStoreExist(name)) {
         throw new Error(`Ligui store exist with name ${name}`);
@@ -27,6 +22,6 @@ export function createContext(
     return Object.freeze({
         store: createStore({name}),
         eventBus: createEventBus({name}),
-        container
+        bottle: bottle
     });
 }

@@ -32,7 +32,6 @@ module.exports = {
     ],
     externals: {
         'react': 'react',
-        'react-dom': 'react-dom',
-        'inversify': 'inversify'
+        'react-dom': 'react-dom'
     },
 };

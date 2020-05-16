@@ -20,7 +20,7 @@ export const useData = <T>(
                 return unsubscribeCallback;
             }
         }
-    });
+    }, []);
 
     return data;
 };

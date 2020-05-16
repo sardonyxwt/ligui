@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container } from 'inversify';
+import * as Container from 'bottlejs';
 import { ModuleService } from '../service/module.service';
 import { LIGUI_TYPES } from '../types';
 import { ModuleId, ModuleStore } from '../store/module.store';
@@ -13,12 +13,12 @@ if (!!React) {
 export { ModuleKeyContext };
 
 export const createModuleHook = (
-    container: Container
+    container: Container.IContainer
 ) => <T = any>(
     key: string, context?: string
 ): T => {
-    const moduleStore = container.get<ModuleStore>(LIGUI_TYPES.MODULE_STORE);
-    const moduleService = container.get<ModuleService>(LIGUI_TYPES.MODULE_SERVICE);
+    const moduleStore = container[LIGUI_TYPES.MODULE_STORE] as ModuleStore;
+    const moduleService = container[LIGUI_TYPES.MODULE_SERVICE] as ModuleService;
 
     const moduleContext = context || React.useContext(ModuleKeyContext);
 
