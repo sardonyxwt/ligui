@@ -1,5 +1,6 @@
 export declare const LIGUI_TYPES: {
     STORE: string;
+    EVENT_BUS: string;
     MODULE_STORE: string;
     RESOURCE_STORE: string;
     INTERNATIONALIZATION_STORE: string;

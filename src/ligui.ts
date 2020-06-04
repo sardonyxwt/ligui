@@ -38,6 +38,7 @@ import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';
 import { useRef } from './hook/ref.hook';
 import { createStateHook } from './hook/state.hook';
+import { createEventHook } from './hook/event.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resource.hook';
 import {
@@ -70,6 +71,7 @@ export * from './hook/data.hook';
 export * from './hook/id.hook';
 export * from './hook/ref.hook';
 export * from './hook/state.hook';
+export * from './hook/event.hook';
 export * from './hook/dependency.hook';
 export * from './hook/internationalization.hook';
 export * from './hook/config.hook';
@@ -134,6 +136,7 @@ export interface Ligui {
     useRef: typeof useRef;
     useData: typeof useData;
     useState: ReturnType<typeof createStateHook>;
+    useEvent: ReturnType<typeof createEventHook>;
     useDependency: ReturnType<typeof createDependencyHook>;
     useModule: ReturnType<typeof createModuleHook>;
     useResource: ReturnType<typeof createResourceHook>;
@@ -151,6 +154,24 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
     const context = createContext(config.name, config.bottle);
 
     context.bottle.constant(LIGUI_TYPES.STORE, context.store);
+    context.bottle.constant(LIGUI_TYPES.EVENT_BUS, context.eventBus);
+
+    context.bottle.factory(
+        LIGUI_TYPES.CONFIG_STORE,
+        () => createConfigStore(context.store, {
+            configs: config.configs
+        })
+    );
+
+    context.bottle.factory(
+        LIGUI_TYPES.INTERNATIONALIZATION_STORE,
+        () => createInternationalizationStore(context.store, {
+            locales: config.locales,
+            currentLocale: config.currentLocale,
+            defaultLocale: config.defaultLocale,
+            translateUnits: config.translateUnits
+        })
+    );
 
     context.bottle.factory(
         LIGUI_TYPES.MODULE_STORE,
@@ -167,20 +188,19 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
     );
 
     context.bottle.factory(
-        LIGUI_TYPES.INTERNATIONALIZATION_STORE,
-        () => createInternationalizationStore(context.store, {
-            locales: config.locales,
-            currentLocale: config.currentLocale,
-            defaultLocale: config.defaultLocale,
-            translateUnits: config.translateUnits
-        })
+        LIGUI_TYPES.CONFIG_SERVICE,
+        (container) => new ConfigServiceImpl(
+            container[LIGUI_TYPES.CONFIG_STORE] as ConfigStore,
+            config.configLoaders
+        )
     );
 
     context.bottle.factory(
-        LIGUI_TYPES.CONFIG_STORE,
-        () => createConfigStore(context.store, {
-            configs: config.configs
-        })
+        LIGUI_TYPES.INTERNATIONALIZATION_SERVICE,
+        (container) => new InternationalizationServiceImpl(
+            container[LIGUI_TYPES.INTERNATIONALIZATION_STORE] as InternationalizationStore,
+            config.internationalizationLoaders
+        )
     );
 
     context.bottle.factory(
@@ -197,40 +217,16 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
     );
 
     context.bottle.factory(
-        LIGUI_TYPES.RESOURCE_SERVICE,
-        (container) => new ResourceServiceImpl(
-            container[LIGUI_TYPES.RESOURCE_STORE] as ResourceStore,
-            config.resourceLoaders
-        )
-    );
-
-    context.bottle.factory(
-        LIGUI_TYPES.RESOURCE_SERVICE,
-        (container) => new ResourceServiceImpl(
-            container[LIGUI_TYPES.RESOURCE_STORE] as ResourceStore,
-            config.resourceLoaders
-        )
-    );
-
-    context.bottle.factory(
-        LIGUI_TYPES.INTERNATIONALIZATION_SERVICE,
-        (container) => new InternationalizationServiceImpl(
-            container[LIGUI_TYPES.INTERNATIONALIZATION_STORE] as InternationalizationStore,
-            config.internationalizationLoaders
-        )
-    );
-
-    context.bottle.factory(
-        LIGUI_TYPES.CONFIG_SERVICE,
-        (container) => new ConfigServiceImpl(
-            container[LIGUI_TYPES.CONFIG_STORE] as ConfigStore,
-            config.configLoaders
-        )
-    );
-
-    context.bottle.factory(
         LIGUI_TYPES.REPOSITORY_SERVICE,
         () => new RepositoryServiceImpl()
+    );
+
+    context.bottle.factory(
+        LIGUI_TYPES.RESOURCE_SERVICE,
+        (container) => new ResourceServiceImpl(
+            container[LIGUI_TYPES.RESOURCE_STORE] as ResourceStore,
+            config.resourceLoaders
+        )
     );
 
     const ligui: Ligui = {
@@ -295,6 +291,7 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         useRef,
         useData,
         useState: createStateHook(context.store),
+        useEvent: createEventHook(context.eventBus),
         useModule: createModuleHook(context.bottle.container),
         useResource: createResourceHook(context.bottle.container),
         useI18n: createI18nHook(context.bottle.container),

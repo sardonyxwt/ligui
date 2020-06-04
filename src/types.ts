@@ -1,5 +1,6 @@
 export const LIGUI_TYPES = {
     STORE: '$store',
+    EVENT_BUS: '$eventBus',
     MODULE_STORE: '$moduleStore',
     RESOURCE_STORE: '$resourceStore',
     INTERNATIONALIZATION_STORE: '$internationalizationStore',
