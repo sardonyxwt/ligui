@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Container from 'bottlejs';
 import { RESET_SCOPE_ACTION, RESTORE_SCOPE_ACTION } from '@sardonyxwt/state-store';
-import { InternationalizationService, Translator } from '../service/internationalization.service';
+import { InternationalizationService, Translator, TranslatorArgs } from '../service/internationalization.service';
 import { LIGUI_TYPES } from '../types';
 import {
     InternationalizationStore,
@@ -66,7 +66,10 @@ export const createTranslatorHook = (
 
     const getTranslator = (): Translator =>  {
         const translator = internationalizationService.getTranslator(internationalizationContext);
-        return <T = string>(key: string, defaultValue?: T) => translator<T>(`${translateUnitKey}.${key}`, defaultValue);
+        return <T = string>(
+            key: string,
+            argsOrDefaultValue?: T | TranslatorArgs<T>
+        ) => translator<T>(`${translateUnitKey}.${key}`, argsOrDefaultValue);
     };
 
     const getId = (): TranslateUnitId => ({

@@ -7,7 +7,12 @@ import {
     TranslateUnitId
 } from '../store/internationalization.store';
 
-export type Translator = <T = string>(key: string, defaultValue?: T) => T;
+export interface TranslatorArgs<T> {
+    defaultValue?: T,
+    [key: string]: any
+}
+
+export type Translator = <T = string>(key: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => T;
 
 export interface TranslateUnitLoader {
     readonly context?: string;
@@ -90,10 +95,14 @@ export class InternationalizationServiceImpl implements InternationalizationServ
     }
 
     getTranslator(context: string, locale?: string): Translator {
-        return <T>(path: string, defaultValue?: T) => {
+        return <T>(path: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => {
             if (typeof path !== 'string') {
                 throw new Error(`Invalid translator arg path format ${path}`)
             }
+
+            const resolvedArgs: TranslatorArgs<T> = typeof argsOrDefaultValue === 'string'
+                ? {defaultValue: argsOrDefaultValue}
+                : argsOrDefaultValue;
 
             const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
 
@@ -104,20 +113,31 @@ export class InternationalizationServiceImpl implements InternationalizationServ
                 ?? this._store.findTranslateUnitById(defaultTranslateUnitId);
 
             if (translateUnit === undefined) {
-                return defaultValue;
+                return resolvedArgs.defaultValue;
             }
 
-            let result = translateUnit.data;
+            let result: string | TranslateUnitData = translateUnit.data;
 
             for (let i = 0; i < pathParts.length && !!result; i++) {
                 result = result[pathParts[i]] as TranslateUnitData;
             }
 
             if (result === undefined) {
-                return defaultValue;
+                return resolvedArgs.defaultValue;
             }
 
-            return result as unknown as T;
+            if (typeof result !== 'string') {
+                return result as unknown as T;
+            }
+
+            Object.keys(resolvedArgs).forEach(argKey => {
+                result = (result as string).replace(
+                    `\${${argKey}`,
+                    JSON.stringify(resolvedArgs[argKey])
+                );
+            });
+
+            return result;
         };
     }
 

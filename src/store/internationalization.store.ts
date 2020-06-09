@@ -8,9 +8,7 @@ export interface TranslateUnitId {
     readonly context?: string;
 }
 
-export interface TranslateUnitData {
-    readonly [key: string]: string | number | boolean | TranslateUnitData | TranslateUnitData[];
-}
+export type TranslateUnitData = Record<string, any>;
 
 export interface TranslateUnit {
     readonly id: TranslateUnitId;
