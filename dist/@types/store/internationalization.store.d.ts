@@ -4,9 +4,7 @@ export interface TranslateUnitId {
     readonly locale: string;
     readonly context?: string;
 }
-export interface TranslateUnitData {
-    readonly [key: string]: string | number | boolean | TranslateUnitData | TranslateUnitData[];
-}
+export declare type TranslateUnitData = Record<string, any>;
 export interface TranslateUnit {
     readonly id: TranslateUnitId;
     readonly data: TranslateUnitData;

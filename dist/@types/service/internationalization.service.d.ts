@@ -1,5 +1,9 @@
 import { InternationalizationStore, TranslateUnit, TranslateUnitData, TranslateUnitId } from '../store/internationalization.store';
-export declare type Translator = <T = string>(key: string, defaultValue?: T) => T;
+export interface TranslatorArgs<T> {
+    defaultValue?: T;
+    [key: string]: any;
+}
+export declare type Translator = <T = string>(key: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => T;
 export interface TranslateUnitLoader {
     readonly context?: string;
     readonly loader: (key: string, locale: string) => TranslateUnitData | Promise<TranslateUnitData>;

@@ -100,9 +100,13 @@ export class InternationalizationServiceImpl implements InternationalizationServ
                 throw new Error(`Invalid translator arg path format ${path}`)
             }
 
-            const resolvedArgs: TranslatorArgs<T> = typeof argsOrDefaultValue === 'string'
-                ? {defaultValue: argsOrDefaultValue}
-                : argsOrDefaultValue;
+            let resolvedArgs: TranslatorArgs<T> = {};
+
+            if (typeof argsOrDefaultValue === 'string') {
+                resolvedArgs = {defaultValue: argsOrDefaultValue};
+            } else if (typeof argsOrDefaultValue === 'object') {
+                resolvedArgs = argsOrDefaultValue;
+            }
 
             const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
 
