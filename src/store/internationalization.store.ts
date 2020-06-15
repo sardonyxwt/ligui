@@ -25,7 +25,7 @@ export interface InternationalizationStoreState {
 export interface InternationalizationStore extends Scope<InternationalizationStoreState> {
     setLocale(locale: string): void;
     setTranslateUnits(translateUnits: TranslateUnit[]): void;
-    setTranslationsForLocale(locale: string, translationObject: Record<string, TranslateUnitData>, context?: string)
+    setTranslationForLocale(locale: string, translationObject: Record<string, TranslateUnitData>, context?: string): void;
 
     findTranslateUnitById(id: TranslateUnitId): TranslateUnit;
 
@@ -79,7 +79,7 @@ export const createInternationalizationStore = (store: Store, initState: Interna
         }
     );
 
-    internationalizationStore.setTranslationsForLocale = (
+    internationalizationStore.setTranslationForLocale = (
         locale: string,
         translationObject: Record<string, TranslateUnitData>,
         context?
