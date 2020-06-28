@@ -5,7 +5,7 @@ export const createStateHook = (
     store: Store
 ) => <T = any, MappedState = T>(
     scope: string | Scope,
-    actions: string[] = null,
+    actions?: string[],
     mapper?: (state: T) => MappedState,
     optimizer?: (oldState: MappedState, newState: MappedState) => boolean
 ): MappedState => {
