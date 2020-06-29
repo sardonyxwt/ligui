@@ -62,7 +62,7 @@ export interface LiguiConfig {
     internationalizationLoaders?: TranslateUnitLoader[];
     configLoaders?: ConfigLoader[];
 }
-export interface Index {
+export interface Ligui {
     readonly jsx: JSXService;
     readonly resource: {
         store: ResourceStore;
@@ -107,4 +107,4 @@ export interface Index {
     useTranslator: ReturnType<typeof createTranslatorHook>;
     useConfig: ReturnType<typeof createConfigHook>;
 }
-export declare function createNewLiguiInstance(config: LiguiConfig): Index;
+export declare function createNewLiguiInstance(config: LiguiConfig): Ligui;

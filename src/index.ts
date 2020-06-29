@@ -96,7 +96,7 @@ export interface LiguiConfig {
     configLoaders?: ConfigLoader[];
 }
 
-export interface Index {
+export interface Ligui {
     readonly jsx: JSXService;
     readonly resource: {
         store: ResourceStore;
@@ -145,7 +145,7 @@ export interface Index {
     useConfig: ReturnType<typeof createConfigHook>;
 }
 
-export function createNewLiguiInstance(config: LiguiConfig): Index {
+export function createNewLiguiInstance(config: LiguiConfig): Ligui {
     // Check Ligui instance is present for HMR
     if (!!global[config.name]) {
         throw new Error(`Ligui instance present in global object with name: ${config.name}`);
@@ -229,7 +229,7 @@ export function createNewLiguiInstance(config: LiguiConfig): Index {
         )
     );
 
-    const ligui: Index = {
+    const ligui: Ligui = {
         get jsx() {
             return context.bottle.container[LIGUI_TYPES.JSX_SERVICE] as JSXService;
         },
