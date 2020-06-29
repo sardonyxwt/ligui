@@ -1,27 +1,10 @@
 {
-    "compileOnSave": false,
     "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "jsx": "react",
-        "alwaysStrict": true,
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "lib": [
-            "es2015",
-            "dom"
-        ],
-        "noImplicitAny": false,
-        "allowSyntheticDefaultImports": true,
-        "suppressImplicitAnyIndexErrors": true,
-        "typeRoots": [
-            "node_modules/@types/"
-        ],
-        "sourceMap": true,
+        "target": "ESNext",
         "declaration": true,
-        "declarationMap": true,
-        "declarationDir": "./dist/@types",
-        "baseUrl": "."
+        "declarationDir": "lib/types",
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "moduleResolution": "Node"
     }
 }

@@ -1,4 +1,4 @@
-import { saveToArray, deleteFromArray } from '@sardonyxwt/utils/object';
+import { saveToArray, deleteFromArray } from '@sardonyxwt/utils';
 import { isModulesIdsEqual, Module, ModuleId, ModuleStore } from '../store/module.store';
 
 export interface ModuleLoader {

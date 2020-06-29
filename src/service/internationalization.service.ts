@@ -1,4 +1,4 @@
-import { deleteFromArray, saveToArray } from '@sardonyxwt/utils/object';
+import { deleteFromArray, saveToArray } from '@sardonyxwt/utils';
 import {
     InternationalizationStore,
     isTranslateUnitsIdsEqual,

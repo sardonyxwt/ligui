@@ -1,5 +1,5 @@
 import { Scope, Store } from '@sardonyxwt/state-store';
-import { saveToArray, copyArray } from '@sardonyxwt/utils/object';
+import { saveToArray, copyArray } from '@sardonyxwt/utils';
 import { LIGUI_TYPES } from '../types';
 
 export interface TranslateUnitId {

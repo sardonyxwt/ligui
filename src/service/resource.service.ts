@@ -1,4 +1,4 @@
-import { deleteFromArray, saveToArray } from '@sardonyxwt/utils/object';
+import { deleteFromArray, saveToArray } from '@sardonyxwt/utils';
 import { isResourcesIdsEqual, Resource, ResourceId, ResourceStore } from '../store/resource.store';
 
 export interface ResourceLoader {

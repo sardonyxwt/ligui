@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createUniqueIdGenerator } from '@sardonyxwt/utils/generator';
+import { createUniqueIdGenerator } from '@sardonyxwt/utils';
 
 const idHookListenerIdGenerator = createUniqueIdGenerator('IdHook');
 

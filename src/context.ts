@@ -1,4 +1,4 @@
-import * as Container from 'bottlejs';
+import Container from 'bottlejs';
 import { createStore, isStoreExist, Store } from '@sardonyxwt/state-store';
 import { createEventBus, isEventBusExist, EventBus } from '@sardonyxwt/event-bus';
 

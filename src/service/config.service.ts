@@ -1,4 +1,4 @@
-import { deleteFromArray, saveToArray } from '@sardonyxwt/utils/object';
+import { deleteFromArray, saveToArray } from '@sardonyxwt/utils';
 import { Config, ConfigData, ConfigId, ConfigStore, isConfigsIdsEqual } from '../store/config.store';
 
 export interface ConfigLoader {
