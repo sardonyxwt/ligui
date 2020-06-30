@@ -12,7 +12,10 @@ export interface TranslatorArgs<T> {
     [key: string]: any
 }
 
-export type Translator = <T = string>(key: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => T;
+export type Translator = (<T = string>(key: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => T) & {
+    locale: string;
+    prefix: string;
+};
 
 export interface TranslateUnitLoader {
     readonly context?: string;
@@ -69,7 +72,7 @@ export class InternationalizationServiceImpl implements InternationalizationServ
         }
 
         const translateUnitData = translateUnitLoader.loader(id.key, id.locale)
-            ?? translateUnitLoader.loader(id.key, _store.state.defaultLocale);
+            ?? translateUnitLoader.loader(id.key, _store.getDefaultLocale());
 
         const resolveTranslateUnit = (translateUnitData: TranslateUnitData): TranslateUnit => {
             const translateUnit: TranslateUnit = {id, data: translateUnitData};
@@ -95,7 +98,7 @@ export class InternationalizationServiceImpl implements InternationalizationServ
     }
 
     getTranslator(context: string, locale?: string): Translator {
-        return <T>(path: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => {
+        const translator: Translator = <T>(path: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => {
             if (typeof path !== 'string') {
                 throw new Error(`Invalid translator arg path format ${path}`)
             }
@@ -108,10 +111,12 @@ export class InternationalizationServiceImpl implements InternationalizationServ
                 resolvedArgs = argsOrDefaultValue;
             }
 
-            const [key, ...pathParts] = path.split(/[.\[\]]/).filter(it => it !== '');
+            const resolvedPath = `${translator.prefix}${path}`;
 
-            const translateUnitId: TranslateUnitId = {key, context, locale: locale || this._store.state.currentLocale};
-            const defaultTranslateUnitId: TranslateUnitId = {key, context, locale: this._store.state.defaultLocale};
+            const [key, ...pathParts] = resolvedPath.split(/[.\[\]]/).filter(it => it !== '');
+
+            const translateUnitId: TranslateUnitId = {key, context, locale: locale || this._store.getCurrentLocale()};
+            const defaultTranslateUnitId: TranslateUnitId = {key, context, locale: this._store.getDefaultLocale()};
 
             let translateUnit = this._store.findTranslateUnitById(translateUnitId)
                 ?? this._store.findTranslateUnitById(defaultTranslateUnitId);
@@ -143,6 +148,11 @@ export class InternationalizationServiceImpl implements InternationalizationServ
 
             return result;
         };
+
+        translator.locale = this._store.getCurrentLocale();
+        translator.prefix = '';
+
+        return translator;
     }
 
 }

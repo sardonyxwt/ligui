@@ -19,6 +19,9 @@ export interface InternationalizationStore extends Scope<InternationalizationSto
     setLocale(locale: string): void;
     setTranslateUnits(translateUnits: TranslateUnit[]): void;
     setTranslationForLocale(locale: string, translationObject: Record<string, TranslateUnitData>, context?: string): void;
+    getCurrentLocale(): string;
+    getDefaultLocale(): string;
+    getLocales(): string[];
     findTranslateUnitById(id: TranslateUnitId): TranslateUnit;
     isLocaleExist(locale: string): boolean;
     isTranslateUnitExist(id: TranslateUnitId): boolean;

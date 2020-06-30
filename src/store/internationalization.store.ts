@@ -27,6 +27,10 @@ export interface InternationalizationStore extends Scope<InternationalizationSto
     setTranslateUnits(translateUnits: TranslateUnit[]): void;
     setTranslationForLocale(locale: string, translationObject: Record<string, TranslateUnitData>, context?: string): void;
 
+    getCurrentLocale(): string;
+    getDefaultLocale(): string;
+    getLocales(): string[];
+
     findTranslateUnitById(id: TranslateUnitId): TranslateUnit;
 
     isLocaleExist(locale: string): boolean;
@@ -90,6 +94,10 @@ export const createInternationalizationStore = (store: Store, initState: Interna
         }))
         internationalizationStore.setTranslateUnits(translationUnits);
     }
+
+    internationalizationStore.getCurrentLocale = () => internationalizationStore.state.currentLocale;
+    internationalizationStore.getDefaultLocale = () => internationalizationStore.state.defaultLocale;
+    internationalizationStore.getLocales = () => internationalizationStore.state.locales;
 
     internationalizationStore.findTranslateUnitById = (id: TranslateUnitId) => {
         return internationalizationStore.state.translateUnits.find(

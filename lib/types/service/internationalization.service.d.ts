@@ -3,7 +3,10 @@ export interface TranslatorArgs<T> {
     defaultValue?: T;
     [key: string]: any;
 }
-export declare type Translator = <T = string>(key: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => T;
+export declare type Translator = (<T = string>(key: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => T) & {
+    locale: string;
+    prefix: string;
+};
 export interface TranslateUnitLoader {
     readonly context?: string;
     readonly loader: (key: string, locale: string) => TranslateUnitData | Promise<TranslateUnitData>;

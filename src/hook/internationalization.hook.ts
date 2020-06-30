@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Container from 'bottlejs';
 import { RESET_SCOPE_ACTION, RESTORE_SCOPE_ACTION } from '@sardonyxwt/state-store';
-import { InternationalizationService, Translator, TranslatorArgs } from '../service/internationalization.service';
+import { InternationalizationService, Translator } from '../service/internationalization.service';
 import { LIGUI_TYPES } from '../types';
 import {
     InternationalizationStore,
@@ -32,9 +32,9 @@ export const createI18nHook = (
 
     const prepareI18nState = (): InternationalizationHookReturnType => ({
         setLocale: (locale: string) => internationalizationStore.setLocale(locale),
-        currentLocale: internationalizationStore.state.currentLocale,
-        defaultLocale: internationalizationStore.state.defaultLocale,
-        locales: internationalizationStore.state.locales
+        currentLocale: internationalizationStore.getCurrentLocale(),
+        defaultLocale: internationalizationStore.getDefaultLocale(),
+        locales: internationalizationStore.getLocales()
     });
 
     const [i18nState, setI18nState] = React.useState<InternationalizationHookReturnType>(prepareI18nState);
@@ -66,16 +66,14 @@ export const createTranslatorHook = (
 
     const getTranslator = (): Translator =>  {
         const translator = internationalizationService.getTranslator(internationalizationContext);
-        return <T = string>(
-            key: string,
-            argsOrDefaultValue?: T | TranslatorArgs<T>
-        ) => translator<T>(`${translateUnitKey}.${key}`, argsOrDefaultValue);
+        translator.prefix = `${translateUnitKey}.`;
+        return translator;
     };
 
     const getId = (): TranslateUnitId => ({
         key: translateUnitKey,
         context: internationalizationContext,
-        locale: internationalizationStore.state.currentLocale
+        locale: internationalizationStore.getCurrentLocale()
     });
 
     const prepareTranslator = () => {
