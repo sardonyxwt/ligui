@@ -1,6 +1,6 @@
 {
     "name": "@sardonyxwt/ligui",
-    "version": "16.2.10",
+    "version": "16.2.11",
     "description": "Ligui",
     "main": "lib/ligui.cjs.js",
     "module": "lib/ligui.esm.js",

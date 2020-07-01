@@ -3,7 +3,7 @@ export interface TranslatorArgs<T> {
     defaultValue?: T;
     [key: string]: any;
 }
-export declare type Translator = (<T = string>(key: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => T) & {
+export declare type Translator = (<T = string>(path: string | Record<string, any>, argsOrDefaultValue?: T | TranslatorArgs<T>) => T) & {
     locale: string;
     prefix: string;
 };

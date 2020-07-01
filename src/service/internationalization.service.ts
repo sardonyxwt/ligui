@@ -12,7 +12,7 @@ export interface TranslatorArgs<T> {
     [key: string]: any
 }
 
-export type Translator = (<T = string>(key: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => T) & {
+export type Translator = (<T = string>(path: string | Record<string, any>, argsOrDefaultValue?: T | TranslatorArgs<T>) => T) & {
     locale: string;
     prefix: string;
 };
@@ -98,17 +98,21 @@ export class InternationalizationServiceImpl implements InternationalizationServ
     }
 
     getTranslator(context: string, locale?: string): Translator {
-        const translator: Translator = <T>(path: string, argsOrDefaultValue?: T | TranslatorArgs<T>) => {
-            if (typeof path !== 'string') {
-                throw new Error(`Invalid translator arg path format ${path}`)
-            }
-
+        const translator: Translator = <T>(path: string | Record<string, any>, argsOrDefaultValue?: T | TranslatorArgs<T>) => {
             let resolvedArgs: TranslatorArgs<T> = {};
 
             if (typeof argsOrDefaultValue === 'string') {
                 resolvedArgs = {defaultValue: argsOrDefaultValue};
             } else if (typeof argsOrDefaultValue === 'object') {
                 resolvedArgs = argsOrDefaultValue;
+            }
+
+            if (typeof path === 'object') {
+                return path[translator.locale] || resolvedArgs.defaultValue;
+            }
+
+            if (typeof path !== 'string') {
+                throw new Error(`Invalid translator arg path format ${path}`)
             }
 
             const resolvedPath = `${translator.prefix}${path}`;
@@ -149,7 +153,7 @@ export class InternationalizationServiceImpl implements InternationalizationServ
             return result;
         };
 
-        translator.locale = this._store.getCurrentLocale();
+        translator.locale = locale || this._store.getCurrentLocale();
         translator.prefix = '';
 
         return translator;
