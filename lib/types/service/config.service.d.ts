@@ -1,4 +1,4 @@
-import { Config, ConfigData, ConfigId, ConfigStore } from '../store/config.store';
+import { Config, ConfigData, ConfigId, ConfigStore } from "../store/config.store";
 export interface ConfigLoader {
     readonly context?: string;
     readonly loader: (key: string) => ConfigData | Promise<ConfigData>;

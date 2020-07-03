@@ -7,9 +7,7 @@ export interface ConfigId {
     readonly context?: string;
 }
 
-export interface ConfigData {
-    readonly [key: string]: ConfigData | ConfigData[] | any;
-}
+export type ConfigData = Record<string, unknown>;
 
 export interface Config<T extends ConfigData = ConfigData> {
     readonly id: ConfigId;
@@ -29,34 +27,43 @@ export interface ConfigStore extends Scope<ConfigStoreState> {
 }
 
 export enum ConfigStoreActions {
-    UpdateConfigs = 'CONFIGS_UPDATE'
+    UpdateConfigs = 'CONFIGS_UPDATE',
 }
 
-export const createConfigStore = (store: Store, initState: ConfigStoreState) => {
-    const configStore = store.createScope({
-        name: LIGUI_TYPES.CONFIG_STORE,
-        initState: {
-            configs: initState.configs || []
+export const createConfigStore = (
+    store: Store,
+    initState: ConfigStoreState,
+): ConfigStore => {
+    const configStore = store.createScope(
+        {
+            name: LIGUI_TYPES.CONFIG_STORE,
+            initState: {
+                configs: initState.configs || [],
+            },
+            isSubscribedMacroAutoCreateEnabled: true,
         },
-        isSubscribedMacroAutoCreateEnabled: true,
-    }, true) as ConfigStore;
+        true,
+    ) as ConfigStore;
 
     configStore.setConfigs = configStore.registerAction(
         ConfigStoreActions.UpdateConfigs,
         (state, configs: Config[]) => {
             const updatedConfigs = copyArray(state.configs);
-            configs.forEach(config => saveToArray(
-                updatedConfigs, config,
-                existConfig => isConfigsIdsEqual(config.id, existConfig.id)
-            ));
+            configs.forEach((config) =>
+                saveToArray(updatedConfigs, config, (existConfig) =>
+                    isConfigsIdsEqual(config.id, existConfig.id),
+                ),
+            );
             return {
-                configs: updatedConfigs
-            }
-        }
+                configs: updatedConfigs,
+            };
+        },
     );
 
-    configStore.findConfigById = <T>(id: ConfigId) => {
-        return configStore.state.configs.find(config => isConfigsIdsEqual(config.id, id)) as Config<T>;
+    configStore.findConfigById = <T extends ConfigData>(id: ConfigId) => {
+        return configStore.state.configs.find((config) =>
+            isConfigsIdsEqual(config.id, id),
+        ) as Config<T>;
     };
 
     configStore.isConfigExist = (id: ConfigId) => {
@@ -64,9 +71,14 @@ export const createConfigStore = (store: Store, initState: ConfigStoreState) => 
     };
 
     return configStore;
-}
+};
 
-export function isConfigsIdsEqual(configId1: ConfigId, configId2: ConfigId) {
-    return configId1.key === configId2.key
-        && configId1.context === configId2.context;
+export function isConfigsIdsEqual(
+    configId1: ConfigId,
+    configId2: ConfigId,
+): boolean {
+    return (
+        configId1.key === configId2.key &&
+        configId1.context === configId2.context
+    );
 }

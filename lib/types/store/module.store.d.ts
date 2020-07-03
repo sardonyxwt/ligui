@@ -3,7 +3,7 @@ export interface ModuleId {
     readonly key: string;
     readonly context?: string;
 }
-export interface Module<T = any> {
+export interface Module<T = unknown> {
     readonly id: ModuleId;
     readonly body: T;
 }

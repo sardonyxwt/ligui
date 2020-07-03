@@ -1,9 +1,14 @@
 import { saveToArray, deleteFromArray } from '@sardonyxwt/utils';
-import { isModulesIdsEqual, Module, ModuleId, ModuleStore } from '../store/module.store';
+import {
+    isModulesIdsEqual,
+    Module,
+    ModuleId,
+    ModuleStore,
+} from '../store/module.store';
 
 export interface ModuleLoader {
     readonly context?: string;
-    readonly loader: (key: string) => any | Promise<any>;
+    readonly loader: (key: string) => unknown | Promise<unknown>;
 }
 
 export interface ModulePromise {
@@ -19,64 +24,78 @@ export interface ModuleService {
 }
 
 export class ModuleServiceImpl implements ModuleService {
-
     private _modulePromises: ModulePromise[] = [];
 
-    constructor(protected _store: ModuleStore,
-                protected _moduleLoaders: ModuleLoader[] = []) {
-    }
+    constructor(
+        protected _store: ModuleStore,
+        protected _moduleLoaders: ModuleLoader[] = [],
+    ) {}
 
     setModuleLoader(loader: ModuleLoader): void {
-        deleteFromArray(this._modulePromises, modulePromise => modulePromise.id.context === loader.context);
-        saveToArray(this._moduleLoaders, loader, moduleLoader => moduleLoader.context === loader.context);
+        deleteFromArray(
+            this._modulePromises,
+            (modulePromise) => modulePromise.id.context === loader.context,
+        );
+        saveToArray(
+            this._moduleLoaders,
+            loader,
+            (moduleLoader) => moduleLoader.context === loader.context,
+        );
     }
 
     getModuleLoader(context?: string): ModuleLoader {
-        return this._moduleLoaders.find(loader => loader.context === context);
+        return this._moduleLoaders.find((loader) => loader.context === context);
     }
 
     loadModule<T>(id: ModuleId): Module<T> | Promise<Module<T>> {
-        const {_modulePromises, _moduleLoaders, _store} = this;
+        const { _modulePromises, _moduleLoaders, _store } = this;
 
         if (_store.isModuleExist(id)) {
             return _store.findModuleById(id);
         }
 
-        const modulePromise = _modulePromises.find(it => isModulesIdsEqual(id, it.id));
+        const modulePromise = _modulePromises.find((it) =>
+            isModulesIdsEqual(id, it.id),
+        );
 
         if (modulePromise) {
-            return modulePromise.promise;
+            return modulePromise.promise as Promise<Module<T>>;
         }
 
-        const moduleLoader = _moduleLoaders.find(loader => loader.context === id.context);
+        const moduleLoader = _moduleLoaders.find(
+            (loader) => loader.context === id.context,
+        );
 
         if (!moduleLoader) {
-            throw new Error(`Module loader for key ${JSON.stringify(id)} not found`);
+            throw new Error(
+                `Module loader for key ${JSON.stringify(id)} not found`,
+            );
         }
 
         const moduleBody = moduleLoader.loader(id.key);
 
-        const resolveModule = (moduleBody: any): Module => {
-            const module: Module = {id, body: moduleBody};
+        const resolveModule = (moduleBody: unknown): Module => {
+            const module: Module = { id, body: moduleBody };
             _store.setModules([module]);
             return module;
         };
 
         if (moduleBody instanceof Promise) {
             const newModulePromise: ModulePromise = {
-                id, promise: moduleBody.then(resolveModule)
+                id,
+                promise: moduleBody.then(resolveModule),
             };
 
-            newModulePromise.promise.then(() => deleteFromArray(
-                this._modulePromises,
-                modulePromise => isModulesIdsEqual(modulePromise.id, id)
-            ));
+            newModulePromise.promise.then(() =>
+                deleteFromArray(this._modulePromises, (modulePromise) =>
+                    isModulesIdsEqual(modulePromise.id, id),
+                ),
+            );
 
             _modulePromises.push(newModulePromise);
-            return newModulePromise.promise;
+            return newModulePromise.promise as Promise<Module<T>>;
         }
 
-        return resolveModule(moduleBody);
+        return resolveModule(moduleBody) as Module<T>;
     }
-
 }

@@ -1,9 +1,9 @@
-import { InternationalizationStore, TranslateUnit, TranslateUnitData, TranslateUnitId } from '../store/internationalization.store';
+import { InternationalizationStore, TranslateUnit, TranslateUnitData, TranslateUnitId } from "../store/internationalization.store";
 export interface TranslatorArgs<T> {
     defaultValue?: T;
-    [key: string]: any;
+    [key: string]: unknown;
 }
-export declare type Translator = (<T = string>(path: string | Record<string, any>, argsOrDefaultValue?: T | TranslatorArgs<T>) => T) & {
+export declare type Translator = (<T = string>(path: string | Record<string, unknown>, argsOrDefaultValue?: T | TranslatorArgs<T>) => T) & {
     locale: string;
     prefix: string;
 };

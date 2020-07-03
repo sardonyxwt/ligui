@@ -4,7 +4,7 @@ export interface TranslateUnitId {
     readonly locale: string;
     readonly context?: string;
 }
-export declare type TranslateUnitData = Record<string, any>;
+export declare type TranslateUnitData = Record<string, unknown>;
 export interface TranslateUnit {
     readonly id: TranslateUnitId;
     readonly data: TranslateUnitData;

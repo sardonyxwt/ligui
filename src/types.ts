@@ -10,5 +10,5 @@ export const LIGUI_TYPES = {
     INTERNATIONALIZATION_SERVICE: '$internationalizationService',
     CONFIG_SERVICE: '$configService',
     JSX_SERVICE: '$jsxService',
-    REPOSITORY_SERVICE: '$repositoryService'
+    REPOSITORY_SERVICE: '$repositoryService',
 };

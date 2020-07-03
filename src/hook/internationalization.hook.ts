@@ -1,13 +1,20 @@
 import * as React from 'react';
 import * as Container from 'bottlejs';
-import { RESET_SCOPE_ACTION, RESTORE_SCOPE_ACTION } from '@sardonyxwt/state-store';
-import { InternationalizationService, Translator } from '../service/internationalization.service';
+import {
+    RESET_SCOPE_ACTION,
+    RESTORE_SCOPE_ACTION,
+} from '@sardonyxwt/state-store';
+import {
+    InternationalizationService,
+    Translator,
+} from '../service/internationalization.service';
 import { LIGUI_TYPES } from '../types';
 import {
     InternationalizationStore,
-    InternationalizationStoreActions, isTranslateUnitsIdsEqual,
+    InternationalizationStoreActions,
+    isTranslateUnitsIdsEqual,
     TranslateUnit,
-    TranslateUnitId
+    TranslateUnitId,
 } from '../store/internationalization.store';
 
 let InternationalizationKeyContext: React.Context<string> = null;
@@ -26,18 +33,23 @@ export interface InternationalizationHookReturnType {
 }
 
 export const createI18nHook = (
-    container: Container.IContainer
+    container: Container.IContainer,
 ) => (): InternationalizationHookReturnType => {
-    const internationalizationStore = container[LIGUI_TYPES.INTERNATIONALIZATION_STORE] as InternationalizationStore;
+    const internationalizationStore = container[
+        LIGUI_TYPES.INTERNATIONALIZATION_STORE
+    ] as InternationalizationStore;
 
     const prepareI18nState = (): InternationalizationHookReturnType => ({
-        setLocale: (locale: string) => internationalizationStore.setLocale(locale),
+        setLocale: (locale: string) =>
+            internationalizationStore.setLocale(locale),
         currentLocale: internationalizationStore.getCurrentLocale(),
         defaultLocale: internationalizationStore.getDefaultLocale(),
-        locales: internationalizationStore.getLocales()
+        locales: internationalizationStore.getLocales(),
     });
 
-    const [i18nState, setI18nState] = React.useState<InternationalizationHookReturnType>(prepareI18nState);
+    const [i18nState, setI18nState] = React.useState<
+        InternationalizationHookReturnType
+    >(prepareI18nState);
 
     React.useEffect(() => {
         return internationalizationStore.subscribe(() => {
@@ -45,7 +57,7 @@ export const createI18nHook = (
         }, [
             InternationalizationStoreActions.ChangeLocale,
             RESET_SCOPE_ACTION,
-            RESTORE_SCOPE_ACTION
+            RESTORE_SCOPE_ACTION,
         ]);
     }, []);
 
@@ -54,18 +66,24 @@ export const createI18nHook = (
 
 export type TranslatorHookReturnType = [Translator, boolean];
 
-export const createTranslatorHook = (
-    container: Container.IContainer
-) => (
-    translateUnitKey: string, context?: string
+export const createTranslatorHook = (container: Container.IContainer) => (
+    translateUnitKey: string,
+    context?: string,
 ): TranslatorHookReturnType => {
-    const internationalizationStore = container[LIGUI_TYPES.INTERNATIONALIZATION_STORE] as InternationalizationStore;
-    const internationalizationService = container[LIGUI_TYPES.INTERNATIONALIZATION_SERVICE] as InternationalizationService;
+    const internationalizationStore = container[
+        LIGUI_TYPES.INTERNATIONALIZATION_STORE
+    ] as InternationalizationStore;
+    const internationalizationService = container[
+        LIGUI_TYPES.INTERNATIONALIZATION_SERVICE
+    ] as InternationalizationService;
 
-    const internationalizationContext = context || React.useContext(InternationalizationKeyContext);
+    const internationalizationContext =
+        context || React.useContext(InternationalizationKeyContext);
 
-    const getTranslator = (): Translator =>  {
-        const translator = internationalizationService.getTranslator(internationalizationContext);
+    const getTranslator = (): Translator => {
+        const translator = internationalizationService.getTranslator(
+            internationalizationContext,
+        );
         translator.prefix = `${translateUnitKey}.`;
         return translator;
     };
@@ -73,7 +91,7 @@ export const createTranslatorHook = (
     const getId = (): TranslateUnitId => ({
         key: translateUnitKey,
         context: internationalizationContext,
-        locale: internationalizationStore.getCurrentLocale()
+        locale: internationalizationStore.getCurrentLocale(),
     });
 
     const prepareTranslator = () => {
@@ -85,35 +103,46 @@ export const createTranslatorHook = (
         return translateUnit instanceof Promise ? null : getTranslator();
     };
 
-    const [translator, setTranslator] = React.useState<Translator>(prepareTranslator);
+    const [translator, setTranslator] = React.useState<Translator>(
+        prepareTranslator,
+    );
 
     React.useEffect(() => {
-        return internationalizationStore.subscribe(event => {
-            if (event.actionName === InternationalizationStoreActions.UpdateTranslateUnits) {
-                const translateUnitId = getId();
-                const updatedTranslateUnits = event.props as TranslateUnit[];
-                const isTranslateUnitUpdated = updatedTranslateUnits.findIndex(
-                    it => isTranslateUnitsIdsEqual(it.id, translateUnitId)
-                ) >= 0;
+        return internationalizationStore.subscribe(
+            (event) => {
+                if (
+                    event.actionName ===
+                    InternationalizationStoreActions.UpdateTranslateUnits
+                ) {
+                    const translateUnitId = getId();
+                    const updatedTranslateUnits = event.props as TranslateUnit[];
+                    const isTranslateUnitUpdated =
+                        updatedTranslateUnits.findIndex((it) =>
+                            isTranslateUnitsIdsEqual(it.id, translateUnitId),
+                        ) >= 0;
 
-                if (!isTranslateUnitUpdated) {
-                    return;
+                    if (!isTranslateUnitUpdated) {
+                        return;
+                    }
                 }
-            }
 
-            const translator = prepareTranslator();
-            if (translator) {
-                setTranslator(() => translator);
-            }
-        }, [
-            InternationalizationStoreActions.ChangeLocale,
-            InternationalizationStoreActions.UpdateTranslateUnits,
-            RESET_SCOPE_ACTION,
-            RESTORE_SCOPE_ACTION
-        ]);
+                const translator = prepareTranslator();
+                if (translator) {
+                    setTranslator(() => translator);
+                }
+            },
+            [
+                InternationalizationStoreActions.ChangeLocale,
+                InternationalizationStoreActions.UpdateTranslateUnits,
+                RESET_SCOPE_ACTION,
+                RESTORE_SCOPE_ACTION,
+            ],
+        );
     }, []);
 
     return [
-        translator || (<T>(id, defaultValue) => defaultValue as T), !!translator
+        translator ||
+            ((<T>(id, defaultValue) => defaultValue as T) as Translator),
+        !!translator,
     ];
 };

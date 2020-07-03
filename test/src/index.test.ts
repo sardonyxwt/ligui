@@ -1,11 +1,9 @@
-import { createNewLiguiInstance } from '../src/ligui';
+import { createNewLiguiInstance } from '@source';
 
 describe('Ligui test', () => {
-
     it('createNewLiguiInstance', () => {
         createNewLiguiInstance({
-            name: 'TestLigui'
-        })
+            name: 'TestLigui',
+        });
     });
-
 });

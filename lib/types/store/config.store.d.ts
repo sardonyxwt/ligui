@@ -3,9 +3,7 @@ export interface ConfigId {
     readonly key: string;
     readonly context?: string;
 }
-export interface ConfigData {
-    readonly [key: string]: ConfigData | ConfigData[] | any;
-}
+export declare type ConfigData = Record<string, unknown>;
 export interface Config<T extends ConfigData = ConfigData> {
     readonly id: ConfigId;
     readonly data: T;

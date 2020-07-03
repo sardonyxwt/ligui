@@ -1,7 +1,7 @@
-import { Module, ModuleId, ModuleStore } from '../store/module.store';
+import { Module, ModuleId, ModuleStore } from "../store/module.store";
 export interface ModuleLoader {
     readonly context?: string;
-    readonly loader: (key: string) => any | Promise<any>;
+    readonly loader: (key: string) => unknown | Promise<unknown>;
 }
 export interface ModulePromise {
     readonly id: ModuleId;

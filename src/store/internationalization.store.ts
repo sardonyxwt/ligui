@@ -8,7 +8,7 @@ export interface TranslateUnitId {
     readonly context?: string;
 }
 
-export type TranslateUnitData = Record<string, any>;
+export type TranslateUnitData = Record<string, unknown>;
 
 export interface TranslateUnit {
     readonly id: TranslateUnitId;
@@ -22,10 +22,15 @@ export interface InternationalizationStoreState {
     readonly translateUnits: TranslateUnit[];
 }
 
-export interface InternationalizationStore extends Scope<InternationalizationStoreState> {
+export interface InternationalizationStore
+    extends Scope<InternationalizationStoreState> {
     setLocale(locale: string): void;
     setTranslateUnits(translateUnits: TranslateUnit[]): void;
-    setTranslationForLocale(locale: string, translationObject: Record<string, TranslateUnitData>, context?: string): void;
+    setTranslationForLocale(
+        locale: string,
+        translationObject: Record<string, TranslateUnitData>,
+        context?: string,
+    ): void;
 
     getCurrentLocale(): string;
     getDefaultLocale(): string;
@@ -39,20 +44,26 @@ export interface InternationalizationStore extends Scope<InternationalizationSto
 
 export enum InternationalizationStoreActions {
     ChangeLocale = 'CHANGE_LOCALE',
-    UpdateTranslateUnits = 'UPDATE_TRANSLATE_UNITS'
+    UpdateTranslateUnits = 'UPDATE_TRANSLATE_UNITS',
 }
 
-export const createInternationalizationStore = (store: Store, initState: InternationalizationStoreState) => {
-    const internationalizationStore = store.createScope({
-        name: LIGUI_TYPES.INTERNATIONALIZATION_STORE,
-        initState: {
-            currentLocale: initState.currentLocale || null,
-            defaultLocale: initState.defaultLocale || null,
-            locales: initState.locales || [],
-            translateUnits: initState.translateUnits || []
+export const createInternationalizationStore = (
+    store: Store,
+    initState: InternationalizationStoreState,
+): InternationalizationStore => {
+    const internationalizationStore = store.createScope(
+        {
+            name: LIGUI_TYPES.INTERNATIONALIZATION_STORE,
+            initState: {
+                currentLocale: initState.currentLocale || null,
+                defaultLocale: initState.defaultLocale || null,
+                locales: initState.locales || [],
+                translateUnits: initState.translateUnits || [],
+            },
+            isSubscribedMacroAutoCreateEnabled: true,
         },
-        isSubscribedMacroAutoCreateEnabled: true,
-    }, true) as InternationalizationStore;
+        true,
+    ) as InternationalizationStore;
 
     internationalizationStore.setLocale = internationalizationStore.registerAction(
         InternationalizationStoreActions.ChangeLocale,
@@ -63,50 +74,64 @@ export const createInternationalizationStore = (store: Store, initState: Interna
 
             return {
                 ...state,
-                currentLocale: locale
-            }
-        }
+                currentLocale: locale,
+            };
+        },
     );
 
     internationalizationStore.setTranslateUnits = internationalizationStore.registerAction(
         InternationalizationStoreActions.UpdateTranslateUnits,
         (state, translateUnits: TranslateUnit[]) => {
             const updatedTranslateUnits = copyArray(state.translateUnits);
-            translateUnits.forEach(translateUnit => saveToArray(
-                updatedTranslateUnits, translateUnit,
-                existTranslateUnit => isTranslateUnitsIdsEqual(translateUnit.id, existTranslateUnit.id)
-            ));
+            translateUnits.forEach((translateUnit) =>
+                saveToArray(
+                    updatedTranslateUnits,
+                    translateUnit,
+                    (existTranslateUnit) =>
+                        isTranslateUnitsIdsEqual(
+                            translateUnit.id,
+                            existTranslateUnit.id,
+                        ),
+                ),
+            );
             return {
                 ...state,
-                translateUnits: updatedTranslateUnits
-            }
-        }
+                translateUnits: updatedTranslateUnits,
+            };
+        },
     );
 
     internationalizationStore.setTranslationForLocale = (
         locale: string,
         translationObject: Record<string, TranslateUnitData>,
-        context?
+        context?,
     ) => {
-        const translationUnits: TranslateUnit[] = Object.getOwnPropertyNames(translationObject).map(key => ({
-            id: {key, locale, context},
-            data: translationObject[key]
-        }))
+        const translationUnits: TranslateUnit[] = Object.getOwnPropertyNames(
+            translationObject,
+        ).map((key) => ({
+            id: { key, locale, context },
+            data: translationObject[key],
+        }));
         internationalizationStore.setTranslateUnits(translationUnits);
-    }
+    };
 
-    internationalizationStore.getCurrentLocale = () => internationalizationStore.state.currentLocale;
-    internationalizationStore.getDefaultLocale = () => internationalizationStore.state.defaultLocale;
-    internationalizationStore.getLocales = () => internationalizationStore.state.locales;
+    internationalizationStore.getCurrentLocale = () =>
+        internationalizationStore.state.currentLocale;
+    internationalizationStore.getDefaultLocale = () =>
+        internationalizationStore.state.defaultLocale;
+    internationalizationStore.getLocales = () =>
+        internationalizationStore.state.locales;
 
     internationalizationStore.findTranslateUnitById = (id: TranslateUnitId) => {
         return internationalizationStore.state.translateUnits.find(
-            translateUnit => isTranslateUnitsIdsEqual(translateUnit.id, id)
+            (translateUnit) => isTranslateUnitsIdsEqual(translateUnit.id, id),
         );
     };
 
     internationalizationStore.isLocaleExist = (locale: string) => {
-        return !!internationalizationStore.state.locales.find(it => it === locale);
+        return !!internationalizationStore.state.locales.find(
+            (it) => it === locale,
+        );
     };
 
     internationalizationStore.isTranslateUnitExist = (id: TranslateUnitId) => {
@@ -114,10 +139,15 @@ export const createInternationalizationStore = (store: Store, initState: Interna
     };
 
     return internationalizationStore;
-}
+};
 
-export function isTranslateUnitsIdsEqual(translateUnitId1: TranslateUnitId, translateUnitId2: TranslateUnitId) {
-    return translateUnitId1.key === translateUnitId2.key
-        && translateUnitId1.locale === translateUnitId2.locale
-        && translateUnitId1.context === translateUnitId2.context;
+export function isTranslateUnitsIdsEqual(
+    translateUnitId1: TranslateUnitId,
+    translateUnitId2: TranslateUnitId,
+): boolean {
+    return (
+        translateUnitId1.key === translateUnitId2.key &&
+        translateUnitId1.locale === translateUnitId2.locale &&
+        translateUnitId1.context === translateUnitId2.context
+    );
 }

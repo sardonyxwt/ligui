@@ -1,4 +1,4 @@
-export interface Repository<T = any> {
+export interface Repository<T = unknown> {
     collect?(): T;
     restore?(state: T): void;
     reset?(): void;
@@ -14,22 +14,25 @@ export interface RepositoryService {
     get<T>(id: string): T;
     set<T>(id: string, state: T);
     delete(id: string): void;
-    collect(): {[id: string]: any};
-    restore(restoredStates: {[id: string]: any}): void;
+    collect(): Record<string, unknown>;
+    restore(restoredStates: Record<string, unknown>): void;
     reset(): void;
-    registerRepository<T>(id: string, repository: Repository<T>, config?: RepositoryConfig): void;
+    registerRepository<T>(
+        id: string,
+        repository: Repository<T>,
+        config?: RepositoryConfig,
+    ): void;
 }
 
 export class RepositoryServiceImpl implements RepositoryService {
-
-    private readonly _states = new Map<string, any>();
+    private readonly _states = new Map<string, unknown>();
     private readonly _repositories = new Map<string, Repository>();
 
     get<T>(id: string): T {
-        return this._states.get(id);
+        return this._states.get(id) as T;
     }
 
-    set<T>(id: string, state: T) {
+    set<T>(id: string, state: T): void {
         this._states.set(id, state);
     }
 
@@ -37,7 +40,7 @@ export class RepositoryServiceImpl implements RepositoryService {
         this._states.delete(id);
     }
 
-    collect(): {[id: string]: any} {
+    collect(): Record<string, unknown> {
         const result = {};
         this._repositories.forEach((repository, id) => {
             const state = repository.collect?.();
@@ -49,11 +52,11 @@ export class RepositoryServiceImpl implements RepositoryService {
     }
 
     reset(): void {
-        this._repositories.forEach(repository => repository.reset?.())
+        this._repositories.forEach((repository) => repository.reset?.());
     }
 
-    restore(restoredStates: {[id: string]: any}): void {
-        Object.getOwnPropertyNames(restoredStates).forEach(id => {
+    restore(restoredStates: Record<string, unknown>): void {
+        Object.getOwnPropertyNames(restoredStates).forEach((id) => {
             const restoredState = restoredStates[id];
             this._repositories.has(id)
                 ? this._repositories.get(id).restore?.(restoredState)
@@ -61,11 +64,15 @@ export class RepositoryServiceImpl implements RepositoryService {
         });
     }
 
-    registerRepository(id: string, repository: Repository, config: RepositoryConfig = {}): void {
+    registerRepository(
+        id: string,
+        repository: Repository,
+        config: RepositoryConfig = {},
+    ): void {
         const {
             activeCollect = true,
             activeRestore = true,
-            activeReset = true
+            activeReset = true,
         } = config;
         const repositoryProxy: Repository = {};
         if (activeCollect) {
@@ -82,5 +89,4 @@ export class RepositoryServiceImpl implements RepositoryService {
             repositoryProxy.restore?.(this._states.get(id));
         }
     }
-
 }

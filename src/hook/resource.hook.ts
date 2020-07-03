@@ -12,17 +12,22 @@ if (!!React) {
 
 export { ResourceKeyContext };
 
-export const createResourceHook = (
-    container: Container.IContainer
-) => <T = any>(
-    key: string, context?: string
+export const createResourceHook = (container: Container.IContainer) => <
+    T = unknown
+>(
+    key: string,
+    context?: string,
 ): T => {
-    const resourceStore = container[LIGUI_TYPES.RESOURCE_STORE] as ResourceStore;
-    const resourceService = container[LIGUI_TYPES.RESOURCE_SERVICE] as ResourceService;
+    const resourceStore = container[
+        LIGUI_TYPES.RESOURCE_STORE
+    ] as ResourceStore;
+    const resourceService = container[
+        LIGUI_TYPES.RESOURCE_SERVICE
+    ] as ResourceService;
 
     const resourceContext = context || React.useContext(ResourceKeyContext);
 
-    const id: ResourceId = {key, context: resourceContext};
+    const id: ResourceId = { key, context: resourceContext };
 
     const prepareResourceData = <T>() => {
         if (resourceStore.isResourceExist(id)) {
@@ -38,8 +43,8 @@ export const createResourceHook = (
         if (resource) {
             return;
         }
-        Promise.resolve(resourceService.loadResource<T>(id)).then(
-            resource => setResource(() => resource.data)
+        Promise.resolve(resourceService.loadResource<T>(id)).then((resource) =>
+            setResource(() => resource.data),
         );
     }, [resource]);
 

@@ -12,17 +12,20 @@ if (!!React) {
 
 export { ConfigKeyContext };
 
-export const createConfigHook = (
-    container: Container.IContainer
-) => <T extends ConfigData = ConfigData>(
-    key: string, context?: string
+export const createConfigHook = (container: Container.IContainer) => <
+    T extends ConfigData = ConfigData
+>(
+    key: string,
+    context?: string,
 ): T => {
     const configStore = container[LIGUI_TYPES.CONFIG_STORE] as ConfigStore;
-    const configService = container[LIGUI_TYPES.CONFIG_SERVICE] as ConfigService;
+    const configService = container[
+        LIGUI_TYPES.CONFIG_SERVICE
+    ] as ConfigService;
 
     const configContext = context || React.useContext(ConfigKeyContext);
 
-    const id: ConfigId = {key, context: configContext};
+    const id: ConfigId = { key, context: configContext };
 
     const prepareConfigData = () => {
         if (configStore.isConfigExist(id)) {
@@ -38,8 +41,8 @@ export const createConfigHook = (
         if (config) {
             return;
         }
-        Promise.resolve(configService.loadConfig<T>(id)).then(
-            config => setConfig(() => config.data)
+        Promise.resolve(configService.loadConfig<T>(id)).then((config) =>
+            setConfig(() => config.data),
         );
     }, [config]);
 

@@ -7,7 +7,7 @@ export interface ModuleId {
     readonly context?: string;
 }
 
-export interface Module<T = any> {
+export interface Module<T = unknown> {
     readonly id: ModuleId;
     readonly body: T;
 }
@@ -28,31 +28,40 @@ export enum ModuleStoreActions {
     UpdateModules = 'UPDATE_MODULES',
 }
 
-export const createModuleStore = (store: Store, initState: ModuleStoreState) => {
-    const moduleStore = store.createScope({
-        name: LIGUI_TYPES.MODULE_STORE,
-        initState: {
-            modules: initState.modules || []
+export const createModuleStore = (
+    store: Store,
+    initState: ModuleStoreState,
+): ModuleStore => {
+    const moduleStore = store.createScope(
+        {
+            name: LIGUI_TYPES.MODULE_STORE,
+            initState: {
+                modules: initState.modules || [],
+            },
+            isSubscribedMacroAutoCreateEnabled: true,
         },
-        isSubscribedMacroAutoCreateEnabled: true,
-    }, true) as ModuleStore;
+        true,
+    ) as ModuleStore;
 
     moduleStore.setModules = moduleStore.registerAction(
         ModuleStoreActions.UpdateModules,
         (state, modules: Module[]) => {
             const updatedModules = copyArray(state.modules);
-            modules.forEach(module => saveToArray(
-                updatedModules, module,
-                existModule => isModulesIdsEqual(module.id, existModule.id)
-            ));
+            modules.forEach((module) =>
+                saveToArray(updatedModules, module, (existModule) =>
+                    isModulesIdsEqual(module.id, existModule.id),
+                ),
+            );
             return {
-                modules: updatedModules
-            }
-        }
+                modules: updatedModules,
+            };
+        },
     );
 
-    moduleStore.findModuleById = (id: ModuleId) => {
-        return moduleStore.state.modules.find(module => isModulesIdsEqual(module.id, id));
+    moduleStore.findModuleById = <T>(id: ModuleId): Module<T> => {
+        return moduleStore.state.modules.find((module) =>
+            isModulesIdsEqual(module.id, id),
+        ) as Module<T>;
     };
 
     moduleStore.isModuleExist = (id: ModuleId) => {
@@ -60,9 +69,14 @@ export const createModuleStore = (store: Store, initState: ModuleStoreState) => 
     };
 
     return moduleStore;
-}
+};
 
-export function isModulesIdsEqual(moduleId1: ModuleId, moduleId2: ModuleId) {
-    return moduleId1.key === moduleId2.key
-        && moduleId1.context === moduleId2.context;
+export function isModulesIdsEqual(
+    moduleId1: ModuleId,
+    moduleId2: ModuleId,
+): boolean {
+    return (
+        moduleId1.key === moduleId2.key &&
+        moduleId1.context === moduleId2.context
+    );
 }

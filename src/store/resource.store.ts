@@ -7,7 +7,7 @@ export interface ResourceId {
     readonly context?: string;
 }
 
-export interface Resource<T = any> {
+export interface Resource<T = unknown> {
     readonly id: ResourceId;
     readonly data: T;
 }
@@ -25,36 +25,43 @@ export interface ResourceStore extends Scope<ResourceStoreState> {
 }
 
 export enum ResourceStoreActions {
-    UpdateResources = 'UPDATE_RESOURCES'
+    UpdateResources = 'UPDATE_RESOURCES',
 }
 
-export const createResourceStore = (store: Store, initState: ResourceStoreState) => {
-    const resourceStore = store.createScope({
-        name: LIGUI_TYPES.RESOURCE_STORE,
-        initState: {
-            resources: initState.resources || []
+export const createResourceStore = (
+    store: Store,
+    initState: ResourceStoreState,
+): ResourceStore => {
+    const resourceStore = store.createScope(
+        {
+            name: LIGUI_TYPES.RESOURCE_STORE,
+            initState: {
+                resources: initState.resources || [],
+            },
+            isSubscribedMacroAutoCreateEnabled: true,
         },
-        isSubscribedMacroAutoCreateEnabled: true,
-    }, true) as ResourceStore;
+        true,
+    ) as ResourceStore;
 
     resourceStore.registerAction(
         ResourceStoreActions.UpdateResources,
         (state, resources: Resource[]) => {
             const updatedResources = copyArray(state.resources);
-            resources.forEach(resource => saveToArray(
-                updatedResources, resource,
-                existResource => isResourcesIdsEqual(resource.id, existResource.id)
-            ));
+            resources.forEach((resource) =>
+                saveToArray(updatedResources, resource, (existResource) =>
+                    isResourcesIdsEqual(resource.id, existResource.id),
+                ),
+            );
             return {
-                resources: updatedResources
-            }
-        }
+                resources: updatedResources,
+            };
+        },
     );
 
-    resourceStore.findResourceById = (id: ResourceId) => {
-        return resourceStore.state.resources.find(
-            resource => isResourcesIdsEqual(resource.id, id)
-        );
+    resourceStore.findResourceById = <T>(id: ResourceId): Resource<T> => {
+        return resourceStore.state.resources.find((resource) =>
+            isResourcesIdsEqual(resource.id, id),
+        ) as Resource<T>;
     };
 
     resourceStore.isResourceExist = (id: ResourceId) => {
@@ -62,9 +69,14 @@ export const createResourceStore = (store: Store, initState: ResourceStoreState)
     };
 
     return resourceStore;
-}
+};
 
-export function isResourcesIdsEqual(resourceId1: ResourceId, resourceId2: ResourceId) {
-    return resourceId1.key === resourceId2.key
-        && resourceId1.context === resourceId2.context;
+export function isResourcesIdsEqual(
+    resourceId1: ResourceId,
+    resourceId2: ResourceId,
+): boolean {
+    return (
+        resourceId1.key === resourceId2.key &&
+        resourceId1.context === resourceId2.context
+    );
 }

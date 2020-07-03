@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Container from 'bottlejs';
-import { Translator } from '../service/internationalization.service';
+import { Translator } from "../service/internationalization.service";
 declare let InternationalizationKeyContext: React.Context<string>;
 export { InternationalizationKeyContext };
 export interface InternationalizationHookReturnType {

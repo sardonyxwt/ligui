@@ -5,34 +5,57 @@ import {
     getStore,
     isStoreExist,
     setStoreDevTool,
-    Store
+    Store,
 } from '@sardonyxwt/state-store';
 import {
     createEventBus,
     getEventBus,
     isEventBusExist,
     setEventBusDevTool,
-    EventBus
+    EventBus,
 } from '@sardonyxwt/event-bus';
 
 import { LIGUI_TYPES } from './types';
 import { createContext, Context } from './context';
 
 import { Module, ModuleStore, createModuleStore } from './store/module.store';
-import { Resource, ResourceStore, createResourceStore } from './store/resource.store';
-import { InternationalizationStore, createInternationalizationStore, TranslateUnit } from './store/internationalization.store';
+import {
+    Resource,
+    ResourceStore,
+    createResourceStore,
+} from './store/resource.store';
+import {
+    InternationalizationStore,
+    createInternationalizationStore,
+    TranslateUnit,
+} from './store/internationalization.store';
 import { Config, ConfigStore, createConfigStore } from './store/config.store';
 
 import { JSXService, JSXServiceImpl } from './service/jsx.service';
-import { ResourceLoader, ResourceService, ResourceServiceImpl } from './service/resource.service';
+import {
+    ResourceLoader,
+    ResourceService,
+    ResourceServiceImpl,
+} from './service/resource.service';
 import {
     InternationalizationService,
     InternationalizationServiceImpl,
-    TranslateUnitLoader
+    TranslateUnitLoader,
 } from './service/internationalization.service';
-import { ConfigService, ConfigServiceImpl, ConfigLoader } from './service/config.service';
-import { ModuleLoader, ModuleService, ModuleServiceImpl } from './service/module.service';
-import { RepositoryService, RepositoryServiceImpl } from './service/repository.service';
+import {
+    ConfigService,
+    ConfigServiceImpl,
+    ConfigLoader,
+} from './service/config.service';
+import {
+    ModuleLoader,
+    ModuleService,
+    ModuleServiceImpl,
+} from './service/module.service';
+import {
+    RepositoryService,
+    RepositoryServiceImpl,
+} from './service/repository.service';
 
 import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';
@@ -41,12 +64,10 @@ import { createStateHook } from './hook/state.hook';
 import { createEventHook } from './hook/event.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resource.hook';
-import {
-    createDependencyHook
-} from './hook/dependency.hook';
+import { createDependencyHook } from './hook/dependency.hook';
 import {
     createI18nHook,
-    createTranslatorHook
+    createTranslatorHook,
 } from './hook/internationalization.hook';
 import { createConfigHook } from './hook/config.hook';
 
@@ -148,7 +169,9 @@ export interface Ligui {
 export function createNewLiguiInstance(config: LiguiConfig): Ligui {
     // Check Ligui instance is present for HMR
     if (!!global[config.name]) {
-        throw new Error(`Ligui instance present in global object with name: ${config.name}`);
+        throw new Error(
+            `Ligui instance present in global object with name: ${config.name}`,
+        );
     }
 
     const context = createContext(config.name, config.bottle);
@@ -156,109 +179,128 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
     context.bottle.constant(LIGUI_TYPES.STORE, context.store);
     context.bottle.constant(LIGUI_TYPES.EVENT_BUS, context.eventBus);
 
-    context.bottle.factory(
-        LIGUI_TYPES.CONFIG_STORE,
-        () => createConfigStore(context.store, {
-            configs: config.configs
-        })
+    context.bottle.factory(LIGUI_TYPES.CONFIG_STORE, () =>
+        createConfigStore(context.store, {
+            configs: config.configs,
+        }),
     );
 
-    context.bottle.factory(
-        LIGUI_TYPES.INTERNATIONALIZATION_STORE,
-        () => createInternationalizationStore(context.store, {
+    context.bottle.factory(LIGUI_TYPES.INTERNATIONALIZATION_STORE, () =>
+        createInternationalizationStore(context.store, {
             locales: config.locales,
             currentLocale: config.currentLocale,
             defaultLocale: config.defaultLocale,
-            translateUnits: config.translateUnits
-        })
+            translateUnits: config.translateUnits,
+        }),
     );
 
-    context.bottle.factory(
-        LIGUI_TYPES.MODULE_STORE,
-        () => createModuleStore(context.store, {
-            modules: config.modules
-        })
+    context.bottle.factory(LIGUI_TYPES.MODULE_STORE, () =>
+        createModuleStore(context.store, {
+            modules: config.modules,
+        }),
     );
 
-    context.bottle.factory(
-        LIGUI_TYPES.RESOURCE_STORE,
-        () => createResourceStore(context.store, {
-            resources: config.resources
-        })
+    context.bottle.factory(LIGUI_TYPES.RESOURCE_STORE, () =>
+        createResourceStore(context.store, {
+            resources: config.resources,
+        }),
     );
 
     context.bottle.factory(
         LIGUI_TYPES.CONFIG_SERVICE,
-        (container) => new ConfigServiceImpl(
-            container[LIGUI_TYPES.CONFIG_STORE] as ConfigStore,
-            config.configLoaders
-        )
+        (container) =>
+            new ConfigServiceImpl(
+                container[LIGUI_TYPES.CONFIG_STORE] as ConfigStore,
+                config.configLoaders,
+            ),
     );
 
     context.bottle.factory(
         LIGUI_TYPES.INTERNATIONALIZATION_SERVICE,
-        (container) => new InternationalizationServiceImpl(
-            container[LIGUI_TYPES.INTERNATIONALIZATION_STORE] as InternationalizationStore,
-            config.internationalizationLoaders
-        )
+        (container) =>
+            new InternationalizationServiceImpl(
+                container[
+                    LIGUI_TYPES.INTERNATIONALIZATION_STORE
+                ] as InternationalizationStore,
+                config.internationalizationLoaders,
+            ),
     );
 
-    context.bottle.factory(
-        LIGUI_TYPES.JSX_SERVICE,
-        () => new JSXServiceImpl()
-    );
+    context.bottle.factory(LIGUI_TYPES.JSX_SERVICE, () => new JSXServiceImpl());
 
     context.bottle.factory(
         LIGUI_TYPES.MODULE_SERVICE,
-        (container) => new ModuleServiceImpl(
-            container[LIGUI_TYPES.MODULE_STORE] as ModuleStore,
-            config.moduleLoaders
-        )
+        (container) =>
+            new ModuleServiceImpl(
+                container[LIGUI_TYPES.MODULE_STORE] as ModuleStore,
+                config.moduleLoaders,
+            ),
     );
 
     context.bottle.factory(
         LIGUI_TYPES.REPOSITORY_SERVICE,
-        () => new RepositoryServiceImpl()
+        () => new RepositoryServiceImpl(),
     );
 
     context.bottle.factory(
         LIGUI_TYPES.RESOURCE_SERVICE,
-        (container) => new ResourceServiceImpl(
-            container[LIGUI_TYPES.RESOURCE_STORE] as ResourceStore,
-            config.resourceLoaders
-        )
+        (container) =>
+            new ResourceServiceImpl(
+                container[LIGUI_TYPES.RESOURCE_STORE] as ResourceStore,
+                config.resourceLoaders,
+            ),
     );
 
     const ligui: Ligui = {
         get jsx() {
-            return context.bottle.container[LIGUI_TYPES.JSX_SERVICE] as JSXService;
+            return context.bottle.container[
+                LIGUI_TYPES.JSX_SERVICE
+            ] as JSXService;
         },
         get resource() {
             return {
-                store: context.bottle.container[LIGUI_TYPES.RESOURCE_STORE] as ResourceStore,
-                service: context.bottle.container[LIGUI_TYPES.RESOURCE_SERVICE] as ResourceService
+                store: context.bottle.container[
+                    LIGUI_TYPES.RESOURCE_STORE
+                ] as ResourceStore,
+                service: context.bottle.container[
+                    LIGUI_TYPES.RESOURCE_SERVICE
+                ] as ResourceService,
             };
         },
         get internationalization() {
             return {
-                store: context.bottle.container[LIGUI_TYPES.INTERNATIONALIZATION_STORE] as InternationalizationStore,
-                service: context.bottle.container[LIGUI_TYPES.INTERNATIONALIZATION_SERVICE] as InternationalizationService
+                store: context.bottle.container[
+                    LIGUI_TYPES.INTERNATIONALIZATION_STORE
+                ] as InternationalizationStore,
+                service: context.bottle.container[
+                    LIGUI_TYPES.INTERNATIONALIZATION_SERVICE
+                ] as InternationalizationService,
             };
         },
         get config() {
             return {
-                store: context.bottle.container[LIGUI_TYPES.CONFIG_STORE] as ConfigStore,
-                service: context.bottle.container[LIGUI_TYPES.CONFIG_SERVICE] as ConfigService
+                store: context.bottle.container[
+                    LIGUI_TYPES.CONFIG_STORE
+                ] as ConfigStore,
+                service: context.bottle.container[
+                    LIGUI_TYPES.CONFIG_SERVICE
+                ] as ConfigService,
             };
         },
         get module() {
             return {
-                store: context.bottle.container[LIGUI_TYPES.MODULE_STORE] as ModuleStore,
-                service: context.bottle.container[LIGUI_TYPES.MODULE_SERVICE] as ModuleService
-            }
+                store: context.bottle.container[
+                    LIGUI_TYPES.MODULE_STORE
+                ] as ModuleStore,
+                service: context.bottle.container[
+                    LIGUI_TYPES.MODULE_SERVICE
+                ] as ModuleService,
+            };
         },
         get repository() {
-            return context.bottle.container[LIGUI_TYPES.REPOSITORY_SERVICE] as RepositoryService;
+            return context.bottle.container[
+                LIGUI_TYPES.REPOSITORY_SERVICE
+            ] as RepositoryService;
         },
         get context() {
             return context;

@@ -3,7 +3,7 @@ export interface ResourceId {
     readonly key: string;
     readonly context?: string;
 }
-export interface Resource<T = any> {
+export interface Resource<T = unknown> {
     readonly id: ResourceId;
     readonly data: T;
 }
