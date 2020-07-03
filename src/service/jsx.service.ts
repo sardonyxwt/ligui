@@ -8,7 +8,7 @@ export interface CommonProps {
 }
 
 export interface ChildrenProps<
-    T extends unknown | unknown[] = React.ReactElement
+    T extends unknown | unknown[] = React.ReactNode
 > {
     children?: T extends (infer U)[] ? U | U[] : T;
 }

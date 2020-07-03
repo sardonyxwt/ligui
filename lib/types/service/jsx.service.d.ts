@@ -4,7 +4,7 @@ export interface CommonProps {
     className?: string;
     style?: React.CSSProperties;
 }
-export interface ChildrenProps<T extends unknown | unknown[] = React.ReactElement> {
+export interface ChildrenProps<T extends unknown | unknown[] = React.ReactNode> {
     children?: T extends (infer U)[] ? U | U[] : T;
 }
 export declare type DOMEvent = MouseEvent | KeyboardEvent | TouchEvent | React.MouseEvent | React.TouchEvent | React.KeyboardEvent;
