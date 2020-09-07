@@ -6,6 +6,11 @@ import {
     EventBus,
 } from '@sardonyxwt/event-bus';
 
+/**
+ * @interface Context
+ * @description Root of context.
+ * Contains ioc container, store and event bus.
+ */
 export interface Context {
     readonly store: Store;
     readonly bottle: Container;

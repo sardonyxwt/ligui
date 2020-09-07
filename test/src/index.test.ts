@@ -1,8 +1,8 @@
-import { createNewLiguiInstance } from '@source';
+import { createCoreInstance } from '@source';
 
-describe('Ligui test', () => {
-    it('createNewLiguiInstance', () => {
-        createNewLiguiInstance({
+describe('Core test', () => {
+    it('createCoreInstance', () => {
+        createCoreInstance({
             name: 'TestLigui',
         });
     });

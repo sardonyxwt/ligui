@@ -1,31 +1,66 @@
-import { deleteFromArray, saveToArray } from '@sardonyxwt/utils';
+import { deleteFromArray, saveToArray } from '@source/util/object.utils';
 import {
     Config,
     ConfigData,
     ConfigId,
     ConfigStore,
     isConfigsIdsEqual,
-} from '../store/config.store';
+} from '@source/store/config.store';
 
+/**
+ * @interface ConfigLoader
+ * @description Loader for configs from any context.
+ */
 export interface ConfigLoader {
     readonly context?: string;
-    readonly loader: (key: string) => ConfigData | Promise<ConfigData>;
+    readonly bindingContext?: string;
+    readonly loader?: (
+        key: string,
+        context: string,
+    ) => ConfigData | Promise<ConfigData>;
 }
 
-export interface ConfigPromise {
+interface ConfigPromise {
     readonly id: ConfigId;
     readonly promise: Promise<Config>;
 }
 
+/**
+ * @interface ConfigService
+ * @description Service manage config store.
+ */
 export interface ConfigService {
+    /**
+     * @method setConfigLoader
+     * @description Add or replace exist config loader.
+     * @param loader {ConfigLoader} Loader for replaced or added.
+     */
     setConfigLoader(loader: ConfigLoader): void;
+
+    /**
+     * @method getConfigLoader
+     * @description Return config loader with same context.
+     * @param context {string} Context for loader.
+     * @returns {ConfigLoader}
+     */
     getConfigLoader(context?: string): ConfigLoader;
 
+    /**
+     * @method loadConfig
+     * @description Load config used loader.
+     * @param id {ConfigId} for loader.
+     * @returns {Config<T> | Promise<Config<T>>}
+     */
     loadConfig<T extends ConfigData>(
         id: ConfigId,
     ): Config<T> | Promise<Config<T>>;
 }
 
+/**
+ * @class ConfigServiceImpl
+ * @description Default realization of ConfigService.
+ * You can replace it after core instance created.
+ */
 export class ConfigServiceImpl implements ConfigService {
     private _configPromises: ConfigPromise[] = [];
 
@@ -35,6 +70,9 @@ export class ConfigServiceImpl implements ConfigService {
     ) {}
 
     setConfigLoader(loader: ConfigLoader): void {
+        if (!!loader.loader === !!loader.bindingContext) {
+            throw new Error('You need set loader or bindingContext');
+        }
         deleteFromArray(
             this._configPromises,
             (configPromise) => configPromise.id.context === loader.context,
@@ -47,13 +85,19 @@ export class ConfigServiceImpl implements ConfigService {
     }
 
     getConfigLoader(context?: string): ConfigLoader {
-        return this._configLoaders.find((loader) => loader.context === context);
+        const loader = this._configLoaders.find(
+            (loader) => loader.context === context,
+        );
+        if (loader.bindingContext) {
+            return this.getConfigLoader(loader.bindingContext);
+        }
+        return loader;
     }
 
     loadConfig<T extends ConfigData>(
         id: ConfigId,
     ): Config<T> | Promise<Config<T>> {
-        const { _configPromises, _configLoaders, _store } = this;
+        const { _configPromises, _store } = this;
 
         if (_store.isConfigExist(id)) {
             return _store.findConfigById(id);
@@ -67,9 +111,7 @@ export class ConfigServiceImpl implements ConfigService {
             return configPromise.promise as Promise<Config<T>>;
         }
 
-        const configLoader = _configLoaders.find(
-            (loader) => loader.context === id.context,
-        );
+        const configLoader = this.getConfigLoader(id.context);
 
         if (!configLoader) {
             throw new Error(
@@ -77,7 +119,7 @@ export class ConfigServiceImpl implements ConfigService {
             );
         }
 
-        const configData = configLoader.loader(id.key) as T;
+        const configData = configLoader.loader(id.key, id.context) as T;
 
         const resolveConfig = (configData: T): Config<T> => {
             const config: Config<T> = { id, data: configData };

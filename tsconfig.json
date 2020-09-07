@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
+        "jsx": "react",
         "target": "es5",
-        "allowJs": true,
         "declaration": true,
         "declarationDir": "lib/types",
         "esModuleInterop": true,
@@ -9,9 +9,15 @@
         "moduleResolution": "Node",
         "baseUrl": ".",
         "paths": {
-            "@source/*": ["./src/*"],
-            "@source": ["./src/index.ts"],
-            "@test/*": ["./test/src/*"]
+            "@source/*": [
+                "./src/*"
+            ],
+            "@source": [
+                "./src/index.ts"
+            ],
+            "@test/*": [
+                "./test/src/*"
+            ]
         }
     }
 }

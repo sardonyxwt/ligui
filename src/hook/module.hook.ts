@@ -1,50 +1,54 @@
 import * as React from 'react';
-import * as Container from 'bottlejs';
-import { ModuleService } from '../service/module.service';
-import { LIGUI_TYPES } from '../types';
-import { ModuleId, ModuleStore } from '../store/module.store';
+import { ModuleId } from '@source/store/module.store';
+import { ModuleContext } from '@source/context/module.context';
+import { Core } from '@source/core';
 
-let ModuleKeyContext: React.Context<string> = null;
+/**
+ * @type ModuleHook
+ * @description React hook for module loading.
+ * @param key {string} Module key.
+ * @param context {string} Module context for loader selection.
+ * @returns {T}
+ * */
+export type ModuleHook = <T = unknown>(key: string, context?: string) => T;
 
-if (!!React) {
-    ModuleKeyContext = React.createContext<string>(undefined);
-}
+/**
+ * @function createModuleHook
+ * @param coreGlobalRegisterName {string} Core instance global name.
+ * @returns React hook for module loading used loaders.
+ */
+export const createModuleHook = (
+    coreGlobalRegisterName: string,
+): ModuleHook => {
+    return <T = unknown>(key: string, context?: string): T => {
+        const core = global[coreGlobalRegisterName] as Core;
 
-export { ModuleKeyContext };
+        const moduleContext = context || React.useContext(ModuleContext);
 
-export const createModuleHook = (container: Container.IContainer) => <
-    T = unknown
->(
-    key: string,
-    context?: string,
-): T => {
-    const moduleStore = container[LIGUI_TYPES.MODULE_STORE] as ModuleStore;
-    const moduleService = container[
-        LIGUI_TYPES.MODULE_SERVICE
-    ] as ModuleService;
+        const id: ModuleId = { key, context: moduleContext };
 
-    const moduleContext = context || React.useContext(ModuleKeyContext);
+        const prepareModuleBody = <T>() => {
+            if (core.module.store.isModuleExist(id)) {
+                return core.module.store.findModuleById<T>(id).body;
+            }
+            const module = core.module.service.loadModule<T>(id);
+            if (module instanceof Promise) {
+                return;
+            }
+            return module.body;
+        };
 
-    const id: ModuleId = { key, context: moduleContext };
+        const [module, setModule] = React.useState<T>(prepareModuleBody);
 
-    const prepareModuleBody = <T>() => {
-        if (moduleStore.isModuleExist(id)) {
-            return moduleStore.findModuleById<T>(id).body;
-        }
-        const module = moduleService.loadModule<T>(id);
-        return module instanceof Promise ? null : module.body;
+        React.useEffect(() => {
+            if (module) {
+                return;
+            }
+            Promise.resolve(
+                core.module.service.loadModule<T>(id),
+            ).then((module) => setModule(() => module.body));
+        }, [module]);
+
+        return module;
     };
-
-    const [module, setModule] = React.useState<T>(prepareModuleBody);
-
-    React.useEffect(() => {
-        if (module) {
-            return;
-        }
-        Promise.resolve(moduleService.loadModule<T>(id)).then((module) =>
-            setModule(() => module.body),
-        );
-    }, [module]);
-
-    return module;
 };

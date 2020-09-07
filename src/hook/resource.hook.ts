@@ -1,52 +1,54 @@
 import * as React from 'react';
-import * as Container from 'bottlejs';
-import { ResourceService } from '../service/resource.service';
-import { LIGUI_TYPES } from '../types';
-import { ResourceId, ResourceStore } from '../store/resource.store';
+import { ResourceId } from '@source/store/resource.store';
+import { ModuleContext } from '@source/context/module.context';
+import { Core } from '@source/core';
 
-let ResourceKeyContext: React.Context<string> = null;
+/**
+ * @type ResourceHook
+ * @description React hook for resource loading.
+ * @param key {string} Resource key.
+ * @param context {string} Resource context for loader selection.
+ * @returns {T}
+ * */
+export type ResourceHook = <T = unknown>(key: string, context?: string) => T;
 
-if (!!React) {
-    ResourceKeyContext = React.createContext<string>(undefined);
-}
+/**
+ * @function createResourceHook
+ * @param coreGlobalRegisterName {string} Core instance global name.
+ * @returns React hook for resource loading used loaders.
+ */
+export const createResourceHook = (
+    coreGlobalRegisterName: string,
+): ResourceHook => {
+    return <T = unknown>(key: string, context?: string): T => {
+        const core = global[coreGlobalRegisterName] as Core;
 
-export { ResourceKeyContext };
+        const resourceContext = context || React.useContext(ModuleContext);
 
-export const createResourceHook = (container: Container.IContainer) => <
-    T = unknown
->(
-    key: string,
-    context?: string,
-): T => {
-    const resourceStore = container[
-        LIGUI_TYPES.RESOURCE_STORE
-    ] as ResourceStore;
-    const resourceService = container[
-        LIGUI_TYPES.RESOURCE_SERVICE
-    ] as ResourceService;
+        const id: ResourceId = { key, context: resourceContext };
 
-    const resourceContext = context || React.useContext(ResourceKeyContext);
+        const prepareResourceData = <T>() => {
+            if (core.resource.store.isResourceExist(id)) {
+                return core.resource.store.findResourceById<T>(id).data;
+            }
+            const resource = core.resource.service.loadResource<T>(id);
+            if (resource instanceof Promise) {
+                return;
+            }
+            return resource.data;
+        };
 
-    const id: ResourceId = { key, context: resourceContext };
+        const [resource, setResource] = React.useState<T>(prepareResourceData);
 
-    const prepareResourceData = <T>() => {
-        if (resourceStore.isResourceExist(id)) {
-            return resourceStore.findResourceById<T>(id).data;
-        }
-        const resource = resourceService.loadResource<T>(id);
-        return resource instanceof Promise ? null : resource.data;
+        React.useEffect(() => {
+            if (resource) {
+                return;
+            }
+            Promise.resolve(
+                core.resource.service.loadResource<T>(id),
+            ).then((resource) => setResource(() => resource.data));
+        }, [resource]);
+
+        return resource;
     };
-
-    const [resource, setResource] = React.useState<T>(prepareResourceData);
-
-    React.useEffect(() => {
-        if (resource) {
-            return;
-        }
-        Promise.resolve(resourceService.loadResource<T>(id)).then((resource) =>
-            setResource(() => resource.data),
-        );
-    }, [resource]);
-
-    return resource;
 };

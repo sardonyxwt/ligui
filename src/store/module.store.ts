@@ -1,31 +1,81 @@
 import { Scope, Store } from '@sardonyxwt/state-store';
-import { saveToArray, copyArray } from '@sardonyxwt/utils';
-import { LIGUI_TYPES } from '../types';
+import { saveToArray, copyArray } from '@source/util/object.utils';
+import { CoreTypes } from '@source/types';
 
+/**
+ * @interface ModuleId
+ * @description ModuleId identify module in store.
+ */
 export interface ModuleId {
+    /**
+     * @field key
+     * @description Unique key in context.
+     */
     readonly key: string;
+    /**
+     * @field context
+     * @description Unique context in application.
+     * Used to select loader for module.
+     */
     readonly context?: string;
 }
 
+/**
+ * @interface Module
+ * @description Module instance in store.
+ */
 export interface Module<T = unknown> {
+    /**
+     * @field id
+     * @description Unique pair of key and context.
+     */
     readonly id: ModuleId;
+    /**
+     * @field data
+     * @description Module data.
+     */
     readonly body: T;
 }
 
+/**
+ * @interface ModuleStoreState
+ * @description Module store state.
+ */
 export interface ModuleStoreState {
     readonly modules: Module[];
 }
 
+/**
+ * @interface ModuleStore
+ * @description Store for modules.
+ */
 export interface ModuleStore extends Scope<ModuleStoreState> {
+    /**
+     * @method setModules
+     * @description Add or replace modules in store.
+     * @param modules {Module[]} Modules to be added or replaced.
+     */
     setModules(modules: Module[]): void;
 
+    /**
+     * @method findModuleById
+     * @description Return module with same id.
+     * @param id {ModuleId} Id used to find module in store.
+     * @returns {Module<T>}
+     */
     findModuleById<T>(id: ModuleId): Module<T>;
 
+    /**
+     * @method isModuleExist
+     * @description Check is module with same id present in store.
+     * @param id {ModuleId} Id used to check module present in store.
+     * @returns {boolean}
+     */
     isModuleExist(id: ModuleId): boolean;
 }
 
 export enum ModuleStoreActions {
-    UpdateModules = 'UPDATE_MODULES',
+    UpdateModules = 'UpdateModules',
 }
 
 export const createModuleStore = (
@@ -34,7 +84,7 @@ export const createModuleStore = (
 ): ModuleStore => {
     const moduleStore = store.createScope(
         {
-            name: LIGUI_TYPES.MODULE_STORE,
+            name: CoreTypes.ModuleStore,
             initState: {
                 modules: initState.modules || [],
             },
@@ -71,6 +121,13 @@ export const createModuleStore = (
     return moduleStore;
 };
 
+/**
+ * @function isModulesIdsEqual
+ * @description Check is modules ids is equals.
+ * @param moduleId1 {ModuleId} First module id to check equals.
+ * @param moduleId2 {ModuleId} Second module id to check equals.
+ * @returns {boolean}
+ */
 export function isModulesIdsEqual(
     moduleId1: ModuleId,
     moduleId2: ModuleId,

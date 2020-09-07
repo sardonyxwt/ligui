@@ -1,50 +1,60 @@
-import * as Container from 'bottlejs';
 import * as React from 'react';
-import { ConfigService } from '../service/config.service';
-import { LIGUI_TYPES } from '../types';
-import { ConfigData, ConfigId, ConfigStore } from '../store/config.store';
+import { ConfigData, ConfigId } from '@source/store/config.store';
+import { ModuleContext } from '@source/context/module.context';
+import { Core } from '@source/core';
 
-let ConfigKeyContext: React.Context<string> = null;
-
-if (!!React) {
-    ConfigKeyContext = React.createContext<string>(undefined);
-}
-
-export { ConfigKeyContext };
-
-export const createConfigHook = (container: Container.IContainer) => <
-    T extends ConfigData = ConfigData
->(
+/**
+ * @type ConfigHook
+ * @description React hook for config loading.
+ * @param key {string} Config key.
+ * @param context {string} Config context for loader selection.
+ * @returns {T}
+ * */
+export type ConfigHook = <T extends ConfigData = ConfigData>(
     key: string,
     context?: string,
-): T => {
-    const configStore = container[LIGUI_TYPES.CONFIG_STORE] as ConfigStore;
-    const configService = container[
-        LIGUI_TYPES.CONFIG_SERVICE
-    ] as ConfigService;
+) => T;
 
-    const configContext = context || React.useContext(ConfigKeyContext);
+/**
+ * @function createConfigHook
+ * @param coreGlobalRegisterName {string} Core instance global name.
+ * @returns React hook for config loading used loaders.
+ */
+export const createConfigHook = (
+    coreGlobalRegisterName: string,
+): ConfigHook => {
+    return <T extends ConfigData = ConfigData>(
+        key: string,
+        context?: string,
+    ): T => {
+        const core = global[coreGlobalRegisterName] as Core;
 
-    const id: ConfigId = { key, context: configContext };
+        const configContext = context || React.useContext(ModuleContext);
 
-    const prepareConfigData = () => {
-        if (configStore.isConfigExist(id)) {
-            return configStore.findConfigById<T>(id).data;
-        }
-        const config = configService.loadConfig<T>(id);
-        return config instanceof Promise ? null : config.data;
+        const id: ConfigId = { key, context: configContext };
+
+        const prepareConfigData = () => {
+            if (core.config.store.isConfigExist(id)) {
+                return core.config.store.findConfigById<T>(id).data;
+            }
+            const config = core.config.service.loadConfig<T>(id);
+            if (config instanceof Promise) {
+                return;
+            }
+            return config.data;
+        };
+
+        const [config, setConfig] = React.useState<T>(prepareConfigData);
+
+        React.useEffect(() => {
+            if (config) {
+                return;
+            }
+            Promise.resolve(
+                core.config.service.loadConfig<T>(id),
+            ).then((config) => setConfig(() => config.data));
+        }, [config]);
+
+        return config;
     };
-
-    const [config, setConfig] = React.useState<T>(prepareConfigData);
-
-    React.useEffect(() => {
-        if (config) {
-            return;
-        }
-        Promise.resolve(configService.loadConfig<T>(id)).then((config) =>
-            setConfig(() => config.data),
-        );
-    }, [config]);
-
-    return config;
 };

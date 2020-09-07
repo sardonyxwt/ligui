@@ -1,31 +1,81 @@
 import { Scope, Store } from '@sardonyxwt/state-store';
-import { saveToArray, copyArray } from '@sardonyxwt/utils';
-import { LIGUI_TYPES } from '../types';
+import { saveToArray, copyArray } from '@source/util/object.utils';
+import { CoreTypes } from '@source/types';
 
+/**
+ * @interface ResourceId
+ * @description ResourceId identify resource in store.
+ */
 export interface ResourceId {
+    /**
+     * @field key
+     * @description Unique key in context.
+     */
     readonly key: string;
+    /**
+     * @field context
+     * @description Unique context in application.
+     * Used to select loader for resource.
+     */
     readonly context?: string;
 }
 
+/**
+ * @interface Resource
+ * @description Resource instance in store.
+ */
 export interface Resource<T = unknown> {
+    /**
+     * @field id
+     * @description Unique pair of key and context.
+     */
     readonly id: ResourceId;
+    /**
+     * @field data
+     * @description Resource data.
+     */
     readonly data: T;
 }
 
+/**
+ * @interface ResourceStoreState
+ * @description Resource store state.
+ */
 export interface ResourceStoreState {
     readonly resources: Resource[];
 }
 
+/**
+ * @interface ResourceStore
+ * @description Store for resources.
+ */
 export interface ResourceStore extends Scope<ResourceStoreState> {
+    /**
+     * @method setResources
+     * @description Add or replace resources in store.
+     * @param resources {Resource[]} Resources to be added or replaced.
+     */
     setResources(resources: Resource[]): void;
 
+    /**
+     * @method findResourceById
+     * @description Return resource with same id.
+     * @param id {ResourceId} Id used to find resource in store.
+     * @returns {Resource<T>}
+     */
     findResourceById<T>(id: ResourceId): Resource<T>;
 
+    /**
+     * @method isResourceExist
+     * @description Check is resource with same id present in store.
+     * @param id {ResourceId} Id used to check resource present in store.
+     * @returns {boolean}
+     */
     isResourceExist(id: ResourceId): boolean;
 }
 
 export enum ResourceStoreActions {
-    UpdateResources = 'UPDATE_RESOURCES',
+    UpdateResources = 'UpdateResources',
 }
 
 export const createResourceStore = (
@@ -34,7 +84,7 @@ export const createResourceStore = (
 ): ResourceStore => {
     const resourceStore = store.createScope(
         {
-            name: LIGUI_TYPES.RESOURCE_STORE,
+            name: CoreTypes.ResourceStore,
             initState: {
                 resources: initState.resources || [],
             },
@@ -71,6 +121,13 @@ export const createResourceStore = (
     return resourceStore;
 };
 
+/**
+ * @function isResourcesIdsEqual
+ * @description Check is resources ids is equals.
+ * @param resourceId1 {ResourceId} First resource id to check equals.
+ * @param resourceId2 {ResourceId} Second resource id to check equals.
+ * @returns {boolean}
+ */
 export function isResourcesIdsEqual(
     resourceId1: ResourceId,
     resourceId2: ResourceId,

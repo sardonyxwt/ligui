@@ -1,33 +1,83 @@
 import { Scope, Store } from '@sardonyxwt/state-store';
-import { saveToArray, copyArray } from '@sardonyxwt/utils';
-import { LIGUI_TYPES } from '../types';
+import { saveToArray, copyArray } from '@source/util/object.utils';
+import { CoreTypes } from '@source/types';
 
+/**
+ * @interface ConfigId
+ * @description ConfigId identify config in store.
+ */
 export interface ConfigId {
+    /**
+     * @field key
+     * @description Unique key in context.
+     */
     readonly key: string;
+    /**
+     * @field context
+     * @description Unique context in application.
+     * Used to select loader for config.
+     */
     readonly context?: string;
 }
 
 export type ConfigData = Record<string, unknown>;
 
+/**
+ * @interface Config
+ * @description Config instance in store.
+ */
 export interface Config<T extends ConfigData = ConfigData> {
+    /**
+     * @field id
+     * @description Unique pair of key and context.
+     */
     readonly id: ConfigId;
+    /**
+     * @field data
+     * @description Config data.
+     */
     readonly data: T;
 }
 
+/**
+ * @interface ConfigStoreState
+ * @description Config store state.
+ */
 export interface ConfigStoreState {
     readonly configs: Config[];
 }
 
+/**
+ * @interface ConfigStore
+ * @description Store for configs.
+ */
 export interface ConfigStore extends Scope<ConfigStoreState> {
+    /**
+     * @method setConfigs
+     * @description Add or replace configs in store.
+     * @param configs {Config[]} Configs to be added or replaced.
+     */
     setConfigs(configs: Config[]): void;
 
+    /**
+     * @method findConfigById
+     * @description Return config with same id.
+     * @param id {ConfigId} Id used to find config in store.
+     * @returns {Config<T>}
+     */
     findConfigById<T extends ConfigData = ConfigData>(id: ConfigId): Config<T>;
 
+    /**
+     * @method isConfigExist
+     * @description Check is config with same id present in store.
+     * @param id {ConfigId} Id used to check config present in store.
+     * @returns {boolean}
+     */
     isConfigExist(id: ConfigId): boolean;
 }
 
 export enum ConfigStoreActions {
-    UpdateConfigs = 'CONFIGS_UPDATE',
+    UpdateConfigs = 'UpdatesConfigs',
 }
 
 export const createConfigStore = (
@@ -36,7 +86,7 @@ export const createConfigStore = (
 ): ConfigStore => {
     const configStore = store.createScope(
         {
-            name: LIGUI_TYPES.CONFIG_STORE,
+            name: CoreTypes.ConfigStore,
             initState: {
                 configs: initState.configs || [],
             },
@@ -73,6 +123,13 @@ export const createConfigStore = (
     return configStore;
 };
 
+/**
+ * @function isConfigsIdsEqual
+ * @description Check is configs ids is equals.
+ * @param configId1 {ConfigId} First config id to check equals.
+ * @param configId2 {ConfigId} Second config id to check equals.
+ * @returns {boolean}
+ */
 export function isConfigsIdsEqual(
     configId1: ConfigId,
     configId2: ConfigId,

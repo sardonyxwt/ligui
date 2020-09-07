@@ -1,30 +1,65 @@
-import { deleteFromArray, saveToArray } from '@sardonyxwt/utils';
+import { deleteFromArray, saveToArray } from '@source/util/object.utils';
 import {
     isResourcesIdsEqual,
     Resource,
     ResourceId,
     ResourceStore,
-} from '../store/resource.store';
+} from '@source/store/resource.store';
 
+/**
+ * @interface ResourceLoader
+ * @description Loader for resources from any context.
+ */
 export interface ResourceLoader {
     readonly context?: string;
-    readonly loader: (key: string) => unknown | Promise<unknown>;
+    readonly bindingContext?: string;
+    readonly loader?: (
+        key: string,
+        context: string,
+    ) => unknown | Promise<unknown>;
 }
 
-export interface ResourcePromise {
+interface ResourcePromise {
     readonly id: ResourceId;
     readonly promise: Promise<unknown>;
 }
 
+/**
+ * @interface ResourceService
+ * @description Service manage resource store.
+ */
 export interface ResourceService {
+    /**
+     * @method setResourceLoader
+     * @description Add or replace exist resource loader.
+     * @param loader {ResourceLoader} Loader for replaced or added.
+     */
     setResourceLoader(loader: ResourceLoader): void;
+
+    /**
+     * @method getResourceLoader
+     * @description Return resource loader.
+     * @param context {string} Context for loader.
+     * @returns {ResourceLoader}
+     */
     getResourceLoader(context?: string): ResourceLoader;
 
+    /**
+     * @method loadResource
+     * @description Load resource used loader.
+     * @param id {ConfigId} for loader.
+     * @returns {Resource<T> | Promise<Resource<T>>}
+     */
     loadResource<T = unknown>(
         id: ResourceId,
     ): Resource<T> | Promise<Resource<T>>;
 }
 
+/**
+ * @class ResourceServiceImpl
+ * @description Default realization of ResourceService.
+ * You can replace it after core instance created.
+ */
 export class ResourceServiceImpl implements ResourceService {
     private _resourcePromises: ResourcePromise[] = [];
 
@@ -34,6 +69,9 @@ export class ResourceServiceImpl implements ResourceService {
     ) {}
 
     setResourceLoader(loader: ResourceLoader): void {
+        if (!!loader.loader === !!loader.bindingContext) {
+            throw new Error('You need set loader or bindingContext');
+        }
         deleteFromArray(
             this._resourcePromises,
             (resourcePromise) => resourcePromise.id.context === loader.context,
@@ -46,15 +84,19 @@ export class ResourceServiceImpl implements ResourceService {
     }
 
     getResourceLoader(context?: string): ResourceLoader {
-        return this._resourceLoaders.find(
+        const loader = this._resourceLoaders.find(
             (loader) => loader.context === context,
         );
+        if (loader.bindingContext) {
+            return this.getResourceLoader(loader.bindingContext);
+        }
+        return loader;
     }
 
     loadResource<T = unknown>(
         id: ResourceId,
     ): Resource<T> | Promise<Resource<T>> {
-        const { _resourcePromises, _resourceLoaders, _store } = this;
+        const { _resourcePromises, _store } = this;
 
         if (_store.isResourceExist(id)) {
             return _store.findResourceById(id);
@@ -68,9 +110,7 @@ export class ResourceServiceImpl implements ResourceService {
             return resourcePromise.promise as Promise<Resource<T>>;
         }
 
-        const resourceLoader = _resourceLoaders.find(
-            (loader) => loader.context === id.context,
-        );
+        const resourceLoader = this.getResourceLoader(id.context);
 
         if (!resourceLoader) {
             throw new Error(
@@ -78,7 +118,7 @@ export class ResourceServiceImpl implements ResourceService {
             );
         }
 
-        const resourceData = resourceLoader.loader(id.key);
+        const resourceData = resourceLoader.loader(id.key, id.context);
 
         const resolveResource = (resourceData: unknown): Resource => {
             const resource: Resource = { id, data: resourceData };

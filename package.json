@@ -1,13 +1,15 @@
 {
     "name": "@sardonyxwt/ligui",
-    "version": "16.3.1",
+    "version": "17.0.0",
     "description": "Ligui",
     "main": "lib/ligui.cjs.js",
     "module": "lib/ligui.esm.js",
     "types": "lib/types",
     "keywords": [
-        "sclib",
-        "ligui",
+        "di",
+        "module",
+        "i18n",
+        "core",
         "ui"
     ],
     "license": "MIT",
@@ -36,9 +38,8 @@
         "deploy": "npm run lint && npm run build && npm publish --access public"
     },
     "dependencies": {
-        "@sardonyxwt/event-bus": "^1.5.0",
+        "@sardonyxwt/event-bus": "^1.5.1",
         "@sardonyxwt/state-store": "^5.7.0",
-        "@sardonyxwt/utils": "^3.5.0",
         "bottlejs": "^1.7.2",
         "react": "^16.13.1",
         "react-dom": "^16.13.1"

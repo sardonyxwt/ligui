@@ -1,78 +1,57 @@
 import Container from 'bottlejs';
 import {
-    createStore,
-    getState,
-    getStore,
-    isStoreExist,
-    setStoreDevTool,
-    Store,
-} from '@sardonyxwt/state-store';
-import {
     createEventBus,
     getEventBus,
     isEventBusExist,
     setEventBusDevTool,
-    EventBus,
 } from '@sardonyxwt/event-bus';
 
-import { LIGUI_TYPES } from './types';
-import { createContext, Context } from './context';
+import { CoreTypes } from './types';
+import { createContext } from './context';
 
-import { Module, ModuleStore, createModuleStore } from './store/module.store';
-import {
-    Resource,
-    ResourceStore,
-    createResourceStore,
-} from './store/resource.store';
+import { ModuleStore, createModuleStore } from './store/module.store';
+import { ResourceStore, createResourceStore } from './store/resource.store';
 import {
     InternationalizationStore,
     createInternationalizationStore,
-    TranslateUnit,
 } from './store/internationalization.store';
-import { Config, ConfigStore, createConfigStore } from './store/config.store';
+import { ConfigStore, createConfigStore } from './store/config.store';
 
-import { JSXService, JSXServiceImpl } from './service/jsx.service';
 import {
-    ResourceLoader,
     ResourceService,
     ResourceServiceImpl,
 } from './service/resource.service';
 import {
     InternationalizationService,
     InternationalizationServiceImpl,
-    TranslateUnitLoader,
 } from './service/internationalization.service';
-import {
-    ConfigService,
-    ConfigServiceImpl,
-    ConfigLoader,
-} from './service/config.service';
-import {
-    ModuleLoader,
-    ModuleService,
-    ModuleServiceImpl,
-} from './service/module.service';
-import {
-    RepositoryService,
-    RepositoryServiceImpl,
-} from './service/repository.service';
+import { ConfigService, ConfigServiceImpl } from './service/config.service';
+import { ModuleService, ModuleServiceImpl } from './service/module.service';
 
 import { useData } from './hook/data.hook';
 import { useId } from './hook/id.hook';
-import { useRef } from './hook/ref.hook';
+import { useDynamicRef } from './hook/dynamic-ref.hook';
 import { createStateHook } from './hook/state.hook';
 import { createEventHook } from './hook/event.hook';
 import { createModuleHook } from './hook/module.hook';
 import { createResourceHook } from './hook/resource.hook';
-import { createDependencyHook } from './hook/dependency.hook';
+import {
+    createDependencyHook,
+    createModuleDependencyHook,
+} from './hook/dependency.hook';
 import {
     createI18nHook,
     createTranslatorHook,
 } from './hook/internationalization.hook';
 import { createConfigHook } from './hook/config.hook';
 
-export * from '@sardonyxwt/event-bus';
+import { ModalControllerImpl } from './controller/modal.controller.component';
+import { ToastControllerImpl } from './controller/toast.controller.component';
+import { CoreConfig, Core } from './core';
+
 export * from '@sardonyxwt/state-store';
+export * from '@sardonyxwt/event-bus';
+
 export * from './types';
 export * from './context';
 
@@ -81,111 +60,67 @@ export * from './store/resource.store';
 export * from './store/internationalization.store';
 export * from './store/config.store';
 
-export * from './service/jsx.service';
 export * from './service/internationalization.service';
 export * from './service/config.service';
 export * from './service/resource.service';
 export * from './service/module.service';
-export * from './service/repository.service';
 
 export * from './hook/data.hook';
 export * from './hook/id.hook';
-export * from './hook/ref.hook';
-export * from './hook/state.hook';
+export * from './hook/dynamic-ref.hook';
 export * from './hook/event.hook';
 export * from './hook/dependency.hook';
 export * from './hook/internationalization.hook';
 export * from './hook/config.hook';
 export * from './hook/module.hook';
 export * from './hook/resource.hook';
+export * from './hook/state.hook';
+
+export * from './hoc/dependencies.hoc';
+
+export * from './controller/modal.controller.component';
+export * from './controller/toast.controller.component';
+
+export * from './util/validation.utils';
+export * from './util/exception.utils';
+export * from './util/converter.utils';
+export * from './util/generator.util';
+export * from './util/object.utils';
+export * from './util/path.utils';
+export * from './util/jsx.utils';
+export * from './util/url.utils';
+
+export * from './context/module.context';
+
+export * from './core';
 
 export { Container };
 
-export interface LiguiConfig {
-    name: string;
-    bottle?: Container;
-    modules?: Module[];
-    resources?: Resource[];
-    configs?: Config[];
-    locales?: string[];
-    currentLocale?: string;
-    defaultLocale?: string;
-    translateUnits?: TranslateUnit[];
-    moduleLoaders?: ModuleLoader[];
-    resourceLoaders?: ResourceLoader[];
-    internationalizationLoaders?: TranslateUnitLoader[];
-    configLoaders?: ConfigLoader[];
-}
-
-export interface Ligui {
-    readonly jsx: JSXService;
-    readonly resource: {
-        store: ResourceStore;
-        service: ResourceService;
-    };
-    readonly internationalization: {
-        store: InternationalizationStore;
-        service: InternationalizationService;
-    };
-    readonly config: {
-        store: ConfigStore;
-        service: ConfigService;
-    };
-    readonly module: {
-        store: ModuleStore;
-        service: ModuleService;
-    };
-    readonly repository: RepositoryService;
-    readonly context: Context;
-    readonly store: Store;
-    readonly eventBus: EventBus;
-    readonly bottle: Container;
-    readonly container: Container.IContainer;
-
-    createStore: typeof createStore;
-    isStoreExist: typeof isStoreExist;
-    getStore: typeof getStore;
-    getState: typeof getState;
-    setStoreDevTool: typeof setStoreDevTool;
-
-    createEventBus: typeof createEventBus;
-    isEventBusExist: typeof isEventBusExist;
-    getEventBus: typeof getEventBus;
-    setEventBusDevTool: typeof setEventBusDevTool;
-
-    useId: typeof useId;
-    useRef: typeof useRef;
-    useData: typeof useData;
-    useState: ReturnType<typeof createStateHook>;
-    useEvent: ReturnType<typeof createEventHook>;
-    useDependency: ReturnType<typeof createDependencyHook>;
-    useModule: ReturnType<typeof createModuleHook>;
-    useResource: ReturnType<typeof createResourceHook>;
-    useI18n: ReturnType<typeof createI18nHook>;
-    useTranslator: ReturnType<typeof createTranslatorHook>;
-    useConfig: ReturnType<typeof createConfigHook>;
-}
-
-export function createNewLiguiInstance(config: LiguiConfig): Ligui {
-    // Check Ligui instance is present for HMR
+/**
+ * @function createCoreInstance
+ * @description Create core instance and register it on global.
+ * @param config {CoreConfig} Initial config for core module.
+ * @returns {Core}
+ */
+export function createCoreInstance(config: CoreConfig): Core {
+    // Check Core instance is present for HMR
     if (!!global[config.name]) {
         throw new Error(
-            `Ligui instance present in global object with name: ${config.name}`,
+            `Core instance present in global object with name: ${config.name}`,
         );
     }
 
     const context = createContext(config.name, config.bottle);
 
-    context.bottle.constant(LIGUI_TYPES.STORE, context.store);
-    context.bottle.constant(LIGUI_TYPES.EVENT_BUS, context.eventBus);
+    context.bottle.constant(CoreTypes.EventBus, context.eventBus);
 
-    context.bottle.factory(LIGUI_TYPES.CONFIG_STORE, () =>
+    context.bottle.factory(CoreTypes.ConfigStore, () =>
         createConfigStore(context.store, {
             configs: config.configs,
         }),
     );
 
-    context.bottle.factory(LIGUI_TYPES.INTERNATIONALIZATION_STORE, () =>
+    context.bottle.factory(CoreTypes.InternationalizationStore, () =>
         createInternationalizationStore(context.store, {
             locales: config.locales,
             currentLocale: config.currentLocale,
@@ -194,122 +129,137 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
         }),
     );
 
-    context.bottle.factory(LIGUI_TYPES.MODULE_STORE, () =>
+    context.bottle.factory(CoreTypes.ModuleStore, () =>
         createModuleStore(context.store, {
             modules: config.modules,
         }),
     );
 
-    context.bottle.factory(LIGUI_TYPES.RESOURCE_STORE, () =>
+    context.bottle.factory(CoreTypes.ResourceStore, () =>
         createResourceStore(context.store, {
             resources: config.resources,
         }),
     );
 
     context.bottle.factory(
-        LIGUI_TYPES.CONFIG_SERVICE,
+        CoreTypes.ConfigService,
         (container) =>
             new ConfigServiceImpl(
-                container[LIGUI_TYPES.CONFIG_STORE] as ConfigStore,
+                container[CoreTypes.ConfigStore] as ConfigStore,
                 config.configLoaders,
             ),
     );
 
     context.bottle.factory(
-        LIGUI_TYPES.INTERNATIONALIZATION_SERVICE,
+        CoreTypes.InternationalizationService,
         (container) =>
             new InternationalizationServiceImpl(
                 container[
-                    LIGUI_TYPES.INTERNATIONALIZATION_STORE
+                    CoreTypes.InternationalizationStore
                 ] as InternationalizationStore,
-                config.internationalizationLoaders,
+                config.translateUnitLoaders,
             ),
     );
 
-    context.bottle.factory(LIGUI_TYPES.JSX_SERVICE, () => new JSXServiceImpl());
-
     context.bottle.factory(
-        LIGUI_TYPES.MODULE_SERVICE,
+        CoreTypes.ModuleService,
         (container) =>
             new ModuleServiceImpl(
-                container[LIGUI_TYPES.MODULE_STORE] as ModuleStore,
+                container[CoreTypes.ModuleStore] as ModuleStore,
                 config.moduleLoaders,
             ),
     );
 
     context.bottle.factory(
-        LIGUI_TYPES.REPOSITORY_SERVICE,
-        () => new RepositoryServiceImpl(),
-    );
-
-    context.bottle.factory(
-        LIGUI_TYPES.RESOURCE_SERVICE,
+        CoreTypes.ResourceService,
         (container) =>
             new ResourceServiceImpl(
-                container[LIGUI_TYPES.RESOURCE_STORE] as ResourceStore,
+                container[CoreTypes.ResourceStore] as ResourceStore,
                 config.resourceLoaders,
             ),
     );
 
-    const ligui: Ligui = {
-        get jsx() {
-            return context.bottle.container[
-                LIGUI_TYPES.JSX_SERVICE
-            ] as JSXService;
-        },
+    context.bottle.factory(
+        CoreTypes.ModalController,
+        () => ModalControllerImpl.instance,
+    );
+
+    context.bottle.factory(
+        CoreTypes.ToastController,
+        () => ToastControllerImpl.instance,
+    );
+
+    const core: Core = {
         get resource() {
             return {
-                store: context.bottle.container[
-                    LIGUI_TYPES.RESOURCE_STORE
-                ] as ResourceStore,
-                service: context.bottle.container[
-                    LIGUI_TYPES.RESOURCE_SERVICE
-                ] as ResourceService,
+                get store() {
+                    return context.bottle.container[
+                        CoreTypes.ResourceStore
+                    ] as ResourceStore;
+                },
+                get service() {
+                    return context.bottle.container[
+                        CoreTypes.ResourceService
+                    ] as ResourceService;
+                },
             };
         },
         get internationalization() {
             return {
-                store: context.bottle.container[
-                    LIGUI_TYPES.INTERNATIONALIZATION_STORE
-                ] as InternationalizationStore,
-                service: context.bottle.container[
-                    LIGUI_TYPES.INTERNATIONALIZATION_SERVICE
-                ] as InternationalizationService,
+                get store() {
+                    return context.bottle.container[
+                        CoreTypes.InternationalizationStore
+                    ] as InternationalizationStore;
+                },
+                get service() {
+                    return context.bottle.container[
+                        CoreTypes.InternationalizationService
+                    ] as InternationalizationService;
+                },
             };
         },
         get config() {
             return {
-                store: context.bottle.container[
-                    LIGUI_TYPES.CONFIG_STORE
-                ] as ConfigStore,
-                service: context.bottle.container[
-                    LIGUI_TYPES.CONFIG_SERVICE
-                ] as ConfigService,
+                get store() {
+                    return context.bottle.container[
+                        CoreTypes.ConfigStore
+                    ] as ConfigStore;
+                },
+                get service() {
+                    return context.bottle.container[
+                        CoreTypes.ConfigService
+                    ] as ConfigService;
+                },
             };
         },
         get module() {
             return {
-                store: context.bottle.container[
-                    LIGUI_TYPES.MODULE_STORE
-                ] as ModuleStore,
-                service: context.bottle.container[
-                    LIGUI_TYPES.MODULE_SERVICE
-                ] as ModuleService,
+                get store() {
+                    return context.bottle.container[
+                        CoreTypes.ModuleStore
+                    ] as ModuleStore;
+                },
+                get service() {
+                    return context.bottle.container[
+                        CoreTypes.ModuleService
+                    ] as ModuleService;
+                },
             };
         },
-        get repository() {
-            return context.bottle.container[
-                LIGUI_TYPES.REPOSITORY_SERVICE
-            ] as RepositoryService;
+        get modal() {
+            return context.bottle.container[CoreTypes.ModalController];
+        },
+        get toast() {
+            return context.bottle.container[CoreTypes.ToastController];
         },
         get context() {
             return context;
         },
-        get store() {
-            return context.store;
-        },
         get eventBus() {
             return context.eventBus;
+        },
+        get store() {
+            return context.store;
         },
         get bottle() {
             return context.bottle;
@@ -318,31 +268,26 @@ export function createNewLiguiInstance(config: LiguiConfig): Ligui {
             return context.bottle.container;
         },
 
-        createStore: createStore,
-        isStoreExist: isStoreExist,
-        getState: getState,
-        getStore: getStore,
-        setStoreDevTool: setStoreDevTool,
-
         createEventBus: createEventBus,
         isEventBusExist: isEventBusExist,
         getEventBus: getEventBus,
         setEventBusDevTool: setEventBusDevTool,
 
         useId,
-        useRef,
         useData,
-        useState: createStateHook(context.store),
-        useEvent: createEventHook(context.eventBus),
-        useModule: createModuleHook(context.bottle.container),
-        useResource: createResourceHook(context.bottle.container),
-        useI18n: createI18nHook(context.bottle.container),
-        useTranslator: createTranslatorHook(context.bottle.container),
-        useConfig: createConfigHook(context.bottle.container),
-        useDependency: createDependencyHook(context.bottle.container),
+        useDynamicRef,
+        useState: createStateHook(config.name),
+        useEvent: createEventHook(config.name),
+        useModule: createModuleHook(config.name),
+        useResource: createResourceHook(config.name),
+        useI18n: createI18nHook(config.name),
+        useTranslator: createTranslatorHook(config.name),
+        useConfig: createConfigHook(config.name),
+        useDependency: createDependencyHook(config.name),
+        useModuleDependency: createModuleDependencyHook(config.name),
     };
 
-    global[config.name] = ligui;
+    global[config.name] = core;
 
-    return ligui;
+    return core;
 }
