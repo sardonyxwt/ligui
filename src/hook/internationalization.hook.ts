@@ -98,6 +98,7 @@ export const createTranslatorHook = (
         const getTranslator = (): Translator => {
             const translator = core.internationalization.service.getTranslator(
                 internationalizationContext,
+                core.internationalization.store.getCurrentLocale(),
             );
             translator.prefix = `${translateUnitKey}.`;
             return translator;
@@ -164,7 +165,8 @@ export const createTranslatorHook = (
         return [
             translator ||
                 ((<T>(_, argsOrDefaultValue?: T | TranslatorArgs<T>) =>
-                    typeof argsOrDefaultValue === 'object'
+                    typeof argsOrDefaultValue === 'object' &&
+                    !Array.isArray(argsOrDefaultValue)
                         ? (argsOrDefaultValue as TranslatorArgs<T>).defaultValue
                         : argsOrDefaultValue) as Translator),
             !!translator,
